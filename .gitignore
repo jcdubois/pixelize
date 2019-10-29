@@ -54,6 +54,7 @@ dkms.conf
 # Generated binaries
 make_db
 pixelize
+core
 
 # Generated database
 pic_db.dat
