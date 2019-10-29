@@ -50,3 +50,13 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Generated binaries
+make_db
+pixelize
+
+# Generated database
+pic_db.dat
+
+# depend file
+depend
