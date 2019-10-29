@@ -14,24 +14,19 @@ OBJS = main.o setup_menu.o callback_menu.o help.o options.o \
 
 all:	make_db pixelize
 
-merge:	merge.o read_line.o stats.o
-	$(CC) -o $@ merge.o read_line.o stats.o $(DFLAGS) $(LIBS)
-
 make_db:	make_db.o
 	$(CC) -o $@ make_db.o $(DFLAGS) $(LIBS)
-
-#	$(CC) -o $@ make_db.o `pkg-config --libs imlib2` $(LIBS)
 
 pixelize:	$(OBJS)
 	$(CC) -o $@ $(OBJS) $(DFLAGS) $(LIBS)
 
-.c.o:
+.c.o:	depend
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 depend:
 	$(CC) -MM $(CFLAGS) *.c > depend
 
 clean:
-	rm -f *.o pixelize make_db core
+	rm -f *.o pixelize make_db core depend
 
 include depend
