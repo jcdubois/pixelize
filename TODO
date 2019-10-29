@@ -1,0 +1,29 @@
+TODO list from Pixelize 1.0.0
+
+- Option to toggle between the origional and rendered image.
+
+- Option to tag good images and scroll between them
+
+- make_db meeds to know about your X display.  This is
+  stupid since make_db never opens any windows.  This is
+  an issue with imlib.
+  
+- Add an option to make_db to update the pic_db.dat file by
+  somehow checking if files have been added, removed
+  or changed, and then changing pic_db.dat as required.
+
+- Make all of the error and warning messages that Pixelize
+  currently prints to the console, come up in a popup
+  window.
+
+- Hourglass
+   - Done v0.9.0
+
+- Make Pixelize deal with aspect ratios correctly.  I think
+  this will be really hard, since the current way of storing
+  the info in pic_db.dat knows nothing about aspect ratio.
+
+- Write man pages.
+
+- Add a percent done thingy to Pixelize when reading pic_db.dat.
+
