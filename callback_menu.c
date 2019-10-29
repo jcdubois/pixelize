@@ -19,15 +19,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* callback_menu.c by Paul Wilkins 1/2/2000 */
 
-#include <gtk/gtk.h>
-#include <stdio.h>
+#include "callback_menu.h"
 #include "file_dialog.h"
 #include "globals.h"
 #include "help.h"
 #include "menu.h"
 #include "options.h"
 #include "render.h"
-#include "callback_menu.h"
+#include <gtk/gtk.h>
+#include <stdio.h>
 
 gint delete_event(GtkWidget *w, GdkEvent *e, gpointer d) {
   (void)w;
@@ -38,50 +38,50 @@ gint delete_event(GtkWidget *w, GdkEvent *e, gpointer d) {
 }
 
 void destroy(GtkWidget *widget, gpointer data) {
-  (void) widget;
-  (void) data;
+  (void)widget;
+  (void)data;
 
   gtk_main_quit();
 }
 
 /* quit the program */
 void quitCB(gpointer data) {
-  (void) data;
+  (void)data;
 
   gtk_main_quit();
 }
 
 /* open an image to render */
 void openCB(gpointer data) {
-  (void) data;
+  (void)data;
 
   file_open_dialog(NULL);
 }
 
 /* save the rendered image */
 void saveCB(gpointer data) {
-  (void) data;
+  (void)data;
 
   file_save_dialog(NULL);
 }
 
 /* render the image */
 void renderCB(gpointer data) {
-  (void) data;
+  (void)data;
 
   render();
 }
 
 /* display licence info */
 void licenseCB(gpointer data) {
-  (void) data;
+  (void)data;
 
   license_popup();
 }
 
 /* display help info */
 void helpCB(gpointer data) {
-  (void) data;
+  (void)data;
 
   help_popup();
 }

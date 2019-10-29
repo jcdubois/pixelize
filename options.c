@@ -175,7 +175,8 @@ void optionsCB(gpointer data) {
 
       gtk_window_set_title(GTK_WINDOW(optWindow), "Options");
 
-      g_signal_connect(optWindow, "destroy", G_CALLBACK(gtk_widget_destroyed), &optWindow);
+      g_signal_connect(optWindow, "destroy", G_CALLBACK(gtk_widget_destroyed),
+                       &optWindow);
 
       gtk_container_set_border_width(GTK_CONTAINER(optWindow), 4);
 
@@ -209,7 +210,7 @@ void optionsCB(gpointer data) {
             GtkWidget *label;
             GtkWidget *entry;
 
-	    fprintf(stderr, "%s: creating option window\n", __func__);
+            fprintf(stderr, "%s: creating option window\n", __func__);
 
             gtk_container_set_border_width(GTK_CONTAINER(vbox2), 4);
             gtk_container_add(GTK_CONTAINER(frame), vbox2);
@@ -222,7 +223,8 @@ void optionsCB(gpointer data) {
 
             size_button = button = gtk_radio_button_new_with_label(NULL, "");
             gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-            g_signal_connect(button, "toggled", G_CALLBACK(pix_opt_alg_CB), (gpointer)PIX_SIZE);
+            g_signal_connect(button, "toggled", G_CALLBACK(pix_opt_alg_CB),
+                             (gpointer)PIX_SIZE);
             gtk_widget_show(button);
 
             label = gtk_label_new("Image Sizes: ");
@@ -230,9 +232,10 @@ void optionsCB(gpointer data) {
             gtk_widget_show(label);
 
             size_x_entry = entry = gtk_entry_new();
-	    gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-	    gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_size_x_CB), entry);
+            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
+            gtk_widget_set_size_request(entry, 50, -1);
+            g_signal_connect(entry, "activate", G_CALLBACK(pix_size_x_CB),
+                             entry);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
@@ -241,9 +244,10 @@ void optionsCB(gpointer data) {
             gtk_widget_show(label);
 
             size_y_entry = entry = gtk_entry_new();
-	    gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-	    gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_size_y_CB), entry);
+            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
+            gtk_widget_set_size_request(entry, 50, -1);
+            g_signal_connect(entry, "activate", G_CALLBACK(pix_size_y_CB),
+                             entry);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
@@ -259,7 +263,8 @@ void optionsCB(gpointer data) {
             group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
             count_button = button = gtk_radio_button_new_with_label(group, "");
             gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-            g_signal_connect(button, "toggled", G_CALLBACK(pix_opt_alg_CB), (gpointer)PIX_COUNT);
+            g_signal_connect(button, "toggled", G_CALLBACK(pix_opt_alg_CB),
+                             (gpointer)PIX_COUNT);
             gtk_widget_show(button);
 
             label = gtk_label_new("Number of Images: ");
@@ -267,9 +272,10 @@ void optionsCB(gpointer data) {
             gtk_widget_show(label);
 
             count_x_entry = entry = gtk_entry_new();
-	    gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-	    gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_count_x_CB), entry);
+            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
+            gtk_widget_set_size_request(entry, 50, -1);
+            g_signal_connect(entry, "activate", G_CALLBACK(pix_count_x_CB),
+                             entry);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
@@ -278,10 +284,10 @@ void optionsCB(gpointer data) {
             gtk_widget_show(label);
 
             count_y_entry = entry = gtk_entry_new();
-	    gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-	    gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate",
-                               G_CALLBACK(pix_count_y_CB), entry);
+            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
+            gtk_widget_set_size_request(entry, 50, -1);
+            g_signal_connect(entry, "activate", G_CALLBACK(pix_count_y_CB),
+                             entry);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
@@ -296,9 +302,10 @@ void optionsCB(gpointer data) {
             gtk_widget_show(label);
 
             entry = gtk_entry_new();
-	    gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-	    gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_proximity_CB), entry);
+            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
+            gtk_widget_set_size_request(entry, 50, -1);
+            g_signal_connect(entry, "activate", G_CALLBACK(pix_proximity_CB),
+                             entry);
             sprintf(buf, "%u", globals.new_opt.proximity);
             gtk_entry_set_text(GTK_ENTRY(entry), buf);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
@@ -319,17 +326,17 @@ void optionsCB(gpointer data) {
             // gtk_widget_show(button);
 
             button = gtk_button_new_with_label("Apply");
-	    g_signal_connect_swapped(button, "clicked",
-                                      G_CALLBACK(gtk_widget_destroy),
-                                      GTK_OBJECT(optWindow));
+            g_signal_connect_swapped(button, "clicked",
+                                     G_CALLBACK(gtk_widget_destroy),
+                                     GTK_OBJECT(optWindow));
             // gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
             gtk_box_pack_start(GTK_BOX(vbox), button, TRUE, TRUE, 0);
-	    gtk_widget_set_can_default(button, TRUE);
+            gtk_widget_set_can_default(button, TRUE);
             gtk_widget_show(button);
 
-	    fprintf(stderr, "%s: option window created\n", __func__);
+            fprintf(stderr, "%s: option window created\n", __func__);
           } else {
-          fprintf(stderr, "%s: failed to create vbox2\n", __func__);
+            fprintf(stderr, "%s: failed to create vbox2\n", __func__);
             return;
           }
         } else {
@@ -348,11 +355,11 @@ void optionsCB(gpointer data) {
 
   /* set the toggle buttons to the right state */
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(size_button),
-                              globals.new_opt.opt_alg == PIX_SIZE ? TRUE
-                                                                  : FALSE);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(count_button),
-                              globals.new_opt.opt_alg == PIX_COUNT ? TRUE
+                               globals.new_opt.opt_alg == PIX_SIZE ? TRUE
                                                                    : FALSE);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(count_button),
+                               globals.new_opt.opt_alg == PIX_COUNT ? TRUE
+                                                                    : FALSE);
 
   /* set the test entry boxes to the right state */
   refresh_options_win(&(globals.new_opt));
@@ -364,7 +371,6 @@ void optionsCB(gpointer data) {
     gtk_widget_destroy(optWindow);
   }
 #else
-    gtk_widget_show(optWindow);
+  gtk_widget_show(optWindow);
 #endif
 }
-

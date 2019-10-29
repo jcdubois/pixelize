@@ -78,11 +78,12 @@ void popup_window(GtkWidget **dialog, char *txt, char *title) {
     *dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(*dialog), title);
 
-    g_signal_connect(*dialog, "destroy", G_CALLBACK(gtk_widget_destroyed), dialog);
+    g_signal_connect(*dialog, "destroy", G_CALLBACK(gtk_widget_destroyed),
+                     dialog);
     gtk_container_set_border_width(GTK_CONTAINER(*dialog), 5);
 
     gtk_window_set_title(GTK_WINDOW(*dialog), title);
-    gtk_widget_set_size_request (*dialog, 470, 470);
+    gtk_widget_set_size_request(*dialog, 470, 470);
 
     vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(*dialog), vbox);
@@ -96,16 +97,18 @@ void popup_window(GtkWidget **dialog, char *txt, char *title) {
     gtk_widget_show(scrolled_win);
 
     label = gtk_label_new(txt);
-    g_signal_connect(label, "destroy", G_CALLBACK(gtk_widget_destroyed), &label);
+    g_signal_connect(label, "destroy", G_CALLBACK(gtk_widget_destroyed),
+                     &label);
     gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_win),
                                           label);
     gtk_widget_show(label);
 
     button = gtk_button_new_with_label("Dismiss");
-    g_signal_connect_swapped (button, "clicked", G_CALLBACK(gtk_widget_destroy), GTK_OBJECT(*dialog));
+    g_signal_connect_swapped(button, "clicked", G_CALLBACK(gtk_widget_destroy),
+                             GTK_OBJECT(*dialog));
     gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    //GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+    // GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_widget_set_can_default(button, TRUE);
     /* gtk_widget_grab_default(button);  This puts an ugly box around the botton
      */

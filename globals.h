@@ -23,9 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
-#include <stdbool.h>
-#include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gtk/gtk.h>
+#include <stdbool.h>
 
 #define PIX_SIZE 0x1
 #define PIX_COUNT 0x2
@@ -41,17 +41,17 @@ struct IMAGE_OPTIONS {
 /* globals we use alot */
 struct GLOBALS {
 
-  GtkWidget *topwin;         /* the main window */
-  GtkWidget *ebox;           /* an event box around the scrolled window */
+  GtkWidget *topwin; /* the main window */
+  GtkWidget *ebox;   /* an event box around the scrolled window */
 
-  GtkWidget *picScroll;      /* drawing area scrollbar widget */
-  GtkWidget *picDA;          /* drawing area widget */
-  //GdkPixmap *pixmap;         /* pixmap of the image */
+  GtkWidget *picScroll; /* drawing area scrollbar widget */
+  GtkWidget *picDA;     /* drawing area widget */
+  // GdkPixmap *pixmap;         /* pixmap of the image */
 
   struct PIC_DB *head;       /* the image database */
   struct IMAGE_INFO **image; /* the constructed image */
 
-  unsigned int max_order;    /* maximum order when fitting images */
+  unsigned int max_order; /* maximum order when fitting images */
 
   struct IMAGE_OPTIONS cur_opt;
   struct IMAGE_OPTIONS new_opt;

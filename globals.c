@@ -44,7 +44,7 @@ int init_globals() {
   globals.in_fname = NULL;
   globals.in_im = NULL;
   globals.in_im_scaled = NULL;
-  //globals.pixmap = NULL;
+  // globals.pixmap = NULL;
   globals.out_fname = NULL;
   globals.out_im = NULL;
   globals.start_fname = NULL;

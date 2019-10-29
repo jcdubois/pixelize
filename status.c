@@ -50,8 +50,9 @@ void set_progress_indicator(double val) {
     }
 
     /* force an update NOW */
-    gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(progress_bar)), NULL, TRUE);
-    //gtk_widget_draw(GTK_WIDGET(progress_bar), NULL);
+    gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(progress_bar)),
+                               NULL, TRUE);
+    // gtk_widget_draw(GTK_WIDGET(progress_bar), NULL);
     gdk_flush();
   }
 }

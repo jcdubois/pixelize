@@ -63,9 +63,9 @@ struct PIC_DB *read_database(unsigned int *max_order) {
   unsigned int ndb = 0;
   unsigned int size;
   char line[1024];
-  FILE *dbfp          = NULL;
+  FILE *dbfp = NULL;
   struct PIC_DB *head = NULL;
-  struct PIC_DB *db   = NULL;
+  struct PIC_DB *db = NULL;
 
   if (NULL == (dbfp = fopen("pic_db.dat", "r"))) {
     fprintf(stderr, "Error opening pic_db.dat for read\n");

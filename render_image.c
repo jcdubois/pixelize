@@ -171,7 +171,8 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, unsigned int nPixW,
       g_object_unref(scale_im_alpha);
 
       /* update the progress bar */
-      set_progress_indicator((double)(hh * nPixW + ww + 1) / (double)(nPixH * nPixW));
+      set_progress_indicator((double)(hh * nPixW + ww + 1) /
+                             (double)(nPixH * nPixW));
     }
   }
 

@@ -179,28 +179,34 @@ GtkWidget *setup_display(GtkWidget *parent) {
 
   /***** create the drawing area *****/
   globals.picDA = gtk_drawing_area_new();
-  //gtk_drawing_area_size(GTK_DRAWING_AREA(globals.picDA), wid, hgt);
+  // gtk_drawing_area_size(GTK_DRAWING_AREA(globals.picDA), wid, hgt);
 
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(globals.picScroll),
                                         globals.picDA);
   gtk_widget_show(globals.picDA);
 
   /* Signals used to handle window ops */
-  g_signal_connect(GTK_OBJECT(globals.picDA), "expose_event", G_CALLBACK(ExposeCB), NULL);
-  g_signal_connect(GTK_OBJECT(globals.picDA), "configure_event", G_CALLBACK(ResizeCB), NULL);
+  g_signal_connect(GTK_OBJECT(globals.picDA), "expose_event",
+                   G_CALLBACK(ExposeCB), NULL);
+  g_signal_connect(GTK_OBJECT(globals.picDA), "configure_event",
+                   G_CALLBACK(ResizeCB), NULL);
 
   /* Event signals (Input) */
-  g_signal_connect(GTK_OBJECT(globals.picDA), "button_press_event", G_CALLBACK(ButtonPressEvnt), NULL);
-  g_signal_connect(GTK_OBJECT(globals.picDA), "button_release_event", G_CALLBACK(ButtonReleaseEvnt), NULL);
-  g_signal_connect_after(GTK_OBJECT(globals.picDA), "key_press_event", G_CALLBACK(KeyPressEvnt), NULL);
-  g_signal_connect_after(GTK_OBJECT(globals.picDA), "key_release_event", G_CALLBACK (KeyReleaseEvnt), NULL);
+  g_signal_connect(GTK_OBJECT(globals.picDA), "button_press_event",
+                   G_CALLBACK(ButtonPressEvnt), NULL);
+  g_signal_connect(GTK_OBJECT(globals.picDA), "button_release_event",
+                   G_CALLBACK(ButtonReleaseEvnt), NULL);
+  g_signal_connect_after(GTK_OBJECT(globals.picDA), "key_press_event",
+                         G_CALLBACK(KeyPressEvnt), NULL);
+  g_signal_connect_after(GTK_OBJECT(globals.picDA), "key_release_event",
+                         G_CALLBACK(KeyReleaseEvnt), NULL);
 
   gtk_widget_set_events(globals.picDA,
                         GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK |
                             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
                             GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
 
-  gtk_widget_set_can_focus (globals.picDA, TRUE);
+  gtk_widget_set_can_focus(globals.picDA, TRUE);
   gtk_widget_grab_focus(globals.picDA);
 
   return globals.picScroll;
@@ -223,8 +229,8 @@ void resize_window() {
     h = globals.cur_opt.height;
   }
 
-  //gtk_drawing_area_size(GTK_DRAWING_AREA(globals.picDA), globals.cur_opt.width,
-                        //globals.cur_opt.height);
+  // gtk_drawing_area_size(GTK_DRAWING_AREA(globals.picDA),
+  // globals.cur_opt.width, globals.cur_opt.height);
 
   gdk_window_resize(gtk_widget_get_window(GTK_WIDGET(globals.topwin)), w, h);
   /*
@@ -233,5 +239,5 @@ void resize_window() {
 
   /* set the size of the window, and allow user resizing */
   gtk_widget_set_size_request(GTK_WIDGET(globals.picScroll), w, h);
-  //gtk_window_set_policy(GTK_WINDOW(globals.topwin), TRUE, TRUE, TRUE);
+  // gtk_window_set_policy(GTK_WINDOW(globals.topwin), TRUE, TRUE, TRUE);
 }

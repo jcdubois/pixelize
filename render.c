@@ -81,7 +81,6 @@ void average_image_area(struct PIX *avg, GdkPixbuf *im, unsigned int x,
   avg->r /= (double)(w * h);
   avg->g /= (double)(w * h);
   avg->b /= (double)(w * h);
-
 }
 
 static double calc_stddev(GdkPixbuf *im, unsigned int x, unsigned int y,
@@ -148,9 +147,9 @@ static int init_db() {
   return 1;
 }
 
-static unsigned int *gen_master_data(GdkPixbuf *im, unsigned int x, unsigned int y,
-                     unsigned int nPixW, unsigned int nPixH,
-                     unsigned int order) {
+static unsigned int *gen_master_data(GdkPixbuf *im, unsigned int x,
+                                     unsigned int y, unsigned int nPixW,
+                                     unsigned int nPixH, unsigned int order) {
   unsigned int w, h;
   unsigned int xx, yy, ww, hh;
   unsigned int pxx, pyy;
@@ -355,7 +354,8 @@ int render() {
       image[hh][ww].matches = matches;
 
       /* update the progress bar */
-      set_progress_indicator((double)(hh * nPixW + ww + 1) / (double)(nPixH * nPixW));
+      set_progress_indicator((double)(hh * nPixW + ww + 1) /
+                             (double)(nPixH * nPixW));
     }
   }
 
@@ -368,7 +368,7 @@ int render() {
 
     /* find the next free image */
     while (image[hh][ww].db != NULL) {
-      ww = (ww +1) % nPixW;
+      ww = (ww + 1) % nPixW;
       if (ww == 0) {
         hh = (hh + 1) % nPixH;
       }

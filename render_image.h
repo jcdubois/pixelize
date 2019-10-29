@@ -23,9 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __RENDER_IMAGE_H
 #define __RENDER_IMAGE_H
 
-#include <stdbool.h>
-#include "read_db.h"
 #include "globals.h"
+#include "read_db.h"
+#include <stdbool.h>
 
 struct IMAGE_INFO {
   unsigned int nMatch;     /* number of matches in matches */

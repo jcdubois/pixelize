@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /* callback_menu.h by Paul Wilkins  1/2/2000 */
 
-
 #ifndef __CALLBACK_MENU_H
 #define __CALLBACK_MENU_H
 

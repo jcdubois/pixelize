@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 int main(int argc, char *argv[]) {
   GtkWidget *main_w;
   GtkWidget *vbox;
-  //GdkBitmap *icon_bitmap;
+  // GdkBitmap *icon_bitmap;
 
   /* initialize gtk */
   gtk_init(&argc, &argv);
@@ -90,9 +90,9 @@ int main(int argc, char *argv[]) {
 
   gtk_widget_show(main_w);
 
-  //gdk_window_move(GGTK_WIDGET(main_w)->window, 100, 100);
+  // gdk_window_move(GGTK_WIDGET(main_w)->window, 100, 100);
   gdk_window_move(gtk_widget_get_window(GTK_WIDGET(main_w)), 100, 100);
-  //gdk_window_set_hints(GTK_WIDGET(main_w)->window, 100, 100, 300, 300, 0, 0,
+  // gdk_window_set_hints(GTK_WIDGET(main_w)->window, 100, 100, 300, 300, 0, 0,
   //                     GDK_HINT_POS | GDK_HINT_MIN_SIZE);
 
 #if 0

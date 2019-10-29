@@ -26,7 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "find_match.h"
 #include "read_db.h"
 
-struct PIC_DB **find_match(unsigned int order, unsigned int *match_data, struct PIC_DB *head) {
+struct PIC_DB **find_match(unsigned int order, unsigned int *match_data,
+                           struct PIC_DB *head) {
   unsigned int i, j;
   unsigned int r, g, b;
   unsigned int r1, g1, b1;

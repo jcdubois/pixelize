@@ -24,9 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <X11/extensions/shape.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <unistd.h>
 
 // #include <Imlib2.h>
@@ -210,7 +210,7 @@ int main(int argc, char **argv) {
         }
       }
     }
-    //gdk_pixbuf_unref(pb);
+    // gdk_pixbuf_unref(pb);
     g_object_unref(pb);
   }
   if (write_db)
