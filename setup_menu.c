@@ -19,192 +19,122 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* setup_menu.c by Paul Wilkins 1/2/2000 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef USE_GNOME
-#include <gnome.h>
-#endif
 #include <gtk/gtk.h>
 /* #include <gdk_imlib.h> */
 
 #include "globals.h"
 #include "menu.h"
 #include "options.h"
-
-extern void quitCB(gpointer);
-extern void openCB(gpointer);
-extern void saveCB(gpointer);
-extern void renderCB(gpointer);
-extern void optionsCB(gpointer);
-extern void licenseCB(gpointer);
-extern void helpCB(gpointer);
-
-
-#ifdef USE_GNOME
-
-GnomeUIInfo filemenu[] = {
-   {GNOME_APP_UI_ITEM, 
-      "Open Image", "Open an image to render to",
-      openCB, NULL, NULL, 
-      GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-   {GNOME_APP_UI_ITEM, 
-      "Save Image", "Save the rendered image",
-      saveCB, NULL, NULL, 
-      GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-   GNOMEUIINFO_MENU_EXIT_ITEM(quitCB, NULL),
-   GNOMEUIINFO_END
-};
-GnomeUIInfo optmenu[] = {
-   {GNOME_APP_UI_ITEM, 
-      "Render", "Render the image",
-      renderCB, NULL, NULL, 
-      GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-   {GNOME_APP_UI_ITEM, 
-      "Options", "Options",
-      optionsCB, NULL, NULL, 
-      GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-   GNOMEUIINFO_END
-};
-GnomeUIInfo helpmenu[] = {
-   {GNOME_APP_UI_ITEM, 
-      "License", "License",
-      licenseCB, NULL, NULL, 
-      GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-   GNOMEUIINFO_HELP("grpn"),
-   GNOMEUIINFO_END
-};
-GnomeUIInfo mainmenu[] = {
-   GNOMEUIINFO_MENU_FILE_TREE(filemenu),
-   GNOMEUIINFO_MENU_HELP_TREE(optmenu),
-   GNOMEUIINFO_MENU_HELP_TREE(helpmenu),
-   GNOMEUIINFO_END
-};
-
+#include "callback_menu.h"
 
 /* create the menubar */
-GtkWidget *setup_menu(GtkWidget *parent)
-{
-   gnome_app_create_menus(GNOME_APP(parent), mainmenu);
+GtkWidget *setup_menu(GtkWidget *parent) {
+  GtkWidget *menu_bar;
+  GtkWidget *fileM, *fileI;
+  GtkWidget *openI;
+  GtkWidget *saveI;
+  GtkWidget *sepI;
+  GtkWidget *quitI;
+  GtkWidget *optM, *optI;
+  GtkWidget *renderI;
+  GtkWidget *optionsI;
+  GtkWidget *helpM, *helpI;
+  GtkWidget *hlpI;
+  GtkWidget *licenseI;
 
-   return NULL;
+  /********************************************************/
+
+  /* File */
+  fileM = gtk_menu_new(); /* Remember: don't gtk_widget_show the menu */
+
+  /* Open */
+  openI = gtk_menu_item_new_with_label("Open");
+  gtk_menu_shell_append(GTK_MENU_SHELL(fileM), openI);
+  gtk_widget_show(openI);
+  g_signal_connect_swapped(GTK_OBJECT(openI), "activate",
+                            G_CALLBACK(openCB), NULL);
+
+  /* Save */
+  saveI = gtk_menu_item_new_with_label("Save");
+  gtk_menu_shell_append(GTK_MENU_SHELL(fileM), saveI);
+  gtk_widget_show(saveI);
+  g_signal_connect_swapped(GTK_OBJECT(saveI), "activate",
+                            G_CALLBACK(saveCB), NULL);
+
+  /* separator */
+  sepI = gtk_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(fileM), sepI);
+  gtk_widget_show(sepI);
+
+  /* Quit */
+  quitI = gtk_menu_item_new_with_label("Quit");
+  gtk_menu_shell_append(GTK_MENU_SHELL(fileM), quitI);
+  gtk_widget_show(quitI);
+  g_signal_connect_swapped(GTK_OBJECT(quitI), "activate",
+                            G_CALLBACK(quitCB), NULL);
+
+  /********************************************************/
+
+  /* Options */
+  optM = gtk_menu_new(); /* Remember: don't gtk_widget_show the menu */
+
+  /* render */
+  renderI = gtk_menu_item_new_with_label("Render");
+  gtk_menu_shell_append(GTK_MENU_SHELL(optM), renderI);
+  gtk_widget_show(renderI);
+  g_signal_connect_swapped(GTK_OBJECT(renderI), "activate",
+                            G_CALLBACK(renderCB), NULL);
+
+  /* Options */
+  optionsI = gtk_menu_item_new_with_label("Options");
+  gtk_menu_shell_append(GTK_MENU_SHELL(optM), optionsI);
+  gtk_widget_show(optionsI);
+  g_signal_connect_swapped(GTK_OBJECT(optionsI), "activate",
+                            G_CALLBACK(optionsCB), NULL);
+
+  /********************************************************/
+
+  /* create the "Help" pulldown menu */
+  helpM = gtk_menu_new();
+
+  /* Help */
+  hlpI = gtk_menu_item_new_with_label("Help");
+  gtk_menu_shell_append(GTK_MENU_SHELL(helpM), hlpI);
+  gtk_widget_show(hlpI);
+  g_signal_connect_swapped(GTK_OBJECT(hlpI), "activate",
+                            G_CALLBACK(helpCB), NULL);
+  /* Help */
+  licenseI = gtk_menu_item_new_with_label("License");
+  gtk_menu_shell_append(GTK_MENU_SHELL(helpM), licenseI);
+  gtk_widget_show(licenseI);
+  g_signal_connect_swapped(GTK_OBJECT(licenseI), "activate",
+                            G_CALLBACK(licenseCB), NULL);
+
+  /********************************************************/
+
+  /* tell the menubar who is the heplp widget */
+
+  menu_bar = gtk_menu_bar_new();
+  gtk_box_pack_start(GTK_BOX(parent), menu_bar, FALSE, FALSE, 0);
+  gtk_widget_show(menu_bar);
+
+  fileI = gtk_menu_item_new_with_label("File");
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileI), fileM);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), fileI);
+  gtk_widget_show(fileI);
+
+  optI = gtk_menu_item_new_with_label("Options");
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(optI), optM);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), optI);
+  gtk_widget_show(optI);
+
+  helpI = gtk_menu_item_new_with_label("Help");
+  gtk_menu_item_set_right_justified(GTK_MENU_ITEM(helpI), TRUE );
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(helpI), helpM);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), helpI);
+  gtk_widget_show(helpI);
+
+  return menu_bar;
 }
-
-#else /* not USE_GNOME */
-
-/* create the menubar */
-GtkWidget *setup_menu(GtkWidget *parent)
-{
-   GtkWidget *menu_bar;
-   GtkWidget    *fileM, *fileI;
-   GtkWidget       *openI;
-   GtkWidget       *saveI;
-   GtkWidget       *sepI;
-   GtkWidget       *quitI;
-   GtkWidget    *optM, *optI;
-   GtkWidget       *renderI;
-   GtkWidget       *optionsI;
-   GtkWidget    *helpM, *helpI;
-   GtkWidget       *hlpI;
-   GtkWidget       *licenseI;
-
-
-
-   /********************************************************/
-
-   /* File */
-   fileM = gtk_menu_new(); /* Remember: don't gtk_widget_show the menu */
-
-      /* Open */
-      openI = gtk_menu_item_new_with_label("Open");
-      gtk_menu_append(GTK_MENU(fileM), openI);
-      gtk_widget_show(openI);
-      gtk_signal_connect_object(GTK_OBJECT(openI), "activate",
-				GTK_SIGNAL_FUNC(openCB), NULL);
-
-      /* Save */
-      saveI = gtk_menu_item_new_with_label("Save");
-      gtk_menu_append(GTK_MENU(fileM), saveI);
-      gtk_widget_show(saveI);
-      gtk_signal_connect_object(GTK_OBJECT(saveI), "activate",
-				GTK_SIGNAL_FUNC(saveCB), NULL);
-
-      /* separator */
-      sepI = gtk_menu_item_new();
-      gtk_menu_append(GTK_MENU(fileM), sepI);
-      gtk_widget_show(sepI);
-
-      /* Quit */
-      quitI = gtk_menu_item_new_with_label("Quit");
-      gtk_menu_append(GTK_MENU(fileM), quitI);
-      gtk_widget_show(quitI);
-      gtk_signal_connect_object(GTK_OBJECT(quitI), "activate",
-				GTK_SIGNAL_FUNC(quitCB), NULL);
-
-
-   /********************************************************/
-
-   /* Options */
-   optM = gtk_menu_new(); /* Remember: don't gtk_widget_show the menu */
-
-      /* render */
-      renderI = gtk_menu_item_new_with_label("Render");
-      gtk_menu_append(GTK_MENU(optM), renderI);
-      gtk_widget_show(renderI);
-      gtk_signal_connect_object(GTK_OBJECT(renderI), "activate",
-				GTK_SIGNAL_FUNC(renderCB), NULL);
-
-      /* Options */
-      optionsI = gtk_menu_item_new_with_label("Options");
-      gtk_menu_append(GTK_MENU(optM), optionsI);
-      gtk_widget_show(optionsI);
-      gtk_signal_connect_object(GTK_OBJECT(optionsI), "activate",
-				GTK_SIGNAL_FUNC(optionsCB), NULL);
-
-
-   /********************************************************/
-
-   /* create the "Help" pulldown menu */
-   helpM = gtk_menu_new();
-
-      /* Help */
-      hlpI = gtk_menu_item_new_with_label("Help");
-      gtk_menu_append(GTK_MENU(helpM), hlpI);
-      gtk_widget_show(hlpI);
-      gtk_signal_connect_object(GTK_OBJECT(hlpI), "activate",
-				GTK_SIGNAL_FUNC(helpCB), NULL);
-      /* Help */
-      licenseI = gtk_menu_item_new_with_label("License");
-      gtk_menu_append(GTK_MENU(helpM), licenseI);
-      gtk_widget_show(licenseI);
-      gtk_signal_connect_object(GTK_OBJECT(licenseI), "activate",
-				GTK_SIGNAL_FUNC(licenseCB), NULL);
-
-   /********************************************************/
-
-   /* tell the menubar who is the heplp widget */
-
-   menu_bar = gtk_menu_bar_new();
-   gtk_box_pack_start(GTK_BOX(parent), menu_bar, FALSE, FALSE, 0);
-   gtk_widget_show(menu_bar);
- 
-   fileI = gtk_menu_item_new_with_label("File");
-   gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileI), fileM);
-   gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), fileI);
-   gtk_widget_show(fileI);
-
-   optI = gtk_menu_item_new_with_label("Options");
-   gtk_menu_item_set_submenu(GTK_MENU_ITEM(optI), optM);
-   gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), optI);
-   gtk_widget_show(optI);
-
-   helpI = gtk_menu_item_new_with_label("Help");
-   gtk_menu_item_right_justify(GTK_MENU_ITEM(helpI));
-   gtk_menu_item_set_submenu(GTK_MENU_ITEM(helpI), helpM);
-   gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), helpI);
-   gtk_widget_show(helpI);
-
-   return menu_bar;
-}
-#endif  /* USE_GNOME */
-

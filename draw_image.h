@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DRAW_IMAGE_H
 #define __DRAW_IMAGE_H
 
+#include "globals.h"
+#include <gdk-pixbuf/gdk-pixbuf.h>
+
 int copy_opt_data();
 int calc_dimensions(struct IMAGE_OPTIONS *im_opt);
 void render_image_pixmap(GdkPixbuf *);

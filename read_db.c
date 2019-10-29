@@ -23,111 +23,110 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 
-#include "read_line.h"
 #include "read_db.h"
+#include "read_line.h"
 
-struct PIC_DB *malloc_db(int strlen, int n){
-   int i;
-   struct PIC_DB *db;
-   if(NULL == (db=malloc(sizeof(struct PIC_DB)))){
+struct PIC_DB *malloc_db(int strlen, int n) {
+  int i;
+  struct PIC_DB *db;
+  if (NULL == (db = malloc(sizeof(struct PIC_DB)))) {
+    perror("malloc");
+    exit(1);
+  }
+  if (NULL == (db->fname = malloc((strlen + 1) * sizeof(char)))) {
+    perror("malloc");
+    exit(1);
+  }
+  if (NULL == (db->data = malloc(n * sizeof(int *)))) {
+    perror("malloc");
+    exit(1);
+  }
+  for (i = 0; i < n; i++) {
+    if (NULL == (db->data[i] = malloc(3 * (i + 1) * (i + 1) * sizeof(int)))) {
       perror("malloc");
       exit(1);
-   }
-   if(NULL == (db->fname=malloc((strlen+1)*sizeof(char)))){
-      perror("malloc");
-      exit(1);
-   }
-   if(NULL == (db->data=malloc(n*sizeof(int *)))){
-      perror("malloc");
-      exit(1);
-   }
-   for(i=0; i<n; i++){
-      if(NULL == (db->data[i]=malloc(3*(i+1)*(i+1)*sizeof(int)))){
-	 perror("malloc");
-	 exit(1);
-      }
-   }
-   return db;
+    }
+  }
+  return db;
 }
 
+void reset_db_data(struct PIC_DB *head) {
+  struct PIC_DB *db;
 
-void reset_db_data(struct PIC_DB *head){
-   struct PIC_DB *db;
-
-   for(db=head; db!=NULL; db=db->next){
-      db->refcnt = 0;
-      db->done = 0;
-   }
+  for (db = head; db != NULL; db = db->next) {
+    db->refcnt = 0;
+    db->done = false;
+  }
 }
 
+struct PIC_DB *read_database(unsigned int *max_order) {
+  unsigned int ndb = 0;
+  unsigned int size;
+  char line[1024];
+  FILE *dbfp          = NULL;
+  struct PIC_DB *head = NULL;
+  struct PIC_DB *db   = NULL;
 
-struct PIC_DB *read_database(int *max_order){
-   int i, j, done;
-   int len;
-   int ndb;
-   int size;
-   int ret;
-   FILE *dbfp;
-   int *p1;
-   char line[1024];
-   struct PIC_DB *head, *db;
+  if (NULL == (dbfp = fopen("pic_db.dat", "r"))) {
+    fprintf(stderr, "Error opening pic_db.dat for read\n");
+    exit(1);
+  }
+  if (read_line(dbfp, line) == EOF) {
+    fprintf(stderr, "Error: can't read first line from pic_db.dat\n");
+    exit(1);
+  }
+  if (1 != sscanf(line, "%u", &size)) {
+    fprintf(stderr, "Error: can't read size from pic_db.dat\n");
+    exit(1);
+  }
+  *max_order = size;
 
-   if(NULL == (dbfp=fopen("pic_db.dat", "r"))){
-      fprintf(stderr, "Error opening pic_db.dat for read\n");
-      exit(1);
-   }
-   ret = read_line(dbfp, line);
-   if(ret == EOF) {
-      fprintf(stderr, "Error: can't read first line from pic_db.dat\n");
-      exit(1);
-   }
-   if(1 != sscanf(line, "%d", &size)){
-      fprintf(stderr, "Error: can't read size from pic_db.dat\n");
-      exit(1);
-   }
-   *max_order = size;
+  ndb = 0;
+  head = NULL;
 
-   ndb = 0;
-   head = NULL;
+  /* read in the db */
+  while (read_line(dbfp, line) != EOF) {
+    unsigned int i, j, len;
 
-   /* read in the db */
-   done = 0;
-   do {
-      ret = read_line(dbfp, line);
-      if(*line == '\0') continue;
-      if(*line == '#') continue;
-      if(*line == '5') continue;
+    switch (*line) {
+    case '\0':
+    case '#':
+    case '5':
+      continue;
+    default:
+      break;
+    }
 
-      len = strlen(line);
+    len = strlen(line);
 
-      db = malloc_db(len, size);
+    db = malloc_db(len, size);
 
+    if (db) {
       strcpy(db->fname, line);
-      /* printf("filename: %s\n", db->fname);  */
 
-      for(j=0; j<size; j++){
+      for (j = 0; j < size; j++) {
+        unsigned int *p1 = db->data[j];
 
-	 p1 = db->data[j];
-
-	 for(i=0; i<3*(j+1)*(j+1); i++){
-	    if(1 != fscanf(dbfp, "%d", p1)){
-	       fprintf(stderr, "Error: File %d: %s: reading value %d from pic_db.dat\n", 
-		  ndb, db->fname, i);
-	       exit(1);
-	    }
-	    /* printf("Read value no: %d: %d\n", i, *p1); */
-	    p1++;
-	 }
+        for (i = 0; i < 3 * (j + 1) * (j + 1); i++) {
+          if (1 != fscanf(dbfp, "%u", p1)) {
+            fprintf(stderr,
+                    "Error: File %u: %s: reading value %u from pic_db.dat\n",
+                    ndb, db->fname, i);
+            exit(1);
+          }
+          p1++;
+        }
       }
 
       /* add db to the list */
       db->next = head;
+      /* new db head */
       head = db;
       ndb++;
-      
-   } while (ret != EOF && !done);
+    }
+  }
 
-   fclose(dbfp);
+  fclose(dbfp);
 
-   return head;
+  return head;
 }

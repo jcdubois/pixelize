@@ -23,13 +23,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __HIGHLIGHT_H
 #define __HIGHLIGHT_H
 
+#include <glib.h>
+
 #define DO_HIGHLIGHT 0x1
 #define DO_HIGHLIGHT_DUPS 0x2
 
-int highlight_timeout(gpointer data);
 int start_highlight_timer();
 int stop_highlight_timer();
 int highlight_changed();
 
 #endif
-

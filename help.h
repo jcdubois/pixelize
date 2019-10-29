@@ -23,9 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __HELP_H
 #define __HELP_H
 
-
 void help_popup();
 void license_popup();
 
 #endif
-

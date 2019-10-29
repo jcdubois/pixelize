@@ -23,11 +23,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __STATUS_H
 #define __STATUS_H
 
+#include <gtk/gtk.h>
+
 #define ST_PERCENT 0x1
 #define ST_READY 0x2
 #define ST_PROGRESS 0x4
 
-void toggle_progress_indicator(int onoff);
 void set_progress_indicator(double val);
 void refresh_mode_display();
 

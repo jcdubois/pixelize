@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __MENU_H
 #define __MENU_H
 
+#include <glib.h>
+#include <gtk/gtk.h>
+
 GtkWidget *setup_menu(GtkWidget *);
 
 extern gint delete_event(GtkWidget *, GdkEvent *, gpointer);

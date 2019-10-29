@@ -18,15 +18,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-/* setup_display.h  by Paul Wilkins 1/2/2000 */
+/* callback_menu.h by Paul Wilkins  1/2/2000 */
 
-#ifndef __DISPLAY_H
-#define __DISPLAY_H
 
-#include <gtk/gtk.h>
+#ifndef __CALLBACK_MENU_H
+#define __CALLBACK_MENU_H
 
-void resize_window();
+#include <glib.h>
 
-GtkWidget *setup_display(GtkWidget *);
+void quitCB(gpointer);
+void openCB(gpointer);
+void saveCB(gpointer);
+void renderCB(gpointer);
+void licenseCB(gpointer);
+void helpCB(gpointer);
 
 #endif

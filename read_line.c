@@ -19,20 +19,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* read_line.c by Paul Wilkins 1/2/2000 */
 
+#include "read_line.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "read_line.h"
 
-int read_line(FILE *fp, char *line){
-   char c;
+int read_line(FILE *fp, char *line) {
+  char c;
 
-   while(EOF != (c = getc(fp)) && c!='\n'){
-      *line++ = c;
-   }
+  while (EOF != (c = getc(fp)) && c != '\n') {
+    *line++ = c;
+  }
 
-   *line++ = '\0';
+  *line++ = '\0';
 
-   if(c == EOF) return EOF;
-   return 1;
+  if (c == EOF)
+    return EOF;
+  return 1;
 }
-      

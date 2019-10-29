@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __INFO_POPUP_H
 #define __INFO_POPUP_H
 
-void info_popup(int x, int y);
+void info_popup(unsigned int x, unsigned int y);
 void info_prev();
 void info_next();
 

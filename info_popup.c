@@ -19,426 +19,501 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* info_popup.c by Paul Wilkins 1/2/2000 */
 
-
-
-#include <stdio.h>
 #include <ctype.h>
 #include <gtk/gtk.h>
+#include <stdio.h>
 /* #include <gdk_imlib.h> */
 
-#include "globals.h"
-#include "read_db.h"
-#include "find_match.h"
-#include "render_image.h"
 #include "draw_image.h"
+#include "find_match.h"
+#include "globals.h"
 #include "highlight.h"
 #include "info_popup.h"
+#include "read_db.h"
+#include "render_image.h"
 
 #define LIST_WIDTH 400
 
-GtkWidget *infWindow = NULL;
-GtkWidget *info_list;
-GtkWidget *info_label;
+static GtkWidget *infWindow = NULL;
+static GtkWidget *info_list = NULL;
+static GtkWidget *info_label = NULL;
 
-int info_x;  /* the current cell */
-int info_y;
-int ignore_selection = 0;
+static unsigned int info_x = 0; /* the current cell */
+static unsigned int info_y = 0;
+static bool ignore_selection = false;
 
-void info_fill_list();
-void clear_all_highlights(int);
-void set_highlight();
-void set_highlight_dups();
+static void set_highlight() {
+  struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
 
-/* pops up a new window with all the options in it */
-void info_popup(int x, int y){
-   char buf[64];
-   GtkWidget *vbox;
-   GtkWidget *table;
-   GtkWidget *scrolled_window;
-   GtkWidget *button;
-   GtkWidget *radio;
-
-   void info_prevCB(GtkWidget *, gpointer);
-   void info_nextCB(GtkWidget *, gpointer);
-   void info_highlightCB(GtkWidget *, gpointer);
-   void info_highlight_dupsCB(GtkWidget *, gpointer);
-   void info_selectionCB(GtkWidget *, gint, gint, GdkEventButton *, gpointer);
-
-   if (!infWindow) {
-
-      infWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-      gtk_window_set_title(GTK_WINDOW(infWindow), "Image Information");
-
-      gtk_signal_connect(GTK_OBJECT(infWindow), "destroy",
-			GTK_SIGNAL_FUNC(gtk_widget_destroyed),
-			&infWindow);
-      gtk_container_set_border_width(GTK_CONTAINER(infWindow), 4);
-
-
-      /* all the sections go in the vbox */
-      vbox = gtk_vbox_new(FALSE, 0);
-      gtk_container_add(GTK_CONTAINER(infWindow), vbox);
-      gtk_widget_show(vbox);
-
-      /***** image location label *******************************************************/
-
-      info_label = gtk_label_new("");
-      gtk_box_pack_start(GTK_BOX(vbox), info_label, FALSE, FALSE, 0);
-      gtk_widget_show(info_label);
-
-      /***** list box with scrolled window *******************************************************/
-
-      /* This is the scrolled window to put the GtkList widget inside */
-      scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-	 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-      gtk_widget_set_usize(scrolled_window, LIST_WIDTH, 250);
-      gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
-      gtk_widget_show(scrolled_window);
-
-      info_list = gtk_clist_new(1);
-      GTK_WIDGET_SET_FLAGS(info_list, GTK_CAN_DEFAULT);
-      gtk_signal_connect(GTK_OBJECT(info_list), "select_row",
-	 GTK_SIGNAL_FUNC(info_selectionCB),
-	 NULL);
-      gtk_clist_set_column_width(GTK_CLIST(info_list), 0, LIST_WIDTH);
-      gtk_clist_set_selection_mode(GTK_CLIST(info_list), 
-        /* GTK_SELECTION_BROWSE */
-        GTK_SELECTION_EXTENDED
-      );
-
-      gtk_container_add(GTK_CONTAINER(scrolled_window), info_list);
-      /* gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window), info_list); */
-      gtk_widget_show(info_list);
-
-
-      /***** next and previous buttons *******************************************************/
-
-      table = gtk_table_new(1, 2, TRUE);
-      gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 0);
-      gtk_widget_show(table);
-
-      button = gtk_button_new_with_label("Previous");
-      GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
-      gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
-				 GTK_SIGNAL_FUNC(info_prevCB),
-				 NULL);
-      gtk_table_attach(GTK_TABLE(table), button, 0, 1, 0, 1,
-         GTK_FILL, GTK_FILL, 0, 0);
-      gtk_widget_show(button);
-
-      button = gtk_button_new_with_label("Next");
-      GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
-      gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
-				 GTK_SIGNAL_FUNC(info_nextCB),
-				 NULL);
-      gtk_table_attach(GTK_TABLE(table), button, 1, 2, 0, 1,
-         GTK_FILL, GTK_FILL, 0, 0);
-      gtk_widget_show(button);
-
-      /***** highlight radio buttons *******************************************************/
-
-      radio = gtk_check_button_new_with_label("Highlight Image");
-      GTK_WIDGET_UNSET_FLAGS(radio, GTK_CAN_FOCUS);
-      gtk_box_pack_start(GTK_BOX(vbox), radio, FALSE, FALSE, 0);
-      gtk_signal_connect(GTK_OBJECT(radio), "toggled",
-	 GTK_SIGNAL_FUNC(info_highlightCB), NULL);
-      gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio),
-         (globals.do_highlight&DO_HIGHLIGHT) ? TRUE : FALSE);
-      gtk_widget_show(radio);
-
-      radio = gtk_check_button_new_with_label("Highlight Duplicates");
-      GTK_WIDGET_UNSET_FLAGS(radio, GTK_CAN_FOCUS);
-      gtk_box_pack_start(GTK_BOX(vbox), radio, FALSE, FALSE, 0);
-      gtk_signal_connect(GTK_OBJECT(radio), "toggled",
-	 GTK_SIGNAL_FUNC(info_highlight_dupsCB), NULL);
-      gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio),
-         (globals.do_highlight&DO_HIGHLIGHT_DUPS) ? TRUE : FALSE);
-      gtk_widget_show(radio);
-
-      /************************************************************/
-
-      button = gtk_button_new_with_label("Dismiss");
-      GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
-      gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
-                                 GTK_SIGNAL_FUNC(gtk_widget_hide),
-                                 GTK_OBJECT(infWindow));
-      gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-      gtk_widget_show(button);
-
-
-   }
-
-   /* save the x and y coords */
-   info_x = x;
-   info_y = y;
-
-   /* set the coord label */
-   sprintf(buf, "Image coordinates: %dx%d", info_x, info_y);
-   gtk_label_set(GTK_LABEL(info_label), buf);
-
-   /* clear and optionalls reset the highlites */
-   clear_all_highlights(1);
-   if(globals.do_highlight & DO_HIGHLIGHT){
-      set_highlight();
-   }
-   if(globals.do_highlight & DO_HIGHLIGHT_DUPS){
-      set_highlight_dups();
-   }
-   highlight_changed();
-
-   /* fill the list box */
-   info_fill_list();
-
-   if(!GTK_WIDGET_VISIBLE(infWindow)) {
-      gtk_widget_show(infWindow);
-   }
+  if (inf) {
+    if (globals.do_highlight & DO_HIGHLIGHT) {
+      inf->do_highlight = true;
+    }
+  }
 }
 
-void info_fill_list(){
-   int i;
-   char *ary[1];
-   struct PIC_DB *db;
-   struct IMAGE_INFO *inf;
+static void set_highlight_dups() {
+  /* find duplicates and mark them */
+  struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
 
-   ignore_selection = 1;
+  if (inf) {
+    unsigned int x, y;
+    struct PIC_DB *db = inf->matches[inf->match_no];
 
-   inf = &(globals.image[info_y][info_x]);
+    for (y = 0; y < globals.cur_opt.nPixH; y++) {
+      for (x = 0; x < globals.cur_opt.nPixW; x++) {
+        struct IMAGE_INFO *inf2;
 
-   /* don't allow the widget to update */
-   gtk_clist_freeze(GTK_CLIST(info_list));
+        if (x == info_x && y == info_y)
+          continue;
 
-   /* set the list entries */
-   gtk_clist_clear(GTK_CLIST(info_list));
-   for(i=0; i<MAX_MATCHES; i++){
+        inf2 = &(globals.image[y][x]);
+        if (inf2) {
+          struct PIC_DB *db2 = inf2->matches[inf2->match_no];
+          if (db == db2)
+            inf2->do_highlight = true;
+        }
+      }
+    }
+  }
+}
 
-      db = inf->matches[i];
+static void clear_all_highlights(int clear_current) {
+  unsigned int x, y;
+
+  /* clear everyone */
+  for (y = 0; y < globals.cur_opt.nPixH; y++) {
+    for (x = 0; x < globals.cur_opt.nPixW; x++) {
+      struct IMAGE_INFO *inf;
+
+      if (x == info_x && y == info_y && clear_current == 0)
+        continue;
+
+      inf = &(globals.image[y][x]);
+
+      if (inf) {
+        inf->do_highlight = false;
+      }
+    }
+  }
+}
+
+static void info_fill_list() {
+  struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
+
+  fprintf(stderr, "%s: enterring\n", __func__);
+
+  ignore_selection = true;
+
+  if (inf && info_list) {
+#if 0
+    int i;
+
+    /* don't allow the widget to update */
+    gtk_clist_freeze(GTK_CLIST(info_list));
+
+    /* set the list entries */
+    gtk_clist_clear(GTK_CLIST(info_list));
+    for (i = 0; i < MAX_MATCHES; i++) {
+      struct PIC_DB *db = inf->matches[i];
+      char *ary[1];
 
       if (db) {
-         ary[0] = db->fname;
-         gtk_clist_append(GTK_CLIST(info_list), ary);
+        ary[0] = db->fname;
+        gtk_clist_append(GTK_CLIST(info_list), ary);
       }
-   }
-   
-   /* select the current image in the list */
-   gtk_clist_select_row(GTK_CLIST(info_list), inf->match_no, 0);
+    }
 
-   /* possibly scroll the list */
-   if(GTK_VISIBILITY_FULL != gtk_clist_row_is_visible(GTK_CLIST(info_list), inf->match_no)){
+    /* select the current image in the list */
+    gtk_clist_select_row(GTK_CLIST(info_list), inf->match_no, 0);
+
+    /* possibly scroll the list */
+    if (GTK_VISIBILITY_FULL !=
+        gtk_clist_row_is_visible(GTK_CLIST(info_list), inf->match_no)) {
       gtk_clist_moveto(GTK_CLIST(info_list), inf->match_no, -1, 0.5, 0.0);
-   }
+    }
 
-   /* allow the widget to update */
-   gtk_clist_thaw(GTK_CLIST(info_list));
+    /* allow the widget to update */
+    gtk_clist_thaw(GTK_CLIST(info_list));
+#else
+    /* create a new store */
+    GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
 
-   ignore_selection = 0;
+    if (store) {
+      int i;
+      GtkTreeIter iter;
+      GtkTreeSelection *select;
 
-}
+      /* fill it in */
+      for (i = 0; i < MAX_MATCHES; i++) {
+        struct PIC_DB *db = inf->matches[i];
 
-
-void info_selectionCB(
-   GtkWidget *clist,
-   gint row,
-   gint col,
-   GdkEventButton *event,
-   gpointer data 
-){
-   struct IMAGE_INFO *inf;
-
-   if(ignore_selection) return;
-
-   inf = &(globals.image[info_y][info_x]);
-
-   /* if it is the current image */
-   if(inf->match_no == row) return;
-
-   /* store the new row */
-   inf->match_no = row;
-
-   /* finally, draw the new image */
-   change_small_image(info_x, info_y);
-
-   /* clear and optionalls reset the highlites */
-   clear_all_highlights(0);
-   if(globals.do_highlight & DO_HIGHLIGHT){
-      set_highlight();
-   }
-   if(globals.do_highlight & DO_HIGHLIGHT_DUPS){
-      set_highlight_dups();
-   }
-   highlight_changed();
-}
-
-void info_prevCB(GtkWidget *widget, gpointer data){
-   info_prev();
-}
-
-void info_nextCB(GtkWidget *widget, gpointer data){
-   info_next();
-}
-
-void info_highlightCB(GtkWidget *widget, gpointer data){
-   struct IMAGE_INFO *inf;
-
-   if(TRUE == GTK_TOGGLE_BUTTON(widget)->active){
-      globals.do_highlight |= DO_HIGHLIGHT;
-   } else {
-      globals.do_highlight &= ~DO_HIGHLIGHT;
-   }
-
-   inf = &(globals.image[info_y][info_x]);
-   if(globals.do_highlight & DO_HIGHLIGHT){
-      inf->do_highlight = 1;
-   } else {
-      inf->do_highlight = 0;
-   }
-
-   highlight_changed();
-   if(globals.do_highlight) start_highlight_timer();
-   else stop_highlight_timer();
-}
-
-void info_highlight_dupsCB(GtkWidget *widget, gpointer data){
-
-
-   if(TRUE == GTK_TOGGLE_BUTTON(widget)->active){
-      globals.do_highlight |= DO_HIGHLIGHT_DUPS;
-   } else {
-      globals.do_highlight &= ~DO_HIGHLIGHT_DUPS;
-   }
-
-   if(globals.do_highlight & DO_HIGHLIGHT_DUPS){
-      set_highlight_dups();
-   } else {
-      clear_all_highlights(0);
-   }
-
-   highlight_changed();
-   if(globals.do_highlight) start_highlight_timer();
-   else stop_highlight_timer();
-}
-
-
-
-void info_prev(){
-   struct IMAGE_INFO *inf;
-
-   inf = &(globals.image[info_y][info_x]);
-
-   /* unselect the current image in the list */
-   gtk_clist_unselect_row(GTK_CLIST(info_list), inf->match_no, 0);
-
-   /* the previous item in the list */
-   inf->match_no--;
-   if(inf->match_no < 0) inf->match_no = MAX_MATCHES-1;
-
-   ignore_selection = 1;
-
-   /* select the current image in the list */
-   gtk_clist_select_row(GTK_CLIST(info_list), inf->match_no, 0);
-   
-   /* possibly scroll the list */
-   if(GTK_VISIBILITY_FULL != gtk_clist_row_is_visible(GTK_CLIST(info_list), inf->match_no)){
-      gtk_clist_moveto(GTK_CLIST(info_list), inf->match_no, -1, 0.0, 0.0);
-   }
-
-   ignore_selection = 0;
-
-   /* finally, draw the new image */
-   change_small_image(info_x, info_y);
-
-   /* clear and optionalls reset the highlites */
-   clear_all_highlights(0);
-   if(globals.do_highlight & DO_HIGHLIGHT){
-      set_highlight();
-   }
-   if(globals.do_highlight & DO_HIGHLIGHT_DUPS){
-      set_highlight_dups();
-   }
-   highlight_changed();
-}
-
-void info_next(){
-   struct IMAGE_INFO *inf;
-
-   inf = &(globals.image[info_y][info_x]);
-
-   /* unselect the current image in the list */
-   gtk_clist_unselect_row(GTK_CLIST(info_list), inf->match_no, 0);
-
-   /* the next item in the list */
-   inf->match_no++;
-   if(inf->match_no >= MAX_MATCHES) inf->match_no = 0;
-
-   ignore_selection = 1;
-
-   /* select the current image in the list */
-   gtk_clist_select_row(GTK_CLIST(info_list), inf->match_no, 0);
-   
-   /* possibly scroll the list */
-   if(GTK_VISIBILITY_FULL != gtk_clist_row_is_visible(GTK_CLIST(info_list), inf->match_no)){
-      gtk_clist_moveto(GTK_CLIST(info_list), inf->match_no, -1, 1.0, 0.0);
-   }
-
-   ignore_selection = 0;
-
-   /* finally, draw the new image */
-   change_small_image(info_x, info_y);
-
-   /* clear and optionalls reset the highlites */
-   clear_all_highlights(0);
-   if(globals.do_highlight & DO_HIGHLIGHT){
-      set_highlight();
-   }
-   if(globals.do_highlight & DO_HIGHLIGHT_DUPS){
-      set_highlight_dups();
-   }
-   highlight_changed();
-}
-
-void set_highlight(){
-   struct IMAGE_INFO *inf;
-   inf = &(globals.image[info_y][info_x]);
-   if(globals.do_highlight & DO_HIGHLIGHT){
-      inf->do_highlight = 1;
-   }
-}
-
-void set_highlight_dups(){
-   int x, y;
-   struct PIC_DB *db, *db2;
-   struct IMAGE_INFO *inf, *inf2;
-
-   /* find duplicates and mark them */
-   inf = &(globals.image[info_y][info_x]);
-   db = inf->matches[inf->match_no];
-   if (db) {
-      for(y=0; y<globals.cur_opt.nPixH; y++){
-         for(x=0; x<globals.cur_opt.nPixW; x++){
-
-            if(x == info_x && y == info_y) continue;
-
-	    inf2 = &(globals.image[y][x]);
-	    db2 = inf2->matches[inf2->match_no];
-	    if(db == db2) inf2->do_highlight = 1;
-
-         }
+        if (db) {
+          gtk_list_store_append(store, &iter);
+          gtk_list_store_set(store, &iter, 0, db->fname, -1);
+        }
       }
-   }
+
+      /* set the store as a model to the tree view */
+      gtk_tree_view_set_model(GTK_TREE_VIEW(info_list), GTK_TREE_MODEL(store));
+
+      /*
+       * The tree view has acquired its own reference to the store, so we can
+       * drop ours. That way the store will be freed automaitcally when the
+       * tree view is destroyed
+       */
+      g_object_unref(store);
+
+      /* retrieve the tree view selection object */
+      select = gtk_tree_view_get_selection(GTK_TREE_VIEW(info_list));
+
+      if (select) {
+        /* select a default row */
+        GtkTreePath *path = gtk_tree_path_new_from_indices(inf->match_no, -1);
+        gtk_tree_selection_select_path(select, path);
+        gtk_tree_path_free(path);
+      }
+    }
+#endif
+  }
+
+  ignore_selection = false;
+
+  fprintf(stderr, "%s: exiting\n", __func__);
 }
 
-void clear_all_highlights(int clear_current){
-   int x, y;
-   struct IMAGE_INFO *inf;
+void info_prev() {
+  struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
 
-   /* clear everyone */
-   for(y=0; y<globals.cur_opt.nPixH; y++){
-      for(x=0; x<globals.cur_opt.nPixW; x++){
+  if (inf) {
+    GtkTreeSelection *select =
+        gtk_tree_view_get_selection(GTK_TREE_VIEW(info_list));
 
-	 if(x == info_x && y == info_y && clear_current==0) continue;
+    if (select) {
+      GtkTreePath *path = gtk_tree_path_new_from_indices(inf->match_no, -1);
+      gtk_tree_selection_unselect_path(select, path);
+      gtk_tree_path_free(path);
 
-	 inf = &(globals.image[y][x]);
-	 inf->do_highlight = 0;
+      /* the previous item in the list */
+      if (inf->match_no == 0) {
+        inf->match_no = MAX_MATCHES - 1;
+      } else {
+        inf->match_no--;
       }
-   }
+
+      ignore_selection = true;
+
+      path = gtk_tree_path_new_from_indices(inf->match_no, -1);
+      gtk_tree_selection_select_path(select, path);
+      gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(info_list), path, NULL, FALSE,
+                                   0, 0);
+      gtk_tree_path_free(path);
+
+      ignore_selection = false;
+    }
+
+    /* finally, draw the new image */
+    change_small_image(info_x, info_y);
+
+    /* clear and optionalls reset the highlites */
+    clear_all_highlights(0);
+    if (globals.do_highlight & DO_HIGHLIGHT) {
+      set_highlight();
+    }
+    if (globals.do_highlight & DO_HIGHLIGHT_DUPS) {
+      set_highlight_dups();
+    }
+    highlight_changed();
+  }
+}
+
+void info_next() {
+  struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
+
+  if (inf) {
+    GtkTreeSelection *select =
+        gtk_tree_view_get_selection(GTK_TREE_VIEW(info_list));
+
+    if (select) {
+      GtkTreePath *path = gtk_tree_path_new_from_indices(inf->match_no, -1);
+      gtk_tree_selection_unselect_path(select, path);
+      gtk_tree_path_free(path);
+
+      /* the previous item in the list */
+      if (inf->match_no == MAX_MATCHES - 1) {
+        inf->match_no = 0;
+      } else {
+        inf->match_no++;
+      }
+
+      ignore_selection = true;
+
+      path = gtk_tree_path_new_from_indices(inf->match_no, -1);
+      gtk_tree_selection_select_path(select, path);
+      gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(info_list), path, NULL, FALSE,
+                                   0, 0);
+      gtk_tree_path_free(path);
+
+      ignore_selection = false;
+    }
+
+    /* finally, draw the new image */
+    change_small_image(info_x, info_y);
+
+    /* clear and optionalls reset the highlites */
+    clear_all_highlights(0);
+    if (globals.do_highlight & DO_HIGHLIGHT) {
+      set_highlight();
+    }
+    if (globals.do_highlight & DO_HIGHLIGHT_DUPS) {
+      set_highlight_dups();
+    }
+    highlight_changed();
+  }
+}
+
+static void info_prevCB(GtkWidget *widget, gpointer data) {
+  (void)widget;
+  (void)data;
+  info_prev();
+}
+
+static void info_nextCB(GtkWidget *widget, gpointer data) {
+  (void)widget;
+  (void)data;
+  info_next();
+}
+
+static void info_selectionCB(GtkTreeSelection *selection, gpointer data) {
+  (void)data;
+
+  if (!ignore_selection) {
+    struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
+
+    if (inf) {
+      GtkTreeIter iter;
+      GtkTreeModel *model;
+
+      if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        GtkTreePath *path = gtk_tree_model_get_path(model, &iter);
+        gint *row = gtk_tree_path_get_indices(path);
+
+        if ((int)inf->match_no != row[0]) {
+          /* store the new row */
+          inf->match_no = (unsigned int)row[0];
+
+          /* finally, draw the new image */
+          change_small_image(info_x, info_y);
+
+          /* clear and optionalls reset the highlites */
+          clear_all_highlights(0);
+
+          if (globals.do_highlight & DO_HIGHLIGHT) {
+            set_highlight();
+          }
+          if (globals.do_highlight & DO_HIGHLIGHT_DUPS) {
+            set_highlight_dups();
+          }
+
+          highlight_changed();
+        }
+      }
+    }
+  }
+}
+
+static void info_highlightCB(GtkWidget *widget, gpointer data) {
+  struct IMAGE_INFO *inf;
+
+  (void)data;
+
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+    globals.do_highlight |= DO_HIGHLIGHT;
+  } else {
+    globals.do_highlight &= ~DO_HIGHLIGHT;
+  }
+
+  inf = &(globals.image[info_y][info_x]);
+  if (globals.do_highlight & DO_HIGHLIGHT) {
+    inf->do_highlight = true;
+  } else {
+    inf->do_highlight = false;
+  }
+
+  highlight_changed();
+  if (globals.do_highlight)
+    start_highlight_timer();
+  else
+    stop_highlight_timer();
+}
+
+static void info_highlight_dupsCB(GtkWidget *widget, gpointer data) {
+  (void)data;
+
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+    globals.do_highlight |= DO_HIGHLIGHT_DUPS;
+  } else {
+    globals.do_highlight &= ~DO_HIGHLIGHT_DUPS;
+  }
+
+  if (globals.do_highlight & DO_HIGHLIGHT_DUPS) {
+    set_highlight_dups();
+  } else {
+    clear_all_highlights(0);
+  }
+
+  highlight_changed();
+  if (globals.do_highlight)
+    start_highlight_timer();
+  else
+    stop_highlight_timer();
+}
+
+/* pops up a new window with all the options in it */
+void info_popup(unsigned int x, unsigned int y) {
+  char buf[64];
+  GtkWidget *vbox;
+  GtkWidget *table;
+  GtkWidget *scrolled_window;
+  GtkWidget *button;
+  GtkWidget *radio;
+
+  fprintf(stderr, "%s: enterring\n", __func__);
+
+  if (!infWindow) {
+
+    infWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(infWindow), "Image Information");
+
+    g_signal_connect(infWindow, "destroy", G_CALLBACK(gtk_widget_destroyed),
+                     &infWindow);
+    gtk_container_set_border_width(GTK_CONTAINER(infWindow), 4);
+
+    /* all the sections go in the vbox */
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(infWindow), vbox);
+    gtk_widget_show(vbox);
+
+    /***** image location label ******************************/
+
+    info_label = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(vbox), info_label, FALSE, FALSE, 0);
+    gtk_widget_show(info_label);
+
+    /***** list box with scrolled window *********************/
+
+    /* This is the scrolled window to put the GtkList widget inside */
+    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_widget_set_size_request(scrolled_window, LIST_WIDTH, 250);
+    gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
+    gtk_widget_show(scrolled_window);
+
+    /// info_list = gtk_clist_new(1);
+    info_list = gtk_tree_view_new();
+
+    if (info_list) {
+      GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+      GtkTreeSelection *select;
+
+      if (renderer) {
+        gtk_tree_view_insert_column_with_attributes(
+            GTK_TREE_VIEW(info_list), -1, "File", renderer, "text", 0, NULL);
+      }
+
+      select = gtk_tree_view_get_selection(GTK_TREE_VIEW(info_list));
+
+      if (select) {
+        gtk_tree_selection_set_mode(select, GTK_SELECTION_BROWSE);
+        g_signal_connect(G_OBJECT(select), "changed",
+                         G_CALLBACK(info_selectionCB), NULL);
+      }
+
+      gtk_container_add(GTK_CONTAINER(scrolled_window), info_list);
+      /* gtk_scrolled_window_add_with_viewport(
+       * GTK_SCROLLED_WINDOW(scrolled_window), info_list); */
+      gtk_widget_show(info_list);
+    }
+
+    /***** next and previous buttons *************************/
+
+    table = gtk_table_new(1, 2, TRUE);
+    gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 0);
+    gtk_widget_show(table);
+
+    button = gtk_button_new_with_label("Previous");
+    gtk_widget_set_can_focus(GTK_WIDGET(button), FALSE);
+    g_signal_connect(button, "clicked", G_CALLBACK(info_prevCB), NULL);
+    gtk_table_attach(GTK_TABLE(table), button, 0, 1, 0, 1, GTK_FILL, GTK_FILL,
+                     0, 0);
+    gtk_widget_show(button);
+
+    button = gtk_button_new_with_label("Next");
+    gtk_widget_set_can_focus(GTK_WIDGET(button), FALSE);
+    g_signal_connect(button, "clicked", G_CALLBACK(info_nextCB), NULL);
+    gtk_table_attach(GTK_TABLE(table), button, 1, 2, 0, 1, GTK_FILL, GTK_FILL,
+                     0, 0);
+    gtk_widget_show(button);
+
+    /***** highlight radio buttons * *************************/
+
+    radio = gtk_check_button_new_with_label("Highlight Image");
+    gtk_widget_set_can_focus(GTK_WIDGET(radio), FALSE);
+    gtk_box_pack_start(GTK_BOX(vbox), radio, FALSE, FALSE, 0);
+    g_signal_connect(radio, "toggled", G_CALLBACK(info_highlightCB), NULL);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio),
+                                 (globals.do_highlight & DO_HIGHLIGHT) ? TRUE
+                                                                       : FALSE);
+    gtk_widget_show(radio);
+
+    radio = gtk_check_button_new_with_label("Highlight Duplicates");
+    gtk_widget_set_can_focus(GTK_WIDGET(radio), FALSE);
+    gtk_box_pack_start(GTK_BOX(vbox), radio, FALSE, FALSE, 0);
+    g_signal_connect(radio, "toggled", G_CALLBACK(info_highlight_dupsCB), NULL);
+    gtk_toggle_button_set_active(
+        GTK_TOGGLE_BUTTON(radio),
+        (globals.do_highlight & DO_HIGHLIGHT_DUPS) ? TRUE : FALSE);
+    gtk_widget_show(radio);
+
+    /*********************************************************/
+
+    button = gtk_button_new_with_label("Dismiss");
+    gtk_widget_set_can_focus(GTK_WIDGET(button), FALSE);
+    g_signal_connect_swapped(button, "clicked", G_CALLBACK(gtk_widget_hide),
+                             GTK_OBJECT(infWindow));
+    gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+    gtk_widget_show(button);
+  }
+
+  /* save the x and y coords */
+  info_x = x;
+  info_y = y;
+
+  /* set the coord label */
+  sprintf(buf, "Image coordinates: %ux%u", info_x, info_y);
+  gtk_label_set_text(GTK_LABEL(info_label), buf);
+
+  /* clear and optionalls reset the highlites */
+  clear_all_highlights(1);
+  if (globals.do_highlight & DO_HIGHLIGHT) {
+    set_highlight();
+  }
+  if (globals.do_highlight & DO_HIGHLIGHT_DUPS) {
+    set_highlight_dups();
+  }
+  highlight_changed();
+
+  /* fill the list box */
+  info_fill_list();
+
+#if 0
+  if (GTK_IS_INVISIBLE(infWindow)) {
+    gtk_widget_show(infWindow);
+  }
+#else
+  gtk_widget_show(infWindow);
+#endif
+
+  fprintf(stderr, "%s: exiting\n", __func__);
 }

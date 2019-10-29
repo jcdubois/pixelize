@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __OPTIONS_H
 #define __OPTIONS_H
 
-/* the dialog */
-extern GtkWidget *optWindow;
+#include <glib.h>
+#include "globals.h"
 
 /* pops up a new window with all the options in it */
 void optionsCB(gpointer data);

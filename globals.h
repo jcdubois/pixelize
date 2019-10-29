@@ -23,51 +23,54 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
+#include <stdbool.h>
+#include <gtk/gtk.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
+
 #define PIX_SIZE 0x1
 #define PIX_COUNT 0x2
 
 struct IMAGE_OPTIONS {
-   int width, height;         /* width and height od final image */
-   int pixW, pixH;            /* size to scale small images to */
-   int nPixW, nPixH;
-   int proximity;
-   int opt_alg;
+  unsigned int width, height; /* width and height of final image */
+  unsigned int pixW, pixH;    /* size to scale small images to */
+  unsigned int nPixW, nPixH;
+  unsigned int proximity;
+  unsigned long long opt_alg;
 };
 
 /* globals we use alot */
 struct GLOBALS {
 
-   GtkWidget *topwin;         /* the main window */
-   GtkWidget *ebox;           /* an event box around the scrolled window */
+  GtkWidget *topwin;         /* the main window */
+  GtkWidget *ebox;           /* an event box around the scrolled window */
 
-   GtkWidget *picScroll;      /* drawing area scrollbar widget */
-   GtkWidget *picDA;          /* drawing area widget */
-   GdkPixmap *pixmap;         /* pixmap of the image */
+  GtkWidget *picScroll;      /* drawing area scrollbar widget */
+  GtkWidget *picDA;          /* drawing area widget */
+  //GdkPixmap *pixmap;         /* pixmap of the image */
 
-   struct PIC_DB *head;       /* the image database */
-   struct IMAGE_INFO **image; /* the constructed image */
+  struct PIC_DB *head;       /* the image database */
+  struct IMAGE_INFO **image; /* the constructed image */
 
-   int max_order;             /* maximum order when fitting images */
+  unsigned int max_order;    /* maximum order when fitting images */
 
-   struct IMAGE_OPTIONS cur_opt;
-   struct IMAGE_OPTIONS new_opt;
+  struct IMAGE_OPTIONS cur_opt;
+  struct IMAGE_OPTIONS new_opt;
 
-   int timer;
-   int do_highlight;
-  
-   char *start_fname;
+  int timer;
+  unsigned int do_highlight;
 
-   int show_rendered;
+  char *start_fname;
 
-   int disp_w, disp_h;        /* size of display */
+  bool show_rendered;
 
-   char *in_fname;            /* input file */
-   GdkPixbuf *in_im_scaled;
-   GdkPixbuf *in_im;
+  unsigned int disp_w, disp_h; /* size of display */
 
-   char *out_fname;           /* output file */
-   GdkPixbuf *out_im;
+  char *in_fname; /* input file */
+  GdkPixbuf *in_im_scaled;
+  GdkPixbuf *in_im;
 
+  char *out_fname; /* output file */
+  GdkPixbuf *out_im;
 };
 
 extern struct GLOBALS globals;

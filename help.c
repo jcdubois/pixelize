@@ -19,15 +19,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* help.c by Paul Wilkins 1/2/2000 */
 
+#include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gtk/gtk.h>
 
 #include "help.h"
 #include "license.h"
 
-#define HELP_TXT \
-"\n\
+#define HELP_TXT                                                               \
+  "\n\
 Pixelize v1.0.0\n\
 \n\
 By: Paul Wilkins\n\
@@ -66,79 +66,71 @@ Steps to create a \"rendered\" image:\n\
 3) Render the image.  Use \"Render\" from the Options manu.\n\
 \n\
 "
- 
-void popup_window(GtkWidget **dialog, char *txt, char *title){
 
-   GtkWidget *vbox;
-   GtkWidget *scrolled_win;
-   GtkWidget *label;
-   GtkWidget *button;
- 
-   if (!*dialog) {
+void popup_window(GtkWidget **dialog, char *txt, char *title) {
 
-      *dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-      gtk_window_set_title(GTK_WINDOW(*dialog), title);
+  if (*dialog == NULL) {
+    GtkWidget *vbox;
+    GtkWidget *scrolled_win;
+    GtkWidget *label;
+    GtkWidget *button;
 
-      gtk_signal_connect(GTK_OBJECT(*dialog), "destroy",
-                        GTK_SIGNAL_FUNC(gtk_widget_destroyed),
-                        dialog);
-      gtk_container_set_border_width(GTK_CONTAINER(*dialog), 5); 
+    *dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(*dialog), title);
 
-      gtk_window_set_title(GTK_WINDOW(*dialog), title);
-      gtk_widget_set_usize(*dialog, 470, 470);
+    g_signal_connect(*dialog, "destroy", G_CALLBACK(gtk_widget_destroyed), dialog);
+    gtk_container_set_border_width(GTK_CONTAINER(*dialog), 5);
 
-      vbox = gtk_vbox_new(FALSE, 0);
-      gtk_container_add(GTK_CONTAINER(*dialog), vbox);
-      gtk_widget_show(vbox);
+    gtk_window_set_title(GTK_WINDOW(*dialog), title);
+    gtk_widget_set_size_request (*dialog, 470, 470);
 
-      scrolled_win = gtk_scrolled_window_new (NULL, NULL);
-      gtk_container_set_border_width(GTK_CONTAINER(scrolled_win), 5); 
-      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scrolled_win),
-                                     GTK_POLICY_AUTOMATIC,
-                                     GTK_POLICY_AUTOMATIC);
-      gtk_box_pack_start(GTK_BOX(vbox), scrolled_win, TRUE, TRUE, 0);
-      gtk_widget_show(scrolled_win);
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(*dialog), vbox);
+    gtk_widget_show(vbox);
 
-      label = gtk_label_new(txt);
-      gtk_signal_connect(GTK_OBJECT(label), "destroy",
-                          GTK_SIGNAL_FUNC(gtk_widget_destroyed), &label);
-      gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_win), label);
-      gtk_widget_show(label);
+    scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_set_border_width(GTK_CONTAINER(scrolled_win), 5);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
+                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_box_pack_start(GTK_BOX(vbox), scrolled_win, TRUE, TRUE, 0);
+    gtk_widget_show(scrolled_win);
 
-      button = gtk_button_new_with_label("Dismiss");
-      gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
-                                 GTK_SIGNAL_FUNC(gtk_widget_destroy),
-                                 GTK_OBJECT(*dialog));
-      gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-      GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-      /* gtk_widget_grab_default(button);  This puts an ugly box around the botton */
-      gtk_widget_show(button);
- 
-   }
+    label = gtk_label_new(txt);
+    g_signal_connect(label, "destroy", G_CALLBACK(gtk_widget_destroyed), &label);
+    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_win),
+                                          label);
+    gtk_widget_show(label);
 
-   if (!GTK_WIDGET_VISIBLE(*dialog))
-      gtk_widget_show(*dialog);
-   else
-      gtk_widget_destroy(*dialog);
+    button = gtk_button_new_with_label("Dismiss");
+    g_signal_connect_swapped (button, "clicked", G_CALLBACK(gtk_widget_destroy), GTK_OBJECT(*dialog));
+    gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+    //GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default(button, TRUE);
+    /* gtk_widget_grab_default(button);  This puts an ugly box around the botton
+     */
+    gtk_widget_show(button);
+  }
 
-}
- 
-
-void license_popup(){
-   static GtkWidget *dialog = NULL;
- 
-   popup_window(&dialog, LICENSE_TXT, "License");
-}
- 
- 
-
-void help_popup(){
- 
-   static GtkWidget *dialog = NULL;
-
-   popup_window(&dialog, HELP_TXT, "Help");
+#if 0
+  if (GTK_IS_INVISIBLE(*dialog)) {
+    gtk_widget_show(*dialog);
+  } else {
+    gtk_widget_destroy(*dialog);
+  }
+#else
+  gtk_widget_show(*dialog);
+#endif
 }
 
+void license_popup() {
+  static GtkWidget *dialog = NULL;
 
+  popup_window(&dialog, LICENSE_TXT, "License");
+}
 
+void help_popup() {
+  static GtkWidget *dialog = NULL;
+
+  popup_window(&dialog, HELP_TXT, "Help");
+}

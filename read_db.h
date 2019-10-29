@@ -23,17 +23,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __READ_PIC_DB_H
 #define __READ_PIC_DB_H
 
+#include <stdbool.h>
+
 struct PIC_DB {
-   int done;
-   int refcnt;
-   char *fname;
-   int **data;
-   struct PIC_DB *next;
+  bool done;
+  unsigned int refcnt;
+  char *fname;
+  unsigned int **data;
+  struct PIC_DB *next;
 };
 
-struct PIC_DB *read_database(int *max_order);
+struct PIC_DB *read_database(unsigned int *max_order);
 void reset_db_data(struct PIC_DB *head);
 
-
 #endif
-

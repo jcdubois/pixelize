@@ -19,26 +19,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* cursor.c by Paul Wilkins 1/2/2000 */
 
-#include <stdio.h>
-#include <gtk/gtk.h>
-/* #include <gdk_imlib.h> */
-/* #include <gdk/gdk.h> */
-
 #include "cursor.h"
 #include "globals.h"
 
+void cursor_busy() {
+  static GdkCursor *cur = NULL;
 
-void cursor_busy(){
-   static GdkCursor *cur = NULL;
+  if (cur == NULL)
+    cur = gdk_cursor_new(GDK_WATCH);
 
-   if(cur == NULL) cur = gdk_cursor_new(GDK_WATCH);
-   gdk_window_set_cursor(GTK_WIDGET(globals.topwin)->window, cur);
-   gdk_flush();
+  gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)), cur);
+
+  gdk_flush();
 }
 
-void cursor_normal(){
-   static GdkCursor *cur = NULL;
+void cursor_normal() {
+  static GdkCursor *cur = NULL;
 
-   if(cur == NULL) cur = gdk_cursor_new(GDK_TOP_LEFT_ARROW);
-   gdk_window_set_cursor(GTK_WIDGET(globals.topwin)->window, cur);
+  if (cur == NULL)
+    cur = gdk_cursor_new(GDK_TOP_LEFT_ARROW);
+
+  gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)), cur);
+
+  gdk_flush();
 }

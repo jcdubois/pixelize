@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __READ_LINE_H
 #define __READ_LINE_H
 
+#include <stdio.h>
+
 /*
  * Reads a line from the specified file into the specified string.
  * Returns 1 on success and EOF if end of file was reached.
