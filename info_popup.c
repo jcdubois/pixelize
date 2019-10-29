@@ -214,8 +214,10 @@ void info_fill_list(){
 
       db = inf->matches[i];
 
-      ary[0] = db->fname;
-      gtk_clist_append(GTK_CLIST(info_list), ary);
+      if (db) {
+         ary[0] = db->fname;
+         gtk_clist_append(GTK_CLIST(info_list), ary);
+      }
    }
    
    /* select the current image in the list */
@@ -410,15 +412,17 @@ void set_highlight_dups(){
    /* find duplicates and mark them */
    inf = &(globals.image[info_y][info_x]);
    db = inf->matches[inf->match_no];
-   for(y=0; y<globals.cur_opt.nPixH; y++){
-      for(x=0; x<globals.cur_opt.nPixW; x++){
+   if (db) {
+      for(y=0; y<globals.cur_opt.nPixH; y++){
+         for(x=0; x<globals.cur_opt.nPixW; x++){
 
-         if(x == info_x && y == info_y) continue;
+            if(x == info_x && y == info_y) continue;
 
-	 inf2 = &(globals.image[y][x]);
-	 db2 = inf2->matches[inf2->match_no];
-	 if(db == db2) inf2->do_highlight = 1;
+	    inf2 = &(globals.image[y][x]);
+	    db2 = inf2->matches[inf2->match_no];
+	    if(db == db2) inf2->do_highlight = 1;
 
+         }
       }
    }
 }
