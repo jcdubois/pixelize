@@ -19,23 +19,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* globals.c by Paul Wilkins 1/2/2000 */
 
-#include <gtk/gtk.h>
-#include <math.h>
-#include <stdio.h>
-/* #include <gdk_imlib.h> */
-
 #include "globals.h"
-#include "read_db.h"
 
-struct GLOBALS globals;
+struct _Globals globals;
 
-int init_globals() {
+void init_globals() {
   globals.topwin = NULL;
-  globals.ebox = NULL;
-  globals.disp_w = 0;
-  globals.disp_h = 0;
-  globals.picDA = NULL;
-  globals.picScroll = NULL;
+  globals.event_box = NULL;
+  globals.scroll_area = NULL;
+  globals.draw_area = NULL;
   globals.head = NULL;
   globals.image = NULL;
   globals.max_order = 0;
@@ -44,10 +36,9 @@ int init_globals() {
   globals.in_fname = NULL;
   globals.in_im = NULL;
   globals.in_im_scaled = NULL;
-  // globals.pixmap = NULL;
   globals.out_fname = NULL;
   globals.out_im = NULL;
-  globals.start_fname = NULL;
+  globals.out_im_scaled = NULL;
 
   globals.cur_opt.pixW = 25;
   globals.cur_opt.pixH = 25;
@@ -62,6 +53,4 @@ int init_globals() {
   globals.new_opt.nPixH = 30;
   globals.new_opt.proximity = 8;
   globals.new_opt.opt_alg = PIX_SIZE;
-
-  return 1;
 }

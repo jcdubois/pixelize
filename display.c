@@ -19,115 +19,109 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* display.c by Paul Wilkins 1/2/2000 */
 
-#include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
-#include <stdio.h>
-
 #include "display.h"
 #include "draw_image.h"
 #include "file_dialog.h"
-#include "find_match.h"
 #include "globals.h"
 #include "info_popup.h"
-#include "read_db.h"
-#include "render_image.h"
+
+// static GdkRectangle workarea = {0};
 
 /* some callbacks */
-static gint ExposeCB(GtkWidget *widget, GdkEventExpose *event,
-                     gpointer func_data) {
-  static int picInitalized = 0;
-
-  (void)func_data;
+static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
+  (void)data;
   (void)widget;
+  (void)cr;
+  GdkPixbuf *ptr = NULL;
 
-  if (picInitalized == 0) {
+  fprintf(stderr, "%s: enter\n", __func__);
 
-    /* save the size of the display */
-    globals.disp_w = gdk_screen_width();
-    globals.disp_h = gdk_screen_height();
-
-    picInitalized = 1;
-
-    if (globals.start_fname) {
-      open_image(globals.start_fname);
-    }
+  if (globals.show_rendered && globals.image) {
+    ptr = globals.out_im;
+  } else {
+    ptr = globals.in_im;
   }
 
-  redraw_screen(event->area.x, event->area.y, event->area.width,
-                event->area.height);
+  if (ptr) {
+    // define the selected pixbuf as draw_area source
+    gdk_cairo_set_source_pixbuf(cr, ptr, 0, 0);
+    // adjust the scrollbar as required
+    gtk_widget_set_size_request(widget, gdk_pixbuf_get_width(ptr),
+                                gdk_pixbuf_get_height(ptr));
+  }
+
+  cairo_paint(cr);
+
+  fprintf(stderr, "%s: exit\n", __func__);
 
   return FALSE;
 }
 
-static gint ResizeCB(GtkWidget *widget, GdkEventConfigure *event,
-                     gpointer func_data) {
-  unsigned int w, h;
-
+static gint resize_callback(GtkWidget *widget, GdkEventConfigure *event,
+                            gpointer func_data) {
   (void)func_data;
   (void)widget;
   (void)event;
 
-  w = gdk_window_get_width(gtk_widget_get_window(GTK_WIDGET(globals.ebox)));
-  h = gdk_window_get_height(gtk_widget_get_window(GTK_WIDGET(globals.ebox)));
+  fprintf(stderr, "%s: enter\n", __func__);
 
-  /* we need to tell Gtk's brain dead scrollbar when not to appear */
-  if (w >= globals.cur_opt.width && h >= globals.cur_opt.height) {
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(globals.picScroll),
-                                   GTK_POLICY_NEVER, GTK_POLICY_NEVER);
-  } else {
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(globals.picScroll),
-                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  }
+  // Limit the minimal window size
+  GdkGeometry hints;
+  hints.min_width = 300;
+  hints.min_height = 300;
 
-  /* dammit: let the user resize the window!
-     I think gtk_widget_set_usize() messes with this. */
-  /*
-     gdk_window_set_hints(GTK_WIDGET(globals.topwin)->window,
-     0, 0, 300, 300, 0, 0, GDK_HINT_MIN_SIZE);
-   */
+  gdk_window_set_geometry_hints(
+      gtk_widget_get_window(GTK_WIDGET(globals.topwin)), &hints,
+      GDK_HINT_MIN_SIZE);
+
+  fprintf(stderr, "%s: exit\n", __func__);
 
   return TRUE;
 }
 
-static gint KeyPressEvnt(GtkWidget *widget, GdkEventKey *event,
-                         gpointer func_data) {
-  (void)func_data;
+static gboolean key_press_callback(GtkWidget *widget, GdkEventKey *event) {
   (void)widget;
   (void)event;
 
+  fprintf(stderr, "%s: enter\n", __func__);
+
+  fprintf(stderr, "%s: exit\n", __func__);
+
   return TRUE;
 }
 
-static gint KeyReleaseEvnt(GtkWidget *widget, GdkEventKey *event,
-                           gpointer func_data) {
-  (void)func_data;
+static gboolean key_release_callback(GtkWidget *widget, GdkEventKey *event) {
   (void)widget;
+
+  fprintf(stderr, "%s: enter\n", __func__);
 
   switch (event->keyval) {
-  case GDK_space:
-  case GDK_KP_Space:
+  case GDK_KEY_space:
+  case GDK_KEY_KP_Space:
+    // toggle the image to display
     globals.show_rendered = !globals.show_rendered;
-    redraw_screen(0, 0, globals.cur_opt.width, globals.cur_opt.height);
+    // redraw the draw area
+    gtk_widget_queue_draw(widget);
     break;
   default:
     break;
   }
+
+  fprintf(stderr, "%s: exit\n", __func__);
+
   return TRUE;
 }
 
-static gint ButtonPressEvnt(GtkWidget *widget, GdkEventButton *event,
-                            gpointer func_data) {
-  (void)func_data;
+static gboolean button_press_callback(GtkWidget *widget,
+                                      GdkEventButton *event) {
   (void)widget;
 
-  if (event->x < 0 || event->x >= globals.cur_opt.width)
-    return TRUE;
+  fprintf(stderr, "%s: enter\n", __func__);
 
-  if (event->y < 0 || event->y >= globals.cur_opt.height)
-    return TRUE;
-
-  if (globals.image != NULL) {
-    unsigned int xx, yy;
+  if (event->x < 0 || event->x >= globals.cur_opt.width) {
+  } else if (event->y < 0 || event->y >= globals.cur_opt.height) {
+  } else if (globals.image != NULL) {
+    guint xx, yy;
 
     xx = event->x / globals.cur_opt.pixW;
     yy = event->y / globals.cur_opt.pixH;
@@ -143,101 +137,130 @@ static gint ButtonPressEvnt(GtkWidget *widget, GdkEventButton *event,
     }
   }
 
+  fprintf(stderr, "%s: exit\n", __func__);
+
   return TRUE;
 }
 
-static gint ButtonReleaseEvnt(GtkWidget *widget, GdkEventButton *event,
-                              gpointer func_data) {
-  (void)func_data;
+static gboolean button_release_callback(GtkWidget *widget,
+                                        GdkEventButton *event) {
   (void)widget;
   (void)event;
+
+  fprintf(stderr, "%s: enter\n", __func__);
+
+  fprintf(stderr, "%s: exit\n", __func__);
 
   return TRUE;
 }
 
 GtkWidget *setup_display(GtkWidget *parent) {
-  int wid, hgt;
 
-  wid = 300;
-  hgt = 300;
+  fprintf(stderr, "%s: enter\n", __func__);
 
   /***** create an event box *****/
-  globals.ebox = gtk_event_box_new();
-  gtk_box_pack_start(GTK_BOX(parent), globals.ebox, TRUE, TRUE, 0);
-  gtk_widget_show(globals.ebox);
+  globals.event_box = gtk_event_box_new();
 
-  /***** create a new scrolled window. *****/
-  globals.picScroll = gtk_scrolled_window_new(NULL, NULL);
-  gtk_widget_set_size_request(globals.picScroll, wid, hgt);
-  gtk_container_set_border_width(GTK_CONTAINER(globals.picScroll), 0);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(globals.picScroll),
-                                 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add(GTK_CONTAINER(globals.ebox), globals.picScroll);
+  if (globals.event_box) {
+    gtk_grid_attach(GTK_GRID(parent), globals.event_box, 0, 1, 2, 1);
 
-  /* gtk_box_pack_start(GTK_BOX(parent), globals.picScroll, TRUE, TRUE, 0); */
-  gtk_widget_show(globals.picScroll);
+    gtk_widget_show(globals.event_box);
 
-  /***** create the drawing area *****/
-  globals.picDA = gtk_drawing_area_new();
-  // gtk_drawing_area_size(GTK_DRAWING_AREA(globals.picDA), wid, hgt);
+    /***** create a new scrolled window. *****/
+    globals.scroll_area = gtk_scrolled_window_new(NULL, NULL);
 
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(globals.picScroll),
-                                        globals.picDA);
-  gtk_widget_show(globals.picDA);
+    if (globals.scroll_area) {
+      gtk_widget_set_size_request(globals.scroll_area, 300, 300);
+      gtk_container_set_border_width(GTK_CONTAINER(globals.scroll_area), 0);
+      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(globals.scroll_area),
+                                     GTK_POLICY_AUTOMATIC,
+                                     GTK_POLICY_AUTOMATIC);
+      gtk_widget_set_hexpand(GTK_WIDGET(globals.scroll_area), TRUE);
+      gtk_widget_set_vexpand(GTK_WIDGET(globals.scroll_area), TRUE);
+      gtk_container_add(GTK_CONTAINER(globals.event_box), globals.scroll_area);
 
-  /* Signals used to handle window ops */
-  g_signal_connect(GTK_OBJECT(globals.picDA), "expose_event",
-                   G_CALLBACK(ExposeCB), NULL);
-  g_signal_connect(GTK_OBJECT(globals.picDA), "configure_event",
-                   G_CALLBACK(ResizeCB), NULL);
+      gtk_widget_show(globals.scroll_area);
 
-  /* Event signals (Input) */
-  g_signal_connect(GTK_OBJECT(globals.picDA), "button_press_event",
-                   G_CALLBACK(ButtonPressEvnt), NULL);
-  g_signal_connect(GTK_OBJECT(globals.picDA), "button_release_event",
-                   G_CALLBACK(ButtonReleaseEvnt), NULL);
-  g_signal_connect_after(GTK_OBJECT(globals.picDA), "key_press_event",
-                         G_CALLBACK(KeyPressEvnt), NULL);
-  g_signal_connect_after(GTK_OBJECT(globals.picDA), "key_release_event",
-                         G_CALLBACK(KeyReleaseEvnt), NULL);
+      /***** create the drawing area *****/
+      globals.draw_area = gtk_drawing_area_new();
 
-  gtk_widget_set_events(globals.picDA,
-                        GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK |
-                            GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
-                            GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
+      if (globals.draw_area) {
+        // gtk_drawing_area_size(GTK_DRAWING_AREA(globals.draw_area), wid,
+        // hgt);
+        gtk_container_add(GTK_CONTAINER(globals.scroll_area),
+                          globals.draw_area);
+        gtk_widget_show(globals.draw_area);
 
-  gtk_widget_set_can_focus(globals.picDA, TRUE);
-  gtk_widget_grab_focus(globals.picDA);
+        /* Signals used to handle window ops */
+        // g_signal_connect(globals.draw_area, "expose_event",
+        // G_CALLBACK(ExposeCB), NULL);
+        g_signal_connect(globals.draw_area, "draw", G_CALLBACK(draw_callback),
+                         NULL);
+        g_signal_connect(globals.draw_area, "configure_event",
+                         G_CALLBACK(resize_callback), NULL);
 
-  return globals.picScroll;
+        /* Event signals (Input) */
+        g_signal_connect(globals.draw_area, "button_press_event",
+                         G_CALLBACK(button_press_callback), NULL);
+        g_signal_connect(globals.draw_area, "button_release_event",
+                         G_CALLBACK(button_release_callback), NULL);
+        g_signal_connect_after(globals.draw_area, "key_press_event",
+                               G_CALLBACK(key_press_callback), NULL);
+        g_signal_connect_after(globals.draw_area, "key_release_event",
+                               G_CALLBACK(key_release_callback), NULL);
+
+        gtk_widget_set_events(globals.draw_area,
+                              GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK |
+                                  GDK_BUTTON_PRESS_MASK |
+                                  GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK |
+                                  GDK_KEY_RELEASE_MASK);
+
+        gtk_widget_set_can_focus(globals.draw_area, TRUE);
+        gtk_widget_grab_focus(globals.draw_area);
+
+        if (globals.in_fname) {
+          open_image();
+        }
+      }
+    }
+  }
+
+  fprintf(stderr, "%s: exit\n", __func__);
+
+  return globals.scroll_area;
 }
 
 void resize_window() {
-  int w, h;
+
+  fprintf(stderr, "%s: enter\n", __func__);
+
+#if 0
+  gint w, h;
 
   /* compute window's width */
-  if (globals.cur_opt.width > globals.disp_w) {
-    w = globals.disp_w;
+  if (globals.cur_opt.width > (guint)workarea.width) {
+    w = workarea.width;
   } else {
     w = globals.cur_opt.width;
   }
 
   /* compute window's heigth */
-  if (globals.cur_opt.height > globals.disp_h) {
-    h = globals.disp_h;
+  if (globals.cur_opt.height > (guint)workarea.height) {
+    h = workarea.height;
   } else {
     h = globals.cur_opt.height;
   }
 
-  // gtk_drawing_area_size(GTK_DRAWING_AREA(globals.picDA),
+  // gtk_drawing_area_size(GTK_DRAWING_AREA(globals.draw_area),
   // globals.cur_opt.width, globals.cur_opt.height);
 
   gdk_window_resize(gtk_widget_get_window(GTK_WIDGET(globals.topwin)), w, h);
-  /*
-     gtk_window_set_default_size(GTK_WINDOW(globals.mainwin), w, h);
-  */
 
   /* set the size of the window, and allow user resizing */
-  gtk_widget_set_size_request(GTK_WIDGET(globals.picScroll), w, h);
+  gtk_widget_set_size_request(GTK_WIDGET(globals.scroll_area), w, h);
   // gtk_window_set_policy(GTK_WINDOW(globals.topwin), TRUE, TRUE, TRUE);
+  gtk_window_set_resizable(GTK_WINDOW(globals.topwin), TRUE);
+#endif
+
+  fprintf(stderr, "%s: exit\n", __func__);
 }

@@ -19,11 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* status.c by Paul Wilkins 1/2/2000 */
 
-#include <gtk/gtk.h>
-#include <stdio.h>
-#include <stdlib.h>
-/* #include <gdk_imlib.h> */
-
 #include "globals.h"
 #include "status.h"
 
@@ -33,74 +28,81 @@ static GtkWidget *progress_bar;
 void set_progress_indicator(double val) {
   static int last_percent = -1;
 
+  /* make sure val is in the correct range */
+  if (val > 1) {
+    val = 1;
+  } else if (val < 0) {
+    val = 0;
+  }
+
   /* don't bother updating if we haven't changed by al least 1 percent */
   if (last_percent != (int)(100.0 * val)) {
     last_percent = (int)(100.0 * val);
 
-    /* update the graph */
-    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), val);
+    /* we can update the progress bar if its is created */
+    if (progress_bar) {
+      /* update the graph */
+      gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), val);
 
-    /* update the text */
-    if (val == 1) {
-      gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), "Ready");
-    } else {
-      char text[4];
-      sprintf(text, "%d%%", (int)(100.0 * val));
-      gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), text);
+      /* update the text */
+      if (val == 1) {
+        gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), "Ready");
+      } else if (val < 1 && val >= 0) {
+        char text[4];
+        snprintf(text, sizeof(text), "%d%%", (int)(100.0 * val));
+        gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), text);
+      }
+
+      /* force an update NOW */
+      gtk_widget_queue_draw(progress_bar);
     }
-
-    /* force an update NOW */
-    gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(progress_bar)),
-                               NULL, TRUE);
-    // gtk_widget_draw(GTK_WIDGET(progress_bar), NULL);
-    gdk_flush();
   }
 }
 
 void refresh_mode_display() {
-  char buf[256];
+  if (mode_display) {
+    char buf[256];
 
-  if (globals.cur_opt.opt_alg == PIX_SIZE) {
-    sprintf(buf, " Size of images: %ux%u", globals.cur_opt.pixW,
-            globals.cur_opt.pixH);
-  } else {
-    sprintf(buf, " Number of Images: %ux%u", globals.cur_opt.nPixW,
-            globals.cur_opt.nPixH);
+    if (globals.cur_opt.opt_alg == PIX_SIZE) {
+      snprintf(buf, sizeof(buf), " Size of images: %ux%u", globals.cur_opt.pixW,
+               globals.cur_opt.pixH);
+    } else {
+      snprintf(buf, sizeof(buf), " Number of Images: %ux%u",
+               globals.cur_opt.nPixW, globals.cur_opt.nPixH);
+    }
+
+    gtk_label_set_text(GTK_LABEL(mode_display), buf);
+
+    gtk_widget_queue_draw(mode_display);
   }
-
-  gtk_label_set_text(GTK_LABEL(mode_display), buf);
 }
 
-GtkWidget *setup_status(GtkWidget *parent) {
-  GtkWidget *hbox;
-
-  /* create the hbox that will hold our widgets */
-  hbox = gtk_hbox_new(FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(parent), hbox, FALSE, FALSE, 0);
-  gtk_widget_show(hbox);
+void setup_status(GtkWidget *parent) {
 
   /* first is a progressbar */
   progress_bar = gtk_progress_bar_new();
 
-  /* Set the progress bar format */
-  // gtk_progress_bar_set_bar_style(GTK_PROGRESS_BAR(progress_bar),
-  // GTK_PROGRESS_CONTINUOUS);
-  gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(progress_bar),
-                                   GTK_PROGRESS_LEFT_TO_RIGHT);
-  // gtk_progress_set_activity_mode(GTK_PROGRESS(progress_bar), FALSE);
-  // gtk_progress_set_show_text(GTK_PROGRESS(progress_bar), TRUE);
-  // toggle_progress_indicator(ST_READY);
+  if (progress_bar) {
+    /* Set the progress bar format */
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(progress_bar),
+                                   GTK_ORIENTATION_HORIZONTAL);
+    gtk_progress_bar_set_inverted(GTK_PROGRESS_BAR(progress_bar), FALSE);
+    gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(progress_bar), TRUE);
 
-  gtk_box_pack_start(GTK_BOX(hbox), progress_bar, FALSE, FALSE, 0);
-  gtk_widget_show(progress_bar);
+    gtk_grid_attach(GTK_GRID(parent), progress_bar, 0, 2, 1, 1);
+    gtk_widget_show(progress_bar);
+
+    set_progress_indicator(0.0);
+  }
 
   /* now a label to display stuff */
   mode_display = gtk_label_new(" ");
-  gtk_box_pack_start(GTK_BOX(hbox), mode_display, FALSE, FALSE, 0);
-  gtk_widget_show(mode_display);
 
-  /* set the string */
-  refresh_mode_display();
+  if (mode_display) {
+    gtk_grid_attach(GTK_GRID(parent), mode_display, 1, 2, 1, 1);
+    gtk_widget_show(mode_display);
 
-  return hbox;
+    /* set the string */
+    refresh_mode_display();
+  }
 }

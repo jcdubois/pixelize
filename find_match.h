@@ -24,10 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __FIND_MATCH_H
 
 #include "read_db.h"
+#include <gtk/gtk.h>
 
 #define MAX_MATCHES 81
 
-struct PIC_DB **find_match(unsigned int order, unsigned int *match_data,
-                           struct PIC_DB *head);
+struct PIC_DB **find_match(guint order, guint *match_data, struct PIC_DB *head);
 
 #endif

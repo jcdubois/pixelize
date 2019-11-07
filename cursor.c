@@ -25,21 +25,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void cursor_busy() {
   static GdkCursor *cur = NULL;
 
-  if (cur == NULL)
-    cur = gdk_cursor_new(GDK_WATCH);
+  if (cur == NULL) {
+    cur = gdk_cursor_new_for_display(gdk_display_get_default(), GDK_WATCH);
+  }
 
   gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)), cur);
-
-  gdk_flush();
 }
 
 void cursor_normal() {
   static GdkCursor *cur = NULL;
 
-  if (cur == NULL)
-    cur = gdk_cursor_new(GDK_TOP_LEFT_ARROW);
+  if (cur == NULL) {
+    cur = gdk_cursor_new_for_display(gdk_display_get_default(),
+                                     GDK_TOP_LEFT_ARROW);
+  }
 
   gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)), cur);
-
-  gdk_flush();
 }

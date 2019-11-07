@@ -23,11 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * This file contains the main program.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <gtk/gtk.h>
-
 #include "cursor.h"
 #include "display.h"
 #include "globals.h"
@@ -35,9 +30,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "menu.h"
 #include "status.h"
 
+static gboolean delete_event_callback(GtkWidget *widget, GdkEvent *event,
+                                      gpointer user_data) {
+  (void)widget;
+  (void)event;
+  (void)user_data;
+
+  return FALSE; /* will call our destroy function */
+}
+
+static void destroy_callback(GtkWidget *widget, gpointer data) {
+  (void)widget;
+  (void)data;
+
+  gtk_main_quit();
+}
+
 int main(int argc, char *argv[]) {
   GtkWidget *main_w;
-  GtkWidget *vbox;
+  GtkWidget *grid;
   // GdkBitmap *icon_bitmap;
 
   /* initialize gtk */
@@ -51,50 +62,44 @@ int main(int argc, char *argv[]) {
 
   init_globals();
 
+  /* if a file name was provided, save it the global struct */
   if (argc == 2) {
-    globals.start_fname = argv[1];
+    globals.in_fname = g_strdup(argv[1]);
   }
 
   /* the main window contains the work area and the menubar */
   main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-  if (main_w == NULL) {
-    fprintf(stderr, "Error: failed to create main window\n");
-    exit(1);
-  }
+  if (main_w) {
+    globals.topwin = main_w;
+    gtk_widget_set_name(main_w, "pixelize");
 
-  globals.topwin = main_w;
-  gtk_widget_set_name(main_w, "pixelize");
+    /* handle window manager close */
+    g_signal_connect(main_w, "delete_event", G_CALLBACK(delete_event_callback),
+                     NULL);
+    g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_callback), NULL);
 
-  /*create the box that everyone goes in */
-  vbox = gtk_vbox_new(FALSE, 0);
+    /*create the grid that everyone goes in */
+    grid = gtk_grid_new();
 
-  if (vbox == NULL) {
-    fprintf(stderr, "Error: failed to create the main box\n");
-    exit(1);
-  }
+    if (grid) {
 
-  gtk_container_add(GTK_CONTAINER(main_w), vbox);
-  gtk_widget_show(vbox);
+      /* add the grid to the top window */
+      gtk_container_add(GTK_CONTAINER(main_w), grid);
+      gtk_widget_show(grid);
 
-  /* set up the menu bar */
-  setup_menu(vbox);
+      /* set up the menu bar */
+      setup_menu(grid);
 
-  /* handle window manager close */
-  g_signal_connect(main_w, "delete_event", G_CALLBACK(delete_event), NULL);
-  g_signal_connect(main_w, "destroy", G_CALLBACK(destroy), NULL);
+      /* create the varrious subsystems */
+      setup_display(grid);
 
-  /* create the varrious subsystems */
-  setup_display(vbox);
-  setup_status(vbox);
+      setup_status(grid);
 
-  gtk_widget_show(main_w);
-
-  // gdk_window_move(GGTK_WIDGET(main_w)->window, 100, 100);
-  gdk_window_move(gtk_widget_get_window(GTK_WIDGET(main_w)), 100, 100);
-  // gdk_window_set_hints(GTK_WIDGET(main_w)->window, 100, 100, 300, 300, 0, 0,
-  //                     GDK_HINT_POS | GDK_HINT_MIN_SIZE);
-
+    } else {
+      fprintf(stderr, "Error: failed to create the main box\n");
+      exit(1);
+    }
 #if 0
   /* Create pixmap of depth 1 (bitmap) for icon */
   icon_bitmap = gdk_bitmap_create_from_data(
@@ -109,11 +114,17 @@ int main(int argc, char *argv[]) {
   //gdk_window_set_icon(main_w, NULL, icon_bitmap, NULL);
 #endif
 
-  cursor_normal();
+    gtk_widget_show(main_w);
 
-  gtk_window_maximize(GTK_WINDOW(main_w));
+    cursor_normal();
 
-  gtk_main();
+    // gtk_window_maximize(GTK_WINDOW(main_w));
+
+    gtk_main();
+  } else {
+    fprintf(stderr, "Error: failed to create main window\n");
+    exit(1);
+  }
 
   return 0;
 }

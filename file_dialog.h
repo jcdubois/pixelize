@@ -23,8 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __FILE_DIALOG_H
 #define __FILE_DIALOG_H
 
-int file_open_dialog(char *fname);
-int file_save_dialog(char *fname);
-int open_image(const char *fname);
+#include <gtk/gtk.h>
+
+gboolean open_image(void);
+void file_open_dialog(void);
+void file_save_dialog(void);
 
 #endif

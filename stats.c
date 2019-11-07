@@ -19,42 +19,37 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* stats.c by Paul Wilkins 1/2/2000 */
 
-#include <math.h>
-#include <stdio.h>
-
 #include "stats.h"
+#include <math.h>
 
-int calc_mead_std(double *data, int n, double *mean, double *std) {
-  int i;
-  double sum;
-  double sd;
+gboolean calc_mead_std(double *data, int n, double *mean, double *std) {
+  if (data && mean && std) {
+    if (n == 0) {
+      *std = 0.0;
+      *mean = 0.0;
+    } else if (n == 1) {
+      *std = 0.0;
+      *mean = data[0];
+    } else {
+      int i;
+      double sd = 0.0;
+      double sum = 0.0;
 
-  if (n == 0) {
+      /* find the mean */
+      for (i = 0; i < n; i++) {
+        sum += data[i];
+      }
+      *mean = sum / (double)n;
 
-    *std = 0.0;
-    *mean = 0.0;
+      /* find the std */
+      for (i = 0; i < n; i++) {
+        sd += (data[i] - *mean) * (data[i] - *mean);
+      }
+      *std = sqrt(sd / (double)(n - 1));
+    }
 
-  } else if (n == 1) {
-
-    *std = 0.0;
-    *mean = data[0];
-
+    return TRUE;
   } else {
-
-    /* find the mean */
-    sum = 0.0;
-    for (i = 0; i < n; i++) {
-      sum += data[i];
-    }
-    *mean = sum / (double)n;
-
-    /* find the std */
-    sd = 0.0;
-    for (i = 0; i < n; i++) {
-      sd += (data[i] - *mean) * (data[i] - *mean);
-    }
-    *std = sqrt(sd / (double)(n - 1));
+    return FALSE;
   }
-
-  return 1;
 }

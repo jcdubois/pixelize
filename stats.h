@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __STATS_H
 #define __STATS_H
 
-int calc_mead_std(double *data, int n, double *mean, double *std);
+#include <gtk/gtk.h>
+
+gboolean calc_mead_std(double *data, int n, double *mean, double *std);
 
 #endif

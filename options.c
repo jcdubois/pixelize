@@ -20,10 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* options.c by Paul Wilkins 1/2/2000 */
 
 #include <ctype.h>
-#include <gtk/gtk.h>
-#include <stdio.h>
-/* #include <gdk_imlib.h> */
-
 #include "draw_image.h"
 #include "globals.h"
 #include "options.h"
@@ -36,9 +32,9 @@ static GtkWidget *count_y_entry = NULL;
 static GtkWidget *size_button = NULL;
 static GtkWidget *count_button = NULL;
 
-unsigned int is_valid_int(const char *str) {
+guint is_valid_int(const char *str) {
   const char *p1 = str;
-  unsigned int val;
+  guint val;
 
   while (*p1 != 0) {
     if (!isdigit(*p1))
@@ -52,18 +48,18 @@ unsigned int is_valid_int(const char *str) {
   return val;
 }
 
-void refresh_options_win(struct IMAGE_OPTIONS *im_opt) {
+void refresh_options_win(struct _ImageOptions *im_opt) {
   char buf[8];
 
   if (optWindow) {
 
-    sprintf(buf, "%u", im_opt->pixW);
+    snprintf(buf, sizeof(buf), "%u", im_opt->pixW);
     gtk_entry_set_text(GTK_ENTRY(size_x_entry), buf);
-    sprintf(buf, "%u", im_opt->pixH);
+    snprintf(buf, sizeof(buf), "%u", im_opt->pixH);
     gtk_entry_set_text(GTK_ENTRY(size_y_entry), buf);
-    sprintf(buf, "%u", im_opt->nPixW);
+    snprintf(buf, sizeof(buf), "%u", im_opt->nPixW);
     gtk_entry_set_text(GTK_ENTRY(count_x_entry), buf);
-    sprintf(buf, "%u", im_opt->nPixH);
+    snprintf(buf, sizeof(buf), "%u", im_opt->nPixH);
     gtk_entry_set_text(GTK_ENTRY(count_y_entry), buf);
 
     if (globals.new_opt.opt_alg == PIX_SIZE) {
@@ -181,7 +177,7 @@ void optionsCB(gpointer data) {
       gtk_container_set_border_width(GTK_CONTAINER(optWindow), 4);
 
       /* all the sections go in the vbox */
-      vbox = gtk_vbox_new(FALSE, 0);
+      vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
       if (vbox) {
         GtkWidget *frame;
@@ -200,7 +196,7 @@ void optionsCB(gpointer data) {
           gtk_container_set_border_width(GTK_CONTAINER(frame), 4);
           gtk_widget_show(frame);
 
-          vbox2 = gtk_vbox_new(FALSE, 4);
+          vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 
           if (vbox2) {
             char buf[8];
@@ -217,7 +213,7 @@ void optionsCB(gpointer data) {
             gtk_widget_show(vbox2);
 
             /***** size *****/
-            hbox = gtk_hbox_new(FALSE, 2);
+            hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
             gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
             gtk_widget_show(hbox);
 
@@ -256,7 +252,7 @@ void optionsCB(gpointer data) {
             gtk_widget_show(label);
 
             /***** number *****/
-            hbox = gtk_hbox_new(FALSE, 2);
+            hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
             gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
             gtk_widget_show(hbox);
 
@@ -293,7 +289,7 @@ void optionsCB(gpointer data) {
 
             /***** proximity *****/
 
-            hbox = gtk_hbox_new(FALSE, 2);
+            hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
             gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
             gtk_widget_show(hbox);
 
@@ -306,30 +302,16 @@ void optionsCB(gpointer data) {
             gtk_widget_set_size_request(entry, 50, -1);
             g_signal_connect(entry, "activate", G_CALLBACK(pix_proximity_CB),
                              entry);
-            sprintf(buf, "%u", globals.new_opt.proximity);
+            snprintf(buf, sizeof(buf), "%u", globals.new_opt.proximity);
             gtk_entry_set_text(GTK_ENTRY(entry), buf);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
             /**************** Dismiss **************************/
 
-            // hbox = gtk_hbox_new(FALSE, 2);
-            // gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 0);
-            // gtk_widget_show(hbox);
-
-            // button = gtk_button_new_with_label("Apply");
-            // gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
-            //                            GTK_SIGNAL_FUNC(apply_CB),
-            //                            GTK_OBJECT(optWindow));
-            // gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-            // GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-            // gtk_widget_show(button);
-
             button = gtk_button_new_with_label("Apply");
             g_signal_connect_swapped(button, "clicked",
-                                     G_CALLBACK(gtk_widget_destroy),
-                                     GTK_OBJECT(optWindow));
-            // gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+                                     G_CALLBACK(gtk_widget_destroy), optWindow);
             gtk_box_pack_start(GTK_BOX(vbox), button, TRUE, TRUE, 0);
             gtk_widget_set_can_default(button, TRUE);
             gtk_widget_show(button);
@@ -364,13 +346,5 @@ void optionsCB(gpointer data) {
   /* set the test entry boxes to the right state */
   refresh_options_win(&(globals.new_opt));
 
-#if 0
-  if (GTK_IS_INVISIBLE(optWindow)) {
-    gtk_widget_show(optWindow);
-  } else {
-    gtk_widget_destroy(optWindow);
-  }
-#else
   gtk_widget_show(optWindow);
-#endif
 }

@@ -19,22 +19,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* render.c by Paul Wilkins 1/2/2000 */
 
-#include <gtk/gtk.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-/* #include <gdk_imlib.h> */
-
 #include "cursor.h"
 #include "display.h"
 #include "draw_image.h"
 #include "find_match.h"
 #include "globals.h"
-#include "read_db.h"
 #include "render.h"
 #include "render_image.h"
 #include "stats.h"
 #include "status.h"
+
+#include <math.h>
 
 #define STATS_SIZE 6
 
@@ -45,14 +40,13 @@ struct PIX {
   double b;
 };
 
-void average_image_area(struct PIX *avg, GdkPixbuf *im, unsigned int x,
-                        unsigned int y, unsigned int w, unsigned int h) {
-  unsigned int i, j;
-  unsigned int r, g, b;
-  unsigned int xx, yy;
+void average_image_area(struct PIX *avg, GdkPixbuf *im, guint x, guint y,
+                        guint w, guint h) {
+  guint i, j;
+  guint r, g, b;
+  guint xx, yy;
   guchar *pixels, *p;
-  unsigned int rowstride, n_channels;
-  ;
+  guint rowstride, n_channels;
 
   n_channels = gdk_pixbuf_get_n_channels(im);
   rowstride = gdk_pixbuf_get_rowstride(im);
@@ -83,37 +77,35 @@ void average_image_area(struct PIX *avg, GdkPixbuf *im, unsigned int x,
   avg->b /= (double)(w * h);
 }
 
-static double calc_stddev(GdkPixbuf *im, unsigned int x, unsigned int y,
-                          unsigned int nPixW, unsigned int nPixH) {
-  unsigned int w, h, n;
-  unsigned int xx, yy, ww, hh;
-  unsigned int pxx, pyy;
-  double xoff, yoff;
+static double calc_stddev(GdkPixbuf *im, guint x, guint y, guint nPixW,
+                          guint nPixH) {
   double meanR, stdR;
   double meanG, stdG;
   double meanB, stdB;
-  struct PIX avg;
   double dataR[STATS_SIZE * STATS_SIZE];
   double dataG[STATS_SIZE * STATS_SIZE];
   double dataB[STATS_SIZE * STATS_SIZE];
 
-  xoff = (double)x / (double)nPixW * (double)gdk_pixbuf_get_width(im);
-  yoff = (double)y / (double)nPixH * (double)gdk_pixbuf_get_height(im);
+  double xoff = (double)x / (double)nPixW * (double)gdk_pixbuf_get_width(im);
+  double yoff = (double)y / (double)nPixH * (double)gdk_pixbuf_get_height(im);
+  guint n = 0;
+  guint pyy = (int)yoff;
+  guint h;
 
-  n = 0;
-  pyy = (int)yoff;
   for (h = 0; h < STATS_SIZE; h++) {
-
-    yy = (int)(yoff + (double)(h + 1) * (double)gdk_pixbuf_get_height(im) /
-                          (double)nPixH / (double)STATS_SIZE);
-    hh = yy - pyy;
-    pxx = (int)xoff;
+    guint yy =
+        (int)(yoff + (double)(h + 1) * (double)gdk_pixbuf_get_height(im) /
+                         (double)nPixH / (double)STATS_SIZE);
+    guint hh = yy - pyy;
+    guint pxx = (int)xoff;
+    guint w;
 
     for (w = 0; w < STATS_SIZE; w++) {
-
-      xx = (int)(xoff + (double)(w + 1) * (double)gdk_pixbuf_get_width(im) /
-                            (double)nPixW / (double)STATS_SIZE);
-      ww = xx - pxx;
+      guint xx =
+          (int)(xoff + (double)(w + 1) * (double)gdk_pixbuf_get_width(im) /
+                           (double)nPixW / (double)STATS_SIZE);
+      guint ww = xx - pxx;
+      struct PIX avg;
 
       average_image_area(&avg, im, pxx, pyy, ww, hh);
       dataR[n] = avg.r;
@@ -134,78 +126,76 @@ static double calc_stddev(GdkPixbuf *im, unsigned int x, unsigned int y,
 }
 
 static int init_db() {
-  static bool init = false;
+  static gboolean init = FALSE;
 
-  if (init == false) {
+  if (init == FALSE) {
     /* read in the picture database */
-    if (NULL == (globals.head = read_database(&(globals.max_order)))) {
+    globals.head = read_database(&(globals.max_order));
+    if (globals.head == NULL) {
       fprintf(stderr, "Error reading database.\n");
       exit(1);
     }
-    init = true;
+    init = TRUE;
   }
   return 1;
 }
 
-static unsigned int *gen_master_data(GdkPixbuf *im, unsigned int x,
-                                     unsigned int y, unsigned int nPixW,
-                                     unsigned int nPixH, unsigned int order) {
-  unsigned int w, h;
-  unsigned int xx, yy, ww, hh;
-  unsigned int pxx, pyy;
-  unsigned int *p1;
-  unsigned int *data;
-  double xoff, yoff;
-  struct PIX avg;
-
+static guint *gen_master_data(GdkPixbuf *im, guint x, guint y, guint nPixW,
+                              guint nPixH, guint order) {
   /* this must be free'd outside this function */
-  if (NULL == (data = malloc(3 * order * order * sizeof(unsigned int)))) {
+  guint *data = malloc(3 * order * order * sizeof(guint));
+
+  if (data) {
+    double xoff = (double)x / (double)nPixW * (double)gdk_pixbuf_get_width(im);
+    double yoff = (double)y / (double)nPixH * (double)gdk_pixbuf_get_height(im);
+    guint pyy = (int)yoff;
+    guint *p1 = data;
+    guint h;
+
+    for (h = 0; h < order; h++) {
+      guint yy =
+          (int)(yoff + (double)(h + 1) * (double)gdk_pixbuf_get_height(im) /
+                           (double)nPixH / (double)order);
+      guint hh = yy - pyy;
+      guint pxx = (int)xoff;
+      guint w;
+
+      for (w = 0; w < order; w++) {
+
+        guint xx =
+            (int)(xoff + (double)(w + 1) * (double)gdk_pixbuf_get_width(im) /
+                             (double)nPixW / (double)order);
+        guint ww = xx - pxx;
+        struct PIX avg;
+
+        average_image_area(&avg, im, pxx, pyy, ww, hh);
+        *p1++ = (int)avg.r;
+        *p1++ = (int)avg.g;
+        *p1++ = (int)avg.b;
+
+        pxx = xx;
+      }
+      pyy = yy;
+    }
+  } else {
     perror("malloc");
     exit(1);
-  }
-
-  xoff = (double)x / (double)nPixW * (double)gdk_pixbuf_get_width(im);
-  yoff = (double)y / (double)nPixH * (double)gdk_pixbuf_get_height(im);
-
-  pyy = (int)yoff;
-  p1 = data;
-  for (h = 0; h < order; h++) {
-
-    yy = (int)(yoff + (double)(h + 1) * (double)gdk_pixbuf_get_height(im) /
-                          (double)nPixH / (double)order);
-    hh = yy - pyy;
-    pxx = (int)xoff;
-
-    for (w = 0; w < order; w++) {
-
-      xx = (int)(xoff + (double)(w + 1) * (double)gdk_pixbuf_get_width(im) /
-                            (double)nPixW / (double)order);
-      ww = xx - pxx;
-
-      average_image_area(&avg, im, pxx, pyy, ww, hh);
-      *p1++ = (int)avg.r;
-      *p1++ = (int)avg.g;
-      *p1++ = (int)avg.b;
-
-      pxx = xx;
-    }
-    pyy = yy;
   }
 
   return data;
 }
 
 void free_image_data() {
-  unsigned int ww, hh;
-
   if (globals.image) {
-
+    guint hh;
     /* free old image data */
     for (hh = 0; hh < globals.cur_opt.nPixH; hh++) {
       if (globals.image[hh]) {
+        guint ww;
         for (ww = 0; ww < globals.cur_opt.nPixW; ww++) {
-          if (globals.image[hh][ww].matches)
+          if (globals.image[hh][ww].matches) {
             free(globals.image[hh][ww].matches);
+          }
         }
         free(globals.image[hh]);
       }
@@ -216,9 +206,9 @@ void free_image_data() {
   }
 }
 
-static bool image_borders_n(struct IMAGE_INFO **image, struct PIC_DB *match,
-                            unsigned int n, unsigned int cx, unsigned int cy,
-                            unsigned int maxx, unsigned int maxy) {
+static gboolean image_borders_n(struct IMAGE_INFO **image, struct PIC_DB *match,
+                                guint n, guint cx, guint cy, guint maxx,
+                                guint maxy) {
   int x, y;
   for (y = cy - n; y <= (int)(cy + n); y++) {
     if (y < 0 || y >= (int)maxy)
@@ -229,32 +219,28 @@ static bool image_borders_n(struct IMAGE_INFO **image, struct PIC_DB *match,
       if (x == (int)cx && y == (int)cy)
         continue;
       if (image[y][x].db == match)
-        return true;
+        return TRUE;
     }
   }
-  return false;
+  return FALSE;
 }
 
-static unsigned int guess_order(double val, unsigned int pixW,
-                                unsigned int pixH, unsigned int max_order) {
-  unsigned int order;
-  order = (unsigned int)(sqrt((double)(pixW * pixH)) / 9.0 + (val / 6.0));
-  if (order > max_order)
+static guint guess_order(double val, guint pixW, guint pixH, guint max_order) {
+  guint order = (guint)(sqrt((double)(pixW * pixH)) / 9.0 + (val / 6.0));
+  if (order > max_order) {
     order = max_order;
+  }
   return order;
 }
 
 int render() {
-  unsigned int i, j;
-  unsigned int pixW, pixH;
-  unsigned int nPixW, nPixH;
-  unsigned int *match_data;
-  unsigned int proximity;
+  guint i, j;
+  guint pixW, pixH;
+  guint nPixW, nPixH;
+  guint proximity;
   GdkPixbuf *im;
   GdkPixbuf *out_im;
-  unsigned int order;
-  unsigned int ww, hh;
-  double stddev;
+  guint ww, hh;
   struct IMAGE_INFO **image;
   struct PIC_DB **matches;
 
@@ -279,15 +265,16 @@ int render() {
   if (copy_opt_data()) {
     resize_window();
 
-    if (globals.in_im_scaled != NULL)
+    if (globals.in_im_scaled != NULL) {
       g_object_unref(globals.in_im_scaled);
+      globals.in_im_scaled = NULL;
+    }
 
     /* scale the image */
-    if (NULL ==
-        (globals.in_im_scaled = gdk_pixbuf_scale_simple(
+    if ((globals.in_im_scaled = gdk_pixbuf_scale_simple(
              globals.in_im, globals.cur_opt.pixW * globals.cur_opt.nPixW,
              globals.cur_opt.pixH * globals.cur_opt.nPixH,
-             GDK_INTERP_BILINEAR))) {
+             GDK_INTERP_BILINEAR)) == NULL) {
       fprintf(stderr, "Error: Unable to scale image: %s\n", globals.in_fname);
       return 0;
     }
@@ -304,21 +291,28 @@ int render() {
   nPixH = globals.cur_opt.nPixH;
 
   /* malloc the array to store the image info */
-  if (NULL == (image = malloc(nPixH * sizeof(struct IMAGE_INFO *)))) {
+  image = malloc(nPixH * sizeof(struct IMAGE_INFO *));
+  if (image) {
+    for (hh = 0; hh < nPixH; hh++) {
+      image[hh] = malloc(nPixW * sizeof(struct IMAGE_INFO));
+      if (image[hh]) {
+        for (ww = 0; ww < nPixW; ww++) {
+          image[hh][ww].nMatch = 0;
+          image[hh][ww].match_no = 0;
+          image[hh][ww].do_highlight = FALSE;
+          image[hh][ww].db = NULL;
+          image[hh][ww].matches = NULL;
+        }
+      } else {
+        perror("Malloc");
+        return 0;
+      }
+    }
+  } else {
     perror("Malloc");
-    exit(1);
+    return 0;
   }
-  for (hh = 0; hh < nPixH; hh++) {
-    if (NULL == (image[hh] = malloc(nPixW * sizeof(struct IMAGE_INFO)))) {
-      perror("Malloc");
-      exit(1);
-    }
-    for (ww = 0; ww < nPixW; ww++) {
-      image[hh][ww].nMatch = 0;
-      image[hh][ww].db = NULL;
-      image[hh][ww].do_highlight = false;
-    }
-  }
+
   globals.image = image;
 
   /* initialize the database */
@@ -327,6 +321,7 @@ int render() {
   /* clear data stored in the database from the last render */
   reset_db_data(globals.head);
 
+  /* init the progress bar to 0 */
   set_progress_indicator(0.0);
 
   globals.show_rendered = 1;
@@ -334,24 +329,27 @@ int render() {
   /* go pix by pix through the image calculating images that match well */
   for (hh = 0; hh < nPixH; hh++) {
     for (ww = 0; ww < nPixW; ww++) {
+      guint *match_data;
 
       /* calc_stats */
-      stddev = calc_stddev(im, ww, hh, nPixW, nPixH);
+      double stddev = calc_stddev(im, ww, hh, nPixW, nPixH);
 
       /* depending on stddev, match to different orders */
-      order = guess_order(stddev, pixW, pixH, globals.max_order);
+      guint order = guess_order(stddev, pixW, pixH, globals.max_order);
 
       /* generate the data to match to from the master image */
       match_data = gen_master_data(im, ww, hh, nPixW, nPixH, order);
 
-      /* find the best matching picture for this "pixel" */
-      matches = find_match(order, match_data, globals.head);
+      if (match_data) {
+        /* find the best matching picture for this "pixel" */
+        matches = find_match(order, match_data, globals.head);
 
-      /* we are done with it now */
-      free(match_data);
+        /* store the image we picked */
+        image[hh][ww].matches = matches;
 
-      /* store the image we picked */
-      image[hh][ww].matches = matches;
+        /* we are done with it now */
+        free(match_data);
+      }
 
       /* update the progress bar */
       set_progress_indicator((double)(hh * nPixW + ww + 1) /
@@ -381,35 +379,34 @@ int render() {
     i = MAX_MATCHES;
 
     while (proximity > 0 && i == MAX_MATCHES) {
-      for (i = 0; i < MAX_MATCHES &&
-                  true == image_borders_n(image, matches[i], proximity, ww, hh,
-                                          nPixW, nPixH);
+      for (i = 0;
+           i < MAX_MATCHES &&
+           image_borders_n(image, matches[i], proximity, ww, hh, nPixW, nPixH);
            i++) /* do nothing */
         ;
       proximity--;
     }
 
     /* probably only one file */
-    if (matches[i] == NULL)
+    if (matches[i] == NULL) {
       i = 0;
+    }
 
     /* store the image we picked */
     image[hh][ww].match_no = i;
     image[hh][ww].db = matches[i];
     image[hh][ww].db->refcnt++;
-    image[hh][ww].db->done = false;
+    image[hh][ww].db->done = FALSE;
   }
 
   /* render the image */
-  if (NULL == (out_im = render_image(image, nPixW, nPixH, pixW, pixH))) {
+  out_im = render_image(image, nPixW, nPixH, pixW, pixH);
+  if (out_im == NULL) {
     fprintf(stderr, "Error: Can't render image.\n");
-    exit(1);
   }
-  globals.out_im = out_im;
 
   /* display it */
-  // draw_big_image(out_im);
-  redraw_screen(0, 0, globals.cur_opt.width, globals.cur_opt.height);
+  gtk_widget_queue_draw(globals.draw_area);
 
   /* set the cursor */
   cursor_normal();

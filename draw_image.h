@@ -24,14 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __DRAW_IMAGE_H
 
 #include "globals.h"
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gtk/gtk.h>
 
-int copy_opt_data();
-int calc_dimensions(struct IMAGE_OPTIONS *im_opt);
+gboolean copy_opt_data();
+gboolean calc_dimensions(struct _ImageOptions *im_opt);
 void render_image_pixmap(GdkPixbuf *);
-int draw_big_image(GdkPixbuf *im);
-void redraw_screen(int x, int y, int w, int h);
-int draw_small_image(GdkPixbuf *scale_im, int x, int y);
-int change_small_image(int xx, int yy);
+gboolean change_small_image(int xx, int yy);
 
 #endif

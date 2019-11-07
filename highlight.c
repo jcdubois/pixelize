@@ -19,23 +19,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* highlight.c by Paul Wilkins 1/2/2000 */
 
-#include <gtk/gtk.h>
-#include <stdio.h>
-/* #include <gdk_imlib.h> */
-/* #include <gdk/gdk.h> */
-
-#include "draw_image.h"
-#include "globals.h"
 #include "highlight.h"
+#include "globals.h"
 #include "render_image.h"
 
 static int timeout_exists = 0;
 
-static int highlight_timeout(gpointer data) {
+static gboolean highlight_timeout(gpointer data) {
 #if 0
   static int state = 0;
 #endif
-  unsigned int xx, yy;
+  guint xx, yy;
   (void)data;
 
   if (globals.do_highlight) {
@@ -45,21 +39,28 @@ static int highlight_timeout(gpointer data) {
       for (xx = 0; xx < globals.cur_opt.nPixW; xx++) {
         struct IMAGE_INFO *inf = &(globals.image[yy][xx]);
 
-        if (inf->do_highlight == true) {
+        if (inf->do_highlight == TRUE) {
 #if 0
-          GdkGC *gc = (state == 1) ? gtk_widget_get_style(GTK_WIDGET(globals.picDA))->white_gc
-                                   : gtk_widget_get_style(GTK_WIDGET(globals.picDA))->black_gc;
+          GdkGC *gc = (state == 1) ? gtk_widget_get_style(GTK_WIDGET(globals.draw_area))->white_gc
+                                   : gtk_widget_get_style(GTK_WIDGET(globals.draw_area))->black_gc;
 
           gdk_draw_rectangle(
-              gtk_widget_get_window(GTK_WIDGET(globals.picDA)), gc, FALSE,
+              gtk_widget_get_window(GTK_WIDGET(globals.draw_area)), gc, FALSE,
               xx * globals.cur_opt.pixW, yy * globals.cur_opt.pixH,
               globals.cur_opt.pixW - 1, globals.cur_opt.pixH - 1);
 #else
           cairo_surface_t *surface = NULL;
 
           if (surface) {
+#if 0
             cairo_t *cr = gdk_cairo_create(
-                gtk_widget_get_window(GTK_WIDGET(globals.picDA)));
+                gtk_widget_get_window(GTK_WIDGET(globals.draw_area)));
+#else
+            cairo_t *cr = gdk_drawing_context_get_cairo_context(
+                gdk_window_begin_draw_frame(
+                    gtk_widget_get_window(GTK_WIDGET(globals.draw_area)),
+                    cairo_region_create()));
+#endif
 
             if (cr) {
               cairo_set_source_surface(cr, surface, 0, 0);
@@ -82,43 +83,41 @@ static int highlight_timeout(gpointer data) {
 #endif
 
     /* make sure our drawing happens now */
-    gdk_flush();
+    // gdk_flush();
   }
 
   return TRUE;
 }
 
-int highlight_changed() {
-
+void highlight_changed() {
   /* redraw the screen */
-  redraw_screen(0, 0, globals.cur_opt.width, globals.cur_opt.height);
+  if (globals.draw_area) {
+    gtk_widget_queue_draw(globals.draw_area);
+  }
 
   /* redraw the highlights */
   highlight_timeout(NULL);
-
-  return 1;
 }
 
-int start_highlight_timer() {
+static int local_timer;
+
+void start_highlight_timer() {
 
   /* start a timer if one does not already exist */
   if (!timeout_exists) {
-    globals.timer = g_timeout_add(200, highlight_timeout, NULL);
+    local_timer = g_timeout_add(200, highlight_timeout, NULL);
     timeout_exists = 1;
   }
-
-  return 1;
 }
 
-int stop_highlight_timer() {
-
+void stop_highlight_timer() {
   if (timeout_exists) {
-    g_source_remove(globals.timer);
+    g_source_remove(local_timer);
     timeout_exists = 0;
   }
 
   /* redraw the screen */
-  redraw_screen(0, 0, globals.cur_opt.width, globals.cur_opt.height);
-
-  return 1;
+  if (globals.draw_area) {
+    gtk_widget_queue_draw(globals.draw_area);
+  }
 }

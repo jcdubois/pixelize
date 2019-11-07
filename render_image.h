@@ -23,23 +23,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __RENDER_IMAGE_H
 #define __RENDER_IMAGE_H
 
-#include "globals.h"
 #include "read_db.h"
-#include <stdbool.h>
+#include <gtk/gtk.h>
 
 struct IMAGE_INFO {
-  unsigned int nMatch;     /* number of matches in matches */
-  unsigned int match_no;   /* which match in matches is db */
-  bool do_highlight;       /* should we highlight this image somehow */
+  guint nMatch;            /* number of matches in matches */
+  guint match_no;          /* which match in matches is db */
+  gboolean do_highlight;   /* should we highlight this image somehow */
   struct PIC_DB *db;       /* the image we are actually using */
   struct PIC_DB **matches; /* all the other possible matches */
 };
 
-GdkPixbuf *render_image(struct IMAGE_INFO **image, unsigned int nPixW,
-                        unsigned int nPixH, unsigned int pixW,
-                        unsigned int pixH);
+GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
+                        guint pixW, guint pixH);
 
-void copy_image_RGB(GdkPixbuf *src, GdkPixbuf *dst, unsigned int col,
-                    unsigned int row);
+void copy_image_RGB(GdkPixbuf *src, GdkPixbuf *dst, guint col, guint row);
 
 #endif

@@ -19,17 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* make_db.c by Paul Wilkins 1/2/2000 */
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/extensions/shape.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-// #include <Imlib2.h>
 
 struct PIX {
   int cnt;
@@ -42,17 +32,17 @@ struct PIX {
 #define MAX_PATH_LEN 512
 
 int main(int argc, char **argv) {
-  bool write_db = true;
-  unsigned int i, j, n;
-  unsigned int size;
+  gboolean write_db = TRUE;
+  guint i, j, n;
+  guint size;
   GError *gerror;
   GdkPixbuf *pb;
-  unsigned int qh, qw;
-  unsigned int width, height;
-  unsigned int ww, hh;
+  guint qh, qw;
+  guint width, height;
+  guint ww, hh;
   guchar *p;
   guchar *pixels;
-  unsigned int rowstride, n_channels;
+  guint rowstride, n_channels;
   struct PIX ***quad;
   char my_cwd[MAX_PATH_LEN + 1];
   FILE *dbfp;
@@ -88,9 +78,6 @@ int main(int argc, char **argv) {
     }
   }
 
-  /* Connect to the default Xserver */
-  // disp = XOpenDisplay(NULL);
-
   if (write_db) {
     if (NULL == (dbfp = fopen("pic_db.dat", "a+"))) {
       fprintf(stderr, "Error opening pic_db.dat for write\n");
@@ -107,7 +94,7 @@ int main(int argc, char **argv) {
   }
 
   /* for each file */
-  for (n = 1; n < (unsigned int)argc; n++) {
+  for (n = 1; n < (guint)argc; n++) {
 
     /* Load the image specified as the first argument */
     gerror = NULL;
@@ -153,7 +140,7 @@ int main(int argc, char **argv) {
 
       for (hh = 0; hh < height; hh++) {
 
-        qh = (unsigned int)((double)hh / (double)height * (double)size);
+        qh = (guint)((double)hh / (double)height * (double)size);
         if (qh >= size)
           qh = size - 1;
 

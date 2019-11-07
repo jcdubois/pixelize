@@ -24,11 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __OPTIONS_H
 
 #include "globals.h"
-#include <glib.h>
+#include <gtk/gtk.h>
 
 /* pops up a new window with all the options in it */
 void optionsCB(gpointer data);
 
-void refresh_options_win(struct IMAGE_OPTIONS *im_opt);
+void refresh_options_win(struct _ImageOptions *im_opt);
 
 #endif

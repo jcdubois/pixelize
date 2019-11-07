@@ -19,17 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* info_popup.c by Paul Wilkins 1/2/2000 */
 
-#include <ctype.h>
-#include <gtk/gtk.h>
-#include <stdio.h>
-/* #include <gdk_imlib.h> */
-
 #include "draw_image.h"
 #include "find_match.h"
 #include "globals.h"
 #include "highlight.h"
 #include "info_popup.h"
-#include "read_db.h"
 #include "render_image.h"
 
 #define LIST_WIDTH 400
@@ -38,16 +32,16 @@ static GtkWidget *infWindow = NULL;
 static GtkWidget *info_list = NULL;
 static GtkWidget *info_label = NULL;
 
-static unsigned int info_x = 0; /* the current cell */
-static unsigned int info_y = 0;
-static bool ignore_selection = false;
+static guint info_x = 0; /* the current cell */
+static guint info_y = 0;
+static gboolean ignore_selection = FALSE;
 
 static void set_highlight() {
   struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
 
   if (inf) {
     if (globals.do_highlight & DO_HIGHLIGHT) {
-      inf->do_highlight = true;
+      inf->do_highlight = TRUE;
     }
   }
 }
@@ -57,7 +51,7 @@ static void set_highlight_dups() {
   struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
 
   if (inf) {
-    unsigned int x, y;
+    guint x, y;
     struct PIC_DB *db = inf->matches[inf->match_no];
 
     for (y = 0; y < globals.cur_opt.nPixH; y++) {
@@ -71,7 +65,7 @@ static void set_highlight_dups() {
         if (inf2) {
           struct PIC_DB *db2 = inf2->matches[inf2->match_no];
           if (db == db2)
-            inf2->do_highlight = true;
+            inf2->do_highlight = TRUE;
         }
       }
     }
@@ -79,7 +73,7 @@ static void set_highlight_dups() {
 }
 
 static void clear_all_highlights(int clear_current) {
-  unsigned int x, y;
+  guint x, y;
 
   /* clear everyone */
   for (y = 0; y < globals.cur_opt.nPixH; y++) {
@@ -92,7 +86,7 @@ static void clear_all_highlights(int clear_current) {
       inf = &(globals.image[y][x]);
 
       if (inf) {
-        inf->do_highlight = false;
+        inf->do_highlight = FALSE;
       }
     }
   }
@@ -103,39 +97,9 @@ static void info_fill_list() {
 
   fprintf(stderr, "%s: enterring\n", __func__);
 
-  ignore_selection = true;
+  ignore_selection = TRUE;
 
   if (inf && info_list) {
-#if 0
-    int i;
-
-    /* don't allow the widget to update */
-    gtk_clist_freeze(GTK_CLIST(info_list));
-
-    /* set the list entries */
-    gtk_clist_clear(GTK_CLIST(info_list));
-    for (i = 0; i < MAX_MATCHES; i++) {
-      struct PIC_DB *db = inf->matches[i];
-      char *ary[1];
-
-      if (db) {
-        ary[0] = db->fname;
-        gtk_clist_append(GTK_CLIST(info_list), ary);
-      }
-    }
-
-    /* select the current image in the list */
-    gtk_clist_select_row(GTK_CLIST(info_list), inf->match_no, 0);
-
-    /* possibly scroll the list */
-    if (GTK_VISIBILITY_FULL !=
-        gtk_clist_row_is_visible(GTK_CLIST(info_list), inf->match_no)) {
-      gtk_clist_moveto(GTK_CLIST(info_list), inf->match_no, -1, 0.5, 0.0);
-    }
-
-    /* allow the widget to update */
-    gtk_clist_thaw(GTK_CLIST(info_list));
-#else
     /* create a new store */
     GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
 
@@ -174,10 +138,9 @@ static void info_fill_list() {
         gtk_tree_path_free(path);
       }
     }
-#endif
   }
 
-  ignore_selection = false;
+  ignore_selection = FALSE;
 
   fprintf(stderr, "%s: exiting\n", __func__);
 }
@@ -201,7 +164,7 @@ void info_prev() {
         inf->match_no--;
       }
 
-      ignore_selection = true;
+      ignore_selection = TRUE;
 
       path = gtk_tree_path_new_from_indices(inf->match_no, -1);
       gtk_tree_selection_select_path(select, path);
@@ -209,7 +172,7 @@ void info_prev() {
                                    0, 0);
       gtk_tree_path_free(path);
 
-      ignore_selection = false;
+      ignore_selection = FALSE;
     }
 
     /* finally, draw the new image */
@@ -246,7 +209,7 @@ void info_next() {
         inf->match_no++;
       }
 
-      ignore_selection = true;
+      ignore_selection = TRUE;
 
       path = gtk_tree_path_new_from_indices(inf->match_no, -1);
       gtk_tree_selection_select_path(select, path);
@@ -254,7 +217,7 @@ void info_next() {
                                    0, 0);
       gtk_tree_path_free(path);
 
-      ignore_selection = false;
+      ignore_selection = FALSE;
     }
 
     /* finally, draw the new image */
@@ -300,7 +263,7 @@ static void info_selectionCB(GtkTreeSelection *selection, gpointer data) {
 
         if ((int)inf->match_no != row[0]) {
           /* store the new row */
-          inf->match_no = (unsigned int)row[0];
+          inf->match_no = (guint)row[0];
 
           /* finally, draw the new image */
           change_small_image(info_x, info_y);
@@ -335,9 +298,9 @@ static void info_highlightCB(GtkWidget *widget, gpointer data) {
 
   inf = &(globals.image[info_y][info_x]);
   if (globals.do_highlight & DO_HIGHLIGHT) {
-    inf->do_highlight = true;
+    inf->do_highlight = TRUE;
   } else {
-    inf->do_highlight = false;
+    inf->do_highlight = FALSE;
   }
 
   highlight_changed();
@@ -370,7 +333,7 @@ static void info_highlight_dupsCB(GtkWidget *widget, gpointer data) {
 }
 
 /* pops up a new window with all the options in it */
-void info_popup(unsigned int x, unsigned int y) {
+void info_popup(guint x, guint y) {
   char buf[64];
   GtkWidget *vbox;
   GtkWidget *table;
@@ -390,7 +353,7 @@ void info_popup(unsigned int x, unsigned int y) {
     gtk_container_set_border_width(GTK_CONTAINER(infWindow), 4);
 
     /* all the sections go in the vbox */
-    vbox = gtk_vbox_new(FALSE, 0);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(infWindow), vbox);
     gtk_widget_show(vbox);
 
@@ -431,29 +394,26 @@ void info_popup(unsigned int x, unsigned int y) {
       }
 
       gtk_container_add(GTK_CONTAINER(scrolled_window), info_list);
-      /* gtk_scrolled_window_add_with_viewport(
-       * GTK_SCROLLED_WINDOW(scrolled_window), info_list); */
       gtk_widget_show(info_list);
     }
 
     /***** next and previous buttons *************************/
 
-    table = gtk_table_new(1, 2, TRUE);
+    // table = gtk_table_new(1, 2, TRUE);
+    table = gtk_grid_new();
     gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 0);
     gtk_widget_show(table);
 
     button = gtk_button_new_with_label("Previous");
     gtk_widget_set_can_focus(GTK_WIDGET(button), FALSE);
     g_signal_connect(button, "clicked", G_CALLBACK(info_prevCB), NULL);
-    gtk_table_attach(GTK_TABLE(table), button, 0, 1, 0, 1, GTK_FILL, GTK_FILL,
-                     0, 0);
+    gtk_grid_attach(GTK_GRID(table), button, 0, 1, 0, 1);
     gtk_widget_show(button);
 
     button = gtk_button_new_with_label("Next");
     gtk_widget_set_can_focus(GTK_WIDGET(button), FALSE);
     g_signal_connect(button, "clicked", G_CALLBACK(info_nextCB), NULL);
-    gtk_table_attach(GTK_TABLE(table), button, 1, 2, 0, 1, GTK_FILL, GTK_FILL,
-                     0, 0);
+    gtk_grid_attach(GTK_GRID(table), button, 1, 2, 0, 1);
     gtk_widget_show(button);
 
     /***** highlight radio buttons * *************************/
@@ -481,7 +441,7 @@ void info_popup(unsigned int x, unsigned int y) {
     button = gtk_button_new_with_label("Dismiss");
     gtk_widget_set_can_focus(GTK_WIDGET(button), FALSE);
     g_signal_connect_swapped(button, "clicked", G_CALLBACK(gtk_widget_hide),
-                             GTK_OBJECT(infWindow));
+                             infWindow);
     gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
     gtk_widget_show(button);
   }
@@ -491,7 +451,7 @@ void info_popup(unsigned int x, unsigned int y) {
   info_y = y;
 
   /* set the coord label */
-  sprintf(buf, "Image coordinates: %ux%u", info_x, info_y);
+  snprintf(buf, sizeof(buf), "Image coordinates: %ux%u", info_x, info_y);
   gtk_label_set_text(GTK_LABEL(info_label), buf);
 
   /* clear and optionalls reset the highlites */
@@ -507,13 +467,7 @@ void info_popup(unsigned int x, unsigned int y) {
   /* fill the list box */
   info_fill_list();
 
-#if 0
-  if (GTK_IS_INVISIBLE(infWindow)) {
-    gtk_widget_show(infWindow);
-  }
-#else
   gtk_widget_show(infWindow);
-#endif
 
   fprintf(stderr, "%s: exiting\n", __func__);
 }

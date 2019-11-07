@@ -23,58 +23,53 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#include "render.h"
 #include <gtk/gtk.h>
-#include <stdbool.h>
 
 #define PIX_SIZE 0x1
 #define PIX_COUNT 0x2
 
-struct IMAGE_OPTIONS {
-  unsigned int width, height; /* width and height of final image */
-  unsigned int pixW, pixH;    /* size to scale small images to */
-  unsigned int nPixW, nPixH;
-  unsigned int proximity;
+struct _ImageOptions {
+  guint width, height; /* width and height of final image */
+  guint pixW, pixH;    /* size to scale small images to */
+  guint nPixW, nPixH;
+  guint proximity;
   unsigned long long opt_alg;
 };
 
-/* globals we use alot */
-struct GLOBALS {
+/* globals we use a lot */
+struct _Globals {
 
-  GtkWidget *topwin; /* the main window */
-  GtkWidget *ebox;   /* an event box around the scrolled window */
-
-  GtkWidget *picScroll; /* drawing area scrollbar widget */
-  GtkWidget *picDA;     /* drawing area widget */
-  // GdkPixmap *pixmap;         /* pixmap of the image */
+  GtkWidget *topwin;      /* The main window. It encompass everything */
+  GtkWidget *event_box;   /* An event box inside the main window.
+                             It contain the scrolled window */
+  GtkWidget *scroll_area; /* Drawing area scrollbar inside the event box.
+                             It contains the real drawing area */
+  GtkWidget *draw_area;   /* Drawing area widget */
 
   struct PIC_DB *head;       /* the image database */
   struct IMAGE_INFO **image; /* the constructed image */
 
-  unsigned int max_order; /* maximum order when fitting images */
+  guint max_order; /* maximum order when fitting images */
 
-  struct IMAGE_OPTIONS cur_opt;
-  struct IMAGE_OPTIONS new_opt;
+  struct _ImageOptions cur_opt;
+  struct _ImageOptions new_opt;
 
-  int timer;
-  unsigned int do_highlight;
+  guint do_highlight;
 
-  char *start_fname;
+  gboolean show_rendered;
 
-  bool show_rendered;
+  char *in_fname;          /* Input file name */
+  GdkPixbuf *in_im;        /* The original images */
+  GdkPixbuf *in_im_scaled; /* A scaled version ot the original image */
 
-  unsigned int disp_w, disp_h; /* size of display */
-
-  char *in_fname; /* input file */
-  GdkPixbuf *in_im_scaled;
-  GdkPixbuf *in_im;
-
-  char *out_fname; /* output file */
-  GdkPixbuf *out_im;
+  char *out_fname;          /* Output file name */
+  GdkPixbuf *out_im;        /* The processed image */
+  GdkPixbuf *out_im_scaled; /* A scaled version of the processed image */
 };
 
-extern struct GLOBALS globals;
+extern struct _Globals globals;
 
-int init_globals();
+void init_globals();
 
-#endif
+#endif //__GLOBALS_H
