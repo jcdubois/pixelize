@@ -46,11 +46,19 @@ static void quit_callback(GtkMenuItem *menuitem, gpointer user_data) {
   gtk_main_quit();
 }
 
+static gpointer render_compute_thread(gpointer data) {
+  (void)data;
+
+  render();
+
+  return NULL;
+}
+
 static void render_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
 
-  render();
+  g_thread_new("render", render_compute_thread, NULL);
 }
 
 static void license_callback(GtkMenuItem *menuitem, gpointer user_data) {
