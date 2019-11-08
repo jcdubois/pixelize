@@ -25,16 +25,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "globals.h"
 #include "info_popup.h"
 
-// static GdkRectangle workarea = {0};
-
 /* some callbacks */
 static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
   (void)data;
   (void)widget;
   (void)cr;
-  GdkPixbuf *ptr = NULL;
 
-  fprintf(stderr, "%s: enter\n", __func__);
+  GdkPixbuf *ptr = NULL;
 
   if (globals.show_rendered && globals.image) {
     ptr = globals.out_im;
@@ -43,16 +40,42 @@ static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
   }
 
   if (ptr) {
-    // define the selected pixbuf as draw_area source
-    gdk_cairo_set_source_pixbuf(cr, ptr, 0, 0);
-    // adjust the scrollbar as required
-    gtk_widget_set_size_request(widget, gdk_pixbuf_get_width(ptr),
-                                gdk_pixbuf_get_height(ptr));
+    GdkPixbuf *ptr2;
+    GtkAllocation alloc;
+    gint pix_width = gdk_pixbuf_get_width(ptr);
+    gint pix_height = gdk_pixbuf_get_height(ptr);
+    gint area_height, area_width;
+
+    gtk_widget_get_allocation(globals.scroll_area, &alloc);
+
+    if (pix_height > pix_width) {
+      area_height = (pix_height > alloc.height) ? alloc.height : pix_height;
+      area_width = area_height * pix_width / pix_height;
+      if (area_width > alloc.width) {
+        area_width = alloc.width;
+        area_height = area_width * pix_height / pix_width;
+      }
+    } else {
+      area_width = (pix_width > alloc.width) ? alloc.width : pix_width;
+      area_height = area_width * pix_height / pix_width;
+      if (area_height > alloc.height) {
+        area_height = alloc.height;
+        area_width = area_height * pix_width / pix_height;
+      }
+    }
+
+    ptr2 = gdk_pixbuf_scale_simple(ptr, area_width, area_height,
+                                   GDK_INTERP_BILINEAR);
+
+    if (ptr2) {
+      // define the selected pixbuf as draw_area source
+      gdk_cairo_set_source_pixbuf(cr, ptr2, 0, 0);
+      // adjust the scrollbar as required
+      gtk_widget_set_size_request(widget, area_width, area_height);
+    }
   }
 
   cairo_paint(cr);
-
-  fprintf(stderr, "%s: exit\n", __func__);
 
   return FALSE;
 }
@@ -63,8 +86,6 @@ static gint resize_callback(GtkWidget *widget, GdkEventConfigure *event,
   (void)widget;
   (void)event;
 
-  fprintf(stderr, "%s: enter\n", __func__);
-
   // Limit the minimal window size
   GdkGeometry hints;
   hints.min_width = 300;
@@ -74,8 +95,6 @@ static gint resize_callback(GtkWidget *widget, GdkEventConfigure *event,
       gtk_widget_get_window(GTK_WIDGET(globals.topwin)), &hints,
       GDK_HINT_MIN_SIZE);
 
-  fprintf(stderr, "%s: exit\n", __func__);
-
   return TRUE;
 }
 
@@ -83,17 +102,11 @@ static gboolean key_press_callback(GtkWidget *widget, GdkEventKey *event) {
   (void)widget;
   (void)event;
 
-  fprintf(stderr, "%s: enter\n", __func__);
-
-  fprintf(stderr, "%s: exit\n", __func__);
-
   return TRUE;
 }
 
 static gboolean key_release_callback(GtkWidget *widget, GdkEventKey *event) {
   (void)widget;
-
-  fprintf(stderr, "%s: enter\n", __func__);
 
   switch (event->keyval) {
   case GDK_KEY_space:
@@ -107,16 +120,12 @@ static gboolean key_release_callback(GtkWidget *widget, GdkEventKey *event) {
     break;
   }
 
-  fprintf(stderr, "%s: exit\n", __func__);
-
   return TRUE;
 }
 
 static gboolean button_press_callback(GtkWidget *widget,
                                       GdkEventButton *event) {
   (void)widget;
-
-  fprintf(stderr, "%s: enter\n", __func__);
 
   if (event->x < 0 || event->x >= globals.cur_opt.width) {
   } else if (event->y < 0 || event->y >= globals.cur_opt.height) {
@@ -137,8 +146,6 @@ static gboolean button_press_callback(GtkWidget *widget,
     }
   }
 
-  fprintf(stderr, "%s: exit\n", __func__);
-
   return TRUE;
 }
 
@@ -147,16 +154,10 @@ static gboolean button_release_callback(GtkWidget *widget,
   (void)widget;
   (void)event;
 
-  fprintf(stderr, "%s: enter\n", __func__);
-
-  fprintf(stderr, "%s: exit\n", __func__);
-
   return TRUE;
 }
 
 GtkWidget *setup_display(GtkWidget *parent) {
-
-  fprintf(stderr, "%s: enter\n", __func__);
 
   /***** create an event box *****/
   globals.event_box = gtk_event_box_new();
@@ -185,15 +186,11 @@ GtkWidget *setup_display(GtkWidget *parent) {
       globals.draw_area = gtk_drawing_area_new();
 
       if (globals.draw_area) {
-        // gtk_drawing_area_size(GTK_DRAWING_AREA(globals.draw_area), wid,
-        // hgt);
         gtk_container_add(GTK_CONTAINER(globals.scroll_area),
                           globals.draw_area);
         gtk_widget_show(globals.draw_area);
 
         /* Signals used to handle window ops */
-        // g_signal_connect(globals.draw_area, "expose_event",
-        // G_CALLBACK(ExposeCB), NULL);
         g_signal_connect(globals.draw_area, "draw", G_CALLBACK(draw_callback),
                          NULL);
         g_signal_connect(globals.draw_area, "configure_event",
@@ -225,14 +222,10 @@ GtkWidget *setup_display(GtkWidget *parent) {
     }
   }
 
-  fprintf(stderr, "%s: exit\n", __func__);
-
   return globals.scroll_area;
 }
 
 void resize_window() {
-
-  fprintf(stderr, "%s: enter\n", __func__);
 
 #if 0
   gint w, h;
@@ -261,6 +254,4 @@ void resize_window() {
   // gtk_window_set_policy(GTK_WINDOW(globals.topwin), TRUE, TRUE, TRUE);
   gtk_window_set_resizable(GTK_WINDOW(globals.topwin), TRUE);
 #endif
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }

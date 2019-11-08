@@ -95,8 +95,6 @@ static char *get_extension(const char *file_name) {
 static gboolean save_image(void) {
   gboolean ret = FALSE;
 
-  fprintf(stderr, "%s: enter\n", __func__);
-
   if (globals.out_fname && strlen(globals.out_fname) &&
       file_type(globals.out_fname) != 0) {
 
@@ -137,8 +135,6 @@ static gboolean save_image(void) {
 
 gboolean open_image(void) {
   gboolean ret = FALSE;
-
-  fprintf(stderr, "%s: enter\n", __func__);
 
   if (globals.in_fname && strlen(globals.in_fname) != 0 &&
       file_type(globals.in_fname) == 1) {
@@ -204,13 +200,10 @@ gboolean open_image(void) {
     fprintf(stderr, "Error: %s: Invalid file name.\n", __func__);
   }
 
-  fprintf(stderr, "%s: exit\n", __func__);
   return ret;
 }
 
 void file_open_dialog(void) {
-
-  fprintf(stderr, "%s: enter\n", __func__);
 
   GtkWidget *dialog = gtk_file_chooser_dialog_new(
       "Open File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel",
@@ -239,13 +232,9 @@ void file_open_dialog(void) {
 
     gtk_widget_destroy(dialog);
   }
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }
 
 void file_save_dialog(void) {
-
-  fprintf(stderr, "%s: enter\n", __func__);
 
   GtkWidget *dialog = gtk_file_chooser_dialog_new(
       "Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel",
@@ -281,6 +270,4 @@ void file_save_dialog(void) {
 
     gtk_widget_destroy(dialog);
   }
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }

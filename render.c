@@ -316,8 +316,6 @@ int render() {
   /* from now on, we display the rendered picture */
   globals.show_rendered = 1;
 
-  fprintf(stderr, "Start image match\n");
-
   /* go pix by pix through the image calculating images that match well */
   for (hh = 0; hh < nPixH; hh++) {
     for (ww = 0; ww < nPixW; ww++) {
@@ -351,10 +349,6 @@ int render() {
                              (double)(nPixH * nPixW));
     }
   }
-
-  fprintf(stderr, "End image match\n");
-
-  fprintf(stderr, "Find match\n");
 
   /* go pix by pix through the image finding the best match */
   for (j = 0; j < nPixH * nPixW; j++) {
@@ -407,8 +401,6 @@ int render() {
       fprintf(stderr, "Error; no matches for x(%d), y(%d)\n", ww, hh);
     }
   }
-
-  fprintf(stderr, "End Find match\n");
 
   /* render the image */
   out_im = render_image(globals.image, nPixW, nPixH, pixW, pixH);

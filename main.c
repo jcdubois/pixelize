@@ -47,8 +47,6 @@ static void destroy_callback(GtkWidget *widget, gpointer data) {
 }
 
 int main(int argc, char *argv[]) {
-  GtkWidget *main_w;
-  GtkWidget *grid;
   // GdkBitmap *icon_bitmap;
 
   /* initialize gtk */
@@ -68,16 +66,18 @@ int main(int argc, char *argv[]) {
   }
 
   /* the main window contains the work area and the menubar */
-  main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  globals.topwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-  if (main_w) {
-    globals.topwin = main_w;
-    gtk_widget_set_name(main_w, "pixelize");
+  if (globals.topwin) {
+    GtkWidget *grid;
+
+    gtk_widget_set_name(globals.topwin, "pixelize");
 
     /* handle window manager close */
-    g_signal_connect(main_w, "delete_event", G_CALLBACK(delete_event_callback),
+    g_signal_connect(globals.topwin, "delete_event",
+                     G_CALLBACK(delete_event_callback), NULL);
+    g_signal_connect(globals.topwin, "destroy", G_CALLBACK(destroy_callback),
                      NULL);
-    g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_callback), NULL);
 
     /*create the grid that everyone goes in */
     grid = gtk_grid_new();
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     if (grid) {
 
       /* add the grid to the top window */
-      gtk_container_add(GTK_CONTAINER(main_w), grid);
+      gtk_container_add(GTK_CONTAINER(globals.topwin), grid);
       gtk_widget_show(grid);
 
       /* set up the menu bar */
@@ -114,11 +114,11 @@ int main(int argc, char *argv[]) {
   //gdk_window_set_icon(main_w, NULL, icon_bitmap, NULL);
 #endif
 
-    gtk_widget_show(main_w);
+    gtk_widget_show(globals.topwin);
 
     cursor_normal();
 
-    // gtk_window_maximize(GTK_WINDOW(main_w));
+    // gtk_window_maximize(GTK_WINDOW(globals.topwin));
 
     gtk_main();
   } else {

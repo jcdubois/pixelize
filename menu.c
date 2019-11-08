@@ -28,67 +28,47 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static void open_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
-  fprintf(stderr, "%s: enter\n", __func__);
 
   file_open_dialog();
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }
 
 static void save_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
-  fprintf(stderr, "%s: enter\n", __func__);
 
   file_save_dialog();
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }
 
 static void quit_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
-  fprintf(stderr, "%s: enter\n", __func__);
 
   gtk_main_quit();
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }
 
 static void render_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
-  fprintf(stderr, "%s: enter\n", __func__);
 
   render();
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }
 
 static void license_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
-  fprintf(stderr, "%s: enter\n", __func__);
 
   license_popup();
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }
 
 static void help_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
-  fprintf(stderr, "%s: enter\n", __func__);
 
   help_popup();
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }
 
 /* create the menubar */
 void setup_menu(GtkWidget *parent) {
-
-  fprintf(stderr, "%s: enter\n", __func__);
 
   /********************************************************/
   /* create the menu bar */
@@ -213,6 +193,4 @@ void setup_menu(GtkWidget *parent) {
       }
     }
   }
-
-  fprintf(stderr, "%s: exit\n", __func__);
 }
