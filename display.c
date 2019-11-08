@@ -188,6 +188,10 @@ GtkWidget *setup_display(GtkWidget *parent) {
       if (globals.draw_area) {
         gtk_container_add(GTK_CONTAINER(globals.scroll_area),
                           globals.draw_area);
+        gtk_widget_set_hexpand(GTK_WIDGET(globals.draw_area), TRUE);
+        gtk_widget_set_vexpand(GTK_WIDGET(globals.draw_area), TRUE);
+        gtk_widget_set_halign(globals.draw_area, GTK_ALIGN_CENTER);
+        gtk_widget_set_valign(globals.draw_area, GTK_ALIGN_CENTER);
         gtk_widget_show(globals.draw_area);
 
         /* Signals used to handle window ops */
