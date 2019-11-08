@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* status.c by Paul Wilkins 1/2/2000 */
 
-#include "globals.h"
 #include "status.h"
+#include "globals.h"
 
 static GtkWidget *mode_display;
 static GtkWidget *progress_bar;

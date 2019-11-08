@@ -61,17 +61,19 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  if (NULL == (quad = malloc((MAX_SIZE + 1) * sizeof(struct PIX *)))) {
+  if (NULL == (quad = g_malloc0((MAX_SIZE + 1) * sizeof(struct PIX **)))) {
     perror("malloc");
     exit(1);
   }
+
   for (i = 1; i <= MAX_SIZE; i++) {
-    if (NULL == (quad[i] = malloc((MAX_SIZE + 1) * sizeof(struct PIX *)))) {
+    if (NULL == (quad[i] = g_malloc0((MAX_SIZE + 1) * sizeof(struct PIX *)))) {
       perror("malloc");
       exit(1);
     }
     for (j = 0; j <= MAX_SIZE; j++) {
-      if (NULL == (quad[i][j] = malloc((MAX_SIZE + 1) * sizeof(struct PIX)))) {
+      if (NULL ==
+          (quad[i][j] = g_malloc0((MAX_SIZE + 1) * sizeof(struct PIX)))) {
         perror("malloc");
         exit(1);
       }
@@ -83,6 +85,7 @@ int main(int argc, char **argv) {
       fprintf(stderr, "Error opening pic_db.dat for write\n");
       exit(1);
     }
+
     fprintf(dbfp, "%u\n", MAX_SIZE);
   }
 
@@ -98,7 +101,10 @@ int main(int argc, char **argv) {
 
     /* Load the image specified as the first argument */
     gerror = NULL;
-    if (NULL == (pb = gdk_pixbuf_new_from_file(argv[n], &gerror))) {
+
+    pb = gdk_pixbuf_new_from_file(argv[n], &gerror);
+
+    if (pb == NULL) {
       fprintf(stderr, "Error: Can't load image %s: %s\n", argv[n],
               gerror->message);
       continue;
@@ -163,7 +169,6 @@ int main(int argc, char **argv) {
     /* special case for size = 2 */
     for (hh = 0; hh < 2; hh++) {
       for (ww = 0; ww < 2; ww++) {
-
         for (i = 0; i < 2; i++) {
           for (j = 0; j < 2; j++) {
             quad[2][ww][hh].cnt += quad[4][ww * 2 + i][hh * 2 + j].cnt;
@@ -189,19 +194,21 @@ int main(int argc, char **argv) {
       if (write_db) {
         for (hh = 0; hh < size; hh++) {
           for (ww = 0; ww < size; ww++) {
-            fprintf(dbfp, "%03d %03d %03d\n",
-                    (int)(quad[size][ww][hh].r / quad[size][ww][hh].cnt),
-                    (int)(quad[size][ww][hh].g / quad[size][ww][hh].cnt),
-                    (int)(quad[size][ww][hh].b / quad[size][ww][hh].cnt));
+            fprintf(dbfp, "%03u %03u %03u\n",
+                    (guint)(quad[size][ww][hh].r / quad[size][ww][hh].cnt),
+                    (guint)(quad[size][ww][hh].g / quad[size][ww][hh].cnt),
+                    (guint)(quad[size][ww][hh].b / quad[size][ww][hh].cnt));
           }
         }
       }
     }
-    // gdk_pixbuf_unref(pb);
+
     g_object_unref(pb);
   }
-  if (write_db)
+
+  if (write_db) {
     fclose(dbfp);
+  }
 
   return 0;
 }

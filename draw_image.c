@@ -156,6 +156,8 @@ gboolean change_small_image(int xx, int yy) {
           }
           fprintf(stderr, "\n");
         }
+      } else {
+        fprintf(stderr, "Error: No db for coordinate x(%d) y(%d)\n", xx, yy);
       }
     }
   }

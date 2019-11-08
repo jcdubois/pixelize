@@ -24,30 +24,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static void free_db(struct PIC_DB *db, int n) {
   if (db) {
     if (db->fname) {
-      free(db->fname);
+      g_free(db->fname);
     }
     if (db->data) {
       int i;
       for (i = 0; i < n; i++) {
         if (db->data[i]) {
-          free(db->data[i]);
+          g_free(db->data[i]);
         }
       }
-      free(db->data);
+      g_free(db->data);
     }
-    free(db);
+    g_free(db);
   }
 }
 
 static struct PIC_DB *malloc_db(int strlen, int n) {
 
-  struct PIC_DB *db = malloc(sizeof(struct PIC_DB));
+  struct PIC_DB *db = g_malloc0(sizeof(struct PIC_DB));
 
   if (db) {
-    db->fname = malloc((strlen + 1) * sizeof(char));
+    db->data = NULL;
+    db->fname = g_malloc0((strlen + 1) * sizeof(char));
 
     if (db->fname) {
-      db->data = malloc(n * sizeof(int *));
+      db->data = g_malloc0(n * sizeof(guint *));
 
       if (db->data) {
         int i;
@@ -55,12 +56,13 @@ static struct PIC_DB *malloc_db(int strlen, int n) {
           db->data[i] = NULL;
         }
         for (i = 0; i < n; i++) {
-          db->data[i] = malloc(3 * (i + 1) * (i + 1) * sizeof(int));
+          db->data[i] = g_malloc0(3 * (i + 1) * (i + 1) * sizeof(guint));
 
           if (db->data[i] == NULL) {
             perror("malloc");
             free_db(db, n);
             db = NULL;
+            break;
           }
         }
       } else {
@@ -98,25 +100,21 @@ struct PIC_DB *read_database(guint *max_order) {
     char line[1024];
 
     if (fscanf(dbfp, "%u\n", max_order) == 1) {
-      guint ndb = 0;
-      struct PIC_DB *db = NULL;
 
       /* read in the db */
-      while (fscanf(dbfp, "%s\n", line) == 1) {
-        guint i, j, len;
-
-        len = strlen(line);
-
-        db = malloc_db(len, *max_order);
+      while (fscanf(dbfp, "%1023s\n", line) == 1) {
+        guint len = strlen(line);
+        struct PIC_DB *db = malloc_db(len, *max_order);
 
         if (db) {
+          guint i, j;
           strcpy(db->fname, line);
 
           for (j = 0; j < *max_order; j++) {
             guint *p1 = db->data[j];
 
             for (i = 0; i < (j + 1) * (j + 1); i++) {
-              if (fscanf(dbfp, "%u %u %u\n", &p1[0], &p1[1], &p1[2]) != 3) {
+              if (fscanf(dbfp, "%3u %3u %3u\n", &p1[0], &p1[1], &p1[2]) != 3) {
                 fprintf(stderr, "Error: can't read data from pic_db.dat\n");
                 exit(1);
               }
@@ -128,7 +126,6 @@ struct PIC_DB *read_database(guint *max_order) {
           db->next = head;
           /* new db head */
           head = db;
-          ndb++;
         }
       }
     } else {

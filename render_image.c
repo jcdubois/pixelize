@@ -79,58 +79,63 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
         GdkPixbuf *im;
         GError *gerror;
 
-        /* skip this image if it has already been rendered */
-        if (image[hh][ww].db->done == TRUE) {
-          continue;
-        }
+        if (image[hh][ww].db) {
+          /* skip this image if it has already been rendered */
+          if (image[hh][ww].db->done == TRUE) {
+            continue;
+          }
 
-        image[hh][ww].db->done = TRUE;
+          image[hh][ww].db->done = TRUE;
 
-        /* load the image */
-        gerror = NULL;
-        im = gdk_pixbuf_new_from_file(image[hh][ww].db->fname, &gerror);
-        if (im) {
+          /* load the image */
+          gerror = NULL;
+          im = gdk_pixbuf_new_from_file(image[hh][ww].db->fname, &gerror);
+          if (im) {
 
-          /* scale the image */
-          GdkPixbuf *scale_im =
-              gdk_pixbuf_scale_simple(im, pixW, pixH, GDK_INTERP_BILINEAR);
-          if (scale_im) {
+            /* scale the image */
+            GdkPixbuf *scale_im =
+                gdk_pixbuf_scale_simple(im, pixW, pixH, GDK_INTERP_BILINEAR);
+            if (scale_im) {
 
-            /* add an alpha channel */
-            GdkPixbuf *scale_im_alpha =
-                gdk_pixbuf_add_alpha(scale_im, 0, 0, 0, 0);
-            if (scale_im_alpha) {
-              guint i;
-              guint row, col;
+              /* add an alpha channel */
+              GdkPixbuf *scale_im_alpha =
+                  gdk_pixbuf_add_alpha(scale_im, 0, 0, 0, 0);
+              if (scale_im_alpha) {
+                guint i;
+                guint row, col;
 
-              /* copy the image data into the output data */
-              for (i = 0; i < image[hh][ww].db->refcnt; i++) {
-                if (i == 0) {
-                  row = hh;
-                  col = ww;
-                } else {
-                  find_next(image, image[hh][ww].db, &col, &row, nPixW, nPixH);
+                /* copy the image data into the output data */
+                for (i = 0; i < image[hh][ww].db->refcnt; i++) {
+                  if (i == 0) {
+                    row = hh;
+                    col = ww;
+                  } else {
+                    find_next(image, image[hh][ww].db, &col, &row, nPixW,
+                              nPixH);
+                  }
+
+                  copy_image_RGB(scale_im_alpha, dest, col, row);
                 }
 
-                copy_image_RGB(scale_im_alpha, dest, col, row);
+                g_object_unref(scale_im_alpha);
+              } else {
+                fprintf(stderr, "Error: Unable to add alpha to image %s\n",
+                        image[hh][ww].db->fname);
               }
 
-              g_object_unref(scale_im_alpha);
+              g_object_unref(scale_im);
             } else {
-              fprintf(stderr, "Error: Unable to add alpha to image %s\n",
+              fprintf(stderr, "Error: Unable to scale image %s\n",
                       image[hh][ww].db->fname);
             }
 
-            g_object_unref(scale_im);
+            g_object_unref(im);
           } else {
-            fprintf(stderr, "Error: Unable to scale image %s\n",
-                    image[hh][ww].db->fname);
+            fprintf(stderr, "Error: Unable to open %s: %s\n",
+                    image[hh][ww].db->fname, gerror->message);
           }
-
-          g_object_unref(im);
         } else {
-          fprintf(stderr, "Error: Unable to open %s: %s\n",
-                  image[hh][ww].db->fname, gerror->message);
+          fprintf(stderr, "Error: No DB entry for x(%d) y(%d)\n", ww, hh);
         }
 
         /* update the progress bar */

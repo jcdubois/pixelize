@@ -19,11 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* info_popup.c by Paul Wilkins 1/2/2000 */
 
+#include "info_popup.h"
 #include "draw_image.h"
 #include "find_match.h"
 #include "globals.h"
 #include "highlight.h"
-#include "info_popup.h"
 #include "render_image.h"
 
 #define LIST_WIDTH 400

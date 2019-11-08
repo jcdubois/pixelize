@@ -19,12 +19,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* render.c by Paul Wilkins 1/2/2000 */
 
+#include "render.h"
 #include "cursor.h"
 #include "display.h"
 #include "draw_image.h"
 #include "find_match.h"
 #include "globals.h"
-#include "render.h"
 #include "render_image.h"
 #include "stats.h"
 #include "status.h"
@@ -125,7 +125,7 @@ static double calc_stddev(GdkPixbuf *im, guint x, guint y, guint nPixW,
   return (stdR + stdG + stdB) / 3.0;
 }
 
-static int init_db() {
+static void init_db() {
   static gboolean init = FALSE;
 
   if (init == FALSE) {
@@ -137,13 +137,12 @@ static int init_db() {
     }
     init = TRUE;
   }
-  return 1;
 }
 
 static guint *gen_master_data(GdkPixbuf *im, guint x, guint y, guint nPixW,
                               guint nPixH, guint order) {
   /* this must be free'd outside this function */
-  guint *data = malloc(3 * order * order * sizeof(guint));
+  guint *data = g_malloc0(3 * order * order * sizeof(guint));
 
   if (data) {
     double xoff = (double)x / (double)nPixW * (double)gdk_pixbuf_get_width(im);
@@ -194,13 +193,13 @@ void free_image_data() {
         guint ww;
         for (ww = 0; ww < globals.cur_opt.nPixW; ww++) {
           if (globals.image[hh][ww].matches) {
-            free(globals.image[hh][ww].matches);
+            g_free(globals.image[hh][ww].matches);
           }
         }
-        free(globals.image[hh]);
+        g_free(globals.image[hh]);
       }
     }
-    free(globals.image);
+    g_free(globals.image);
 
     globals.image = NULL;
   }
@@ -241,7 +240,6 @@ int render() {
   GdkPixbuf *im;
   GdkPixbuf *out_im;
   guint ww, hh;
-  struct IMAGE_INFO **image;
   struct PIC_DB **matches;
 
   if (globals.in_fname == NULL || globals.in_im_scaled == NULL) {
@@ -291,20 +289,13 @@ int render() {
   nPixH = globals.cur_opt.nPixH;
 
   /* malloc the array to store the image info */
-  image = malloc(nPixH * sizeof(struct IMAGE_INFO *));
-  if (image) {
+  globals.image = g_malloc0(nPixH * sizeof(struct IMAGE_INFO *));
+  if (globals.image) {
     for (hh = 0; hh < nPixH; hh++) {
-      image[hh] = malloc(nPixW * sizeof(struct IMAGE_INFO));
-      if (image[hh]) {
-        for (ww = 0; ww < nPixW; ww++) {
-          image[hh][ww].nMatch = 0;
-          image[hh][ww].match_no = 0;
-          image[hh][ww].do_highlight = FALSE;
-          image[hh][ww].db = NULL;
-          image[hh][ww].matches = NULL;
-        }
-      } else {
+      globals.image[hh] = g_malloc0(nPixW * sizeof(struct IMAGE_INFO));
+      if (!globals.image[hh]) {
         perror("Malloc");
+        free_image_data();
         return 0;
       }
     }
@@ -313,9 +304,7 @@ int render() {
     return 0;
   }
 
-  globals.image = image;
-
-  /* initialize the database */
+  /* initialize the database if not already done */
   init_db();
 
   /* clear data stored in the database from the last render */
@@ -324,7 +313,10 @@ int render() {
   /* init the progress bar to 0 */
   set_progress_indicator(0.0);
 
+  /* from now on, we display the rendered picture */
   globals.show_rendered = 1;
+
+  fprintf(stderr, "Start image match\n");
 
   /* go pix by pix through the image calculating images that match well */
   for (hh = 0; hh < nPixH; hh++) {
@@ -345,10 +337,13 @@ int render() {
         matches = find_match(order, match_data, globals.head);
 
         /* store the image we picked */
-        image[hh][ww].matches = matches;
+        globals.image[hh][ww].matches = matches;
 
         /* we are done with it now */
-        free(match_data);
+        g_free(match_data);
+      } else {
+        globals.image[hh][ww].matches = NULL;
+        fprintf(stderr, "Error; no matches for x(%d), y(%d)\n", ww, hh);
       }
 
       /* update the progress bar */
@@ -356,6 +351,10 @@ int render() {
                              (double)(nPixH * nPixW));
     }
   }
+
+  fprintf(stderr, "End image match\n");
+
+  fprintf(stderr, "Find match\n");
 
   /* go pix by pix through the image finding the best match */
   for (j = 0; j < nPixH * nPixW; j++) {
@@ -365,42 +364,54 @@ int render() {
     ww = random() % nPixW;
 
     /* find the next free image */
-    while (image[hh][ww].db != NULL) {
+    while (globals.image[hh][ww].db != NULL) {
       ww = (ww + 1) % nPixW;
       if (ww == 0) {
         hh = (hh + 1) % nPixH;
       }
     }
 
-    matches = image[hh][ww].matches;
+    matches = globals.image[hh][ww].matches;
 
-    /* pick one of the (hopefully the best) matches to fill this spot */
-    proximity = globals.cur_opt.proximity;
-    i = MAX_MATCHES;
+    if (matches) {
+      /* pick one of the (hopefully the best) matches to fill this spot */
+      proximity = globals.cur_opt.proximity;
+      i = MAX_MATCHES;
 
-    while (proximity > 0 && i == MAX_MATCHES) {
-      for (i = 0;
-           i < MAX_MATCHES &&
-           image_borders_n(image, matches[i], proximity, ww, hh, nPixW, nPixH);
-           i++) /* do nothing */
-        ;
-      proximity--;
+      while (proximity > 0 && i == MAX_MATCHES) {
+        for (i = 0; i < MAX_MATCHES &&
+                    image_borders_n(globals.image, matches[i], proximity, ww,
+                                    hh, nPixW, nPixH);
+             i++) {
+          /* do nothing */
+        }
+        proximity--;
+      }
+
+      if (matches[i] == NULL) {
+        /* probably only one file */
+        i = 0;
+      }
+
+      /* store the image we picked */
+      globals.image[hh][ww].db = matches[i];
+      if (matches[i]) {
+        globals.image[hh][ww].db->refcnt++;
+        globals.image[hh][ww].db->done = FALSE;
+      }
+      globals.image[hh][ww].match_no = i;
+
+    } else {
+      globals.image[hh][ww].db = NULL;
+      globals.image[hh][ww].match_no = 0;
+      fprintf(stderr, "Error; no matches for x(%d), y(%d)\n", ww, hh);
     }
-
-    /* probably only one file */
-    if (matches[i] == NULL) {
-      i = 0;
-    }
-
-    /* store the image we picked */
-    image[hh][ww].match_no = i;
-    image[hh][ww].db = matches[i];
-    image[hh][ww].db->refcnt++;
-    image[hh][ww].db->done = FALSE;
   }
 
+  fprintf(stderr, "End Find match\n");
+
   /* render the image */
-  out_im = render_image(image, nPixW, nPixH, pixW, pixH);
+  out_im = render_image(globals.image, nPixW, nPixH, pixW, pixH);
   if (out_im == NULL) {
     fprintf(stderr, "Error: Can't render image.\n");
   }

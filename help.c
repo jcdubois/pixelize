@@ -19,9 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* help.c by Paul Wilkins 1/2/2000 */
 
-#include <gtk/gtk.h>
 #include "help.h"
 #include "license.h"
+#include <gtk/gtk.h>
 
 #define HELP_TXT                                                               \
   "\n\

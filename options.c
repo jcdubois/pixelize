@@ -19,10 +19,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /* options.c by Paul Wilkins 1/2/2000 */
 
-#include <ctype.h>
+#include "options.h"
 #include "draw_image.h"
 #include "globals.h"
-#include "options.h"
+#include <ctype.h>
 
 static GtkWidget *optWindow = NULL;
 static GtkWidget *size_x_entry = NULL;

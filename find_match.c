@@ -26,7 +26,7 @@ struct PIC_DB **find_match(guint order, guint *match_data,
                            struct PIC_DB *head) {
   double best_fit[MAX_MATCHES];
 
-  struct PIC_DB **matches = malloc(MAX_MATCHES * sizeof(struct PIC_DB *));
+  struct PIC_DB **matches = g_malloc0(MAX_MATCHES * sizeof(struct PIC_DB *));
 
   if (matches) {
     guint i;
