@@ -61,10 +61,12 @@ struct _Globals {
 
   char *in_fname;          /* Input file name */
   GdkPixbuf *in_im;        /* The original images */
-  GdkPixbuf *in_im_scaled; /* A scaled version ot the original image */
+  GdkPixbuf *in_im_scaled; /* A scaled version ot the original image.
+                              It is scalled to fit exactly the col x line
+                              defined in the options */
 
-  char *out_fname;          /* Output file name */
-  GdkPixbuf *out_im;        /* The processed image */
+  char *out_fname;   /* Output file name */
+  GdkPixbuf *out_im; /* The processed image */
 };
 
 extern struct _Globals globals;
