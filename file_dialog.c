@@ -152,8 +152,6 @@ gboolean open_image(void) {
     }
     globals.in_im_scaled = NULL;
 
-    free_image_data();
-
     /* Load the image specified as the first argument */
     gerror = NULL;
     im = gdk_pixbuf_new_from_file(globals.in_fname, &gerror);

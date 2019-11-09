@@ -193,7 +193,7 @@ static guint *gen_master_data(GdkPixbuf *im, guint x, guint y, guint nPixW,
   return data;
 }
 
-void free_image_data() {
+static void free_image_data() {
   if (globals.image) {
     guint hh;
     /* free old image data */
