@@ -40,6 +40,15 @@ struct PIX {
   double b;
 };
 
+static gboolean update_cursor_callback(gpointer data) {
+  if (data) {
+    cursor_normal();
+  } else {
+    cursor_busy();
+  }
+  return FALSE;
+}
+
 void average_image_area(struct PIX *avg, GdkPixbuf *im, guint x, guint y,
                         guint w, guint h) {
   guint i, j;
@@ -257,7 +266,8 @@ int render() {
   }
 
   /* set the cursor */
-  cursor_busy();
+  /* We ask the main thread to change the cursor */
+  g_idle_add(update_cursor_callback, (gpointer)0);
 
   /* copy the image rendering data from new_opt to cur_opt */
   if (copy_opt_data()) {
@@ -409,10 +419,12 @@ int render() {
   }
 
   /* display it */
-  gtk_widget_queue_draw(globals.draw_area);
+  /* We ask the main thread to update the final picture */
+  g_idle_add(update_gui_callback, globals.draw_area);
 
   /* set the cursor */
-  cursor_normal();
+  /* We ask the main thread to change the cursor */
+  g_idle_add(update_cursor_callback, (gpointer)1);
 
   return 1;
 }

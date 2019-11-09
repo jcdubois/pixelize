@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* status.c by Paul Wilkins 1/2/2000 */
 
 #include "status.h"
+#include "display.h"
 #include "globals.h"
 
 static GtkWidget *mode_display;
@@ -54,7 +55,8 @@ void set_progress_indicator(double val) {
       }
 
       /* force an update NOW */
-      gtk_widget_queue_draw(progress_bar);
+      /* We ask the main thread to update the progress bar */
+      g_idle_add(update_gui_callback, progress_bar);
     }
   }
 }
@@ -73,7 +75,8 @@ void refresh_mode_display() {
 
     gtk_label_set_text(GTK_LABEL(mode_display), buf);
 
-    gtk_widget_queue_draw(mode_display);
+    /* We ask the main thread to update the mode information */
+    g_idle_add(update_gui_callback, mode_display);
   }
 }
 

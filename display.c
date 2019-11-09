@@ -36,7 +36,7 @@ static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
   if (globals.show_rendered && globals.image) {
     ptr = globals.out_im;
   } else {
-    ptr = globals.in_im;
+    ptr = globals.in_im_scaled;
   }
 
   if (ptr) {
@@ -72,6 +72,7 @@ static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
       gdk_cairo_set_source_pixbuf(cr, ptr2, 0, 0);
       // adjust the scrollbar as required
       gtk_widget_set_size_request(widget, area_width, area_height);
+      g_object_unref(ptr2);
     }
   }
 
@@ -155,6 +156,11 @@ static gboolean button_release_callback(GtkWidget *widget,
   (void)event;
 
   return TRUE;
+}
+
+gboolean update_gui_callback(gpointer data) {
+  gtk_widget_queue_draw(GTK_WIDGET(data));
+  return FALSE;
 }
 
 GtkWidget *setup_display(GtkWidget *parent) {

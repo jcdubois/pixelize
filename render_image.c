@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* render_image.c by Paul Wilkins 1/2/2000 */
 
 #include "render_image.h"
+#include "display.h"
 #include "globals.h"
 #include "status.h"
 
@@ -142,9 +143,8 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
         set_progress_indicator((double)(hh * nPixW + ww + 1) /
                                (double)(nPixH * nPixW));
 
-        gtk_widget_queue_draw(globals.draw_area);
-
-        gdk_display_flush(gdk_display_get_default());
+	/* We ask the main thread to update the current picture */
+        g_idle_add(update_gui_callback, globals.draw_area);
       }
     }
   }

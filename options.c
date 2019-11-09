@@ -32,22 +32,6 @@ static GtkWidget *count_y_entry = NULL;
 static GtkWidget *size_button = NULL;
 static GtkWidget *count_button = NULL;
 
-guint is_valid_int(const char *str) {
-  const char *p1 = str;
-  guint val;
-
-  while (*p1 != 0) {
-    if (!isdigit(*p1))
-      return -1;
-    p1++;
-  }
-
-  if (1 != sscanf(str, "%u", &val))
-    return -1;
-
-  return val;
-}
-
 void refresh_options_win(struct _ImageOptions *im_opt) {
   char buf[8];
 
@@ -106,10 +90,11 @@ void pix_size_x_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
-  globals.new_opt.pixW = is_valid_int(txt);
-  if (0 == calc_dimensions(&(globals.new_opt))) {
-    fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-    return;
+  if (sscanf(txt, "%u", &globals.new_opt.pixW) == 1) {
+    if (0 == calc_dimensions(&(globals.new_opt))) {
+      fprintf(stderr, "error: %s can't compute dimension\n", __func__);
+      return;
+    }
   }
   refresh_options_win(&(globals.new_opt));
 }
@@ -118,10 +103,11 @@ void pix_size_y_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
-  globals.new_opt.pixH = is_valid_int(txt);
-  if (0 == calc_dimensions(&(globals.new_opt))) {
-    fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-    return;
+  if (sscanf(txt, "%u", &globals.new_opt.pixH) == 1) {
+    if (0 == calc_dimensions(&(globals.new_opt))) {
+      fprintf(stderr, "error: %s can't compute dimension\n", __func__);
+      return;
+    }
   }
   refresh_options_win(&(globals.new_opt));
 }
@@ -130,17 +116,20 @@ static void pix_proximity_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
-  globals.new_opt.proximity = is_valid_int(txt);
+  if (sscanf(txt, "%u", &globals.new_opt.proximity) == 1) {
+  }
+  refresh_options_win(&(globals.new_opt));
 }
 
 void pix_count_x_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
-  globals.new_opt.nPixW = is_valid_int(txt);
-  if (0 == calc_dimensions(&(globals.new_opt))) {
-    fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-    return;
+  if (sscanf(txt, "%u", &globals.new_opt.nPixW) == 1) {
+    if (0 == calc_dimensions(&(globals.new_opt))) {
+      fprintf(stderr, "error: %s can't compute dimension\n", __func__);
+      return;
+    }
   }
   refresh_options_win(&(globals.new_opt));
 }
@@ -149,10 +138,11 @@ void pix_count_y_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
-  globals.new_opt.nPixH = is_valid_int(txt);
-  if (0 == calc_dimensions(&(globals.new_opt))) {
-    fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-    return;
+  if (sscanf(txt, "%u", &globals.new_opt.nPixH) == 1) {
+    if (0 == calc_dimensions(&(globals.new_opt))) {
+      fprintf(stderr, "error: %s can't compute dimension\n", __func__);
+      return;
+    }
   }
   refresh_options_win(&(globals.new_opt));
 }
@@ -160,8 +150,6 @@ void pix_count_y_CB(GtkWidget *widget, GtkWidget *entry) {
 /* pops up a new window with all the options in it */
 void optionsCB(gpointer data) {
   (void)data;
-
-  fprintf(stderr, "%s: enterring\n", __func__);
 
   if (!optWindow) {
     optWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -205,8 +193,6 @@ void optionsCB(gpointer data) {
             GtkWidget *hbox;
             GtkWidget *label;
             GtkWidget *entry;
-
-            fprintf(stderr, "%s: creating option window\n", __func__);
 
             gtk_container_set_border_width(GTK_CONTAINER(vbox2), 4);
             gtk_container_add(GTK_CONTAINER(frame), vbox2);
@@ -315,8 +301,6 @@ void optionsCB(gpointer data) {
             gtk_box_pack_start(GTK_BOX(vbox), button, TRUE, TRUE, 0);
             gtk_widget_set_can_default(button, TRUE);
             gtk_widget_show(button);
-
-            fprintf(stderr, "%s: option window created\n", __func__);
           } else {
             fprintf(stderr, "%s: failed to create vbox2\n", __func__);
             return;
