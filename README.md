@@ -1,5 +1,5 @@
 
-# Pixelize Version  1.0.0
+# Pixelize Version  2.0.0
 
 ## By Paul Wilkins
 
@@ -36,4 +36,5 @@ https://github.com/jcdubois/pixelize
 That's it.  Good Luck.
 
 Paul
+
 pwilkins@lashwhip.com

@@ -1,16 +1,16 @@
 Begin3
 Title:           pixelize
-Version:         1.0.0
-Entered-date:    Jan. 18, 2008
+Version:         2.0.0
+Entered-date:    Nov. 09, 2019
 Description:     Pixelize is a program that will use many scaled
                  down images to try to duplicate, as closely as
                  possible, another image.
 Keywords:        image viewer photo graphics render
 Author:          pwilkins@lashwhip.com (Paul Wilkins)
 Maintained-by:   pwilkins@lashwhip.com (Paul Wilkins)
-Primary-site:    lashwhip.com /pub
+Primary-site:    lashwhip.com /pixelize
                  32kB pixelize-1.0.0.tar.gz
-Alternate-site:  metalab.unc.edu /pub/linux/apps/graphics/misc
-                 32kB pixelize-1.0.0.tar.gz
+Alternate-site:  github.com /jcdubois/pixelize/archive
+                 32kB 2.0.0.zip
 Copying-policy:  GPL
 End
