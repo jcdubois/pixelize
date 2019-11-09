@@ -51,6 +51,9 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# Vi temporary files
+*.swp
+
 # Generated binaries
 make_db
 pixelize
