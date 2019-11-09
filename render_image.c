@@ -64,6 +64,7 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
 
   if (dest) {
     guint ww, hh;
+    guint count = 0;
 
     if (globals.out_im) {
       g_object_unref(globals.out_im);
@@ -135,16 +136,16 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
             fprintf(stderr, "Error: Unable to open %s: %s\n",
                     image[hh][ww].db->fname, gerror->message);
           }
+
+          /* update the progress bar */
+          count += image[hh][ww].db->refcnt;
+          set_progress_indicator((double)(count) / (double)(nPixH * nPixW));
+
+          /* We ask the main thread to update the current picture */
+          g_idle_add(update_gui_callback, globals.draw_area);
         } else {
           fprintf(stderr, "Error: No DB entry for x(%d) y(%d)\n", ww, hh);
         }
-
-        /* update the progress bar */
-        set_progress_indicator((double)(hh * nPixW + ww + 1) /
-                               (double)(nPixH * nPixW));
-
-	/* We ask the main thread to update the current picture */
-        g_idle_add(update_gui_callback, globals.draw_area);
       }
     }
   }
