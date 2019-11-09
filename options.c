@@ -157,7 +157,7 @@ void optionsCB(gpointer data) {
     optWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
     if (optWindow) {
-      GtkWidget *vbox;
+      GtkWidget *grid;
 
       gtk_window_set_title(GTK_WINDOW(optWindow), "Options");
 
@@ -166,53 +166,48 @@ void optionsCB(gpointer data) {
 
       gtk_container_set_border_width(GTK_CONTAINER(optWindow), 4);
 
-      /* all the sections go in the vbox */
-      vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+      /* all the sections go in the grid */
+      grid = gtk_grid_new();
 
-      if (vbox) {
+      if (grid) {
         GtkWidget *frame;
 
-        gtk_container_add(GTK_CONTAINER(optWindow), vbox);
-        gtk_widget_show(vbox);
+        gtk_container_add(GTK_CONTAINER(optWindow), grid);
+        gtk_widget_show(grid);
 
         /***** IMAGES *******************************************************/
 
         frame = gtk_frame_new("Images");
 
         if (frame) {
-          GtkWidget *vbox2;
+          GtkWidget *grid2;
 
-          gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
+          gtk_grid_attach(GTK_GRID(grid), frame, 0, 0, 1, 1);
           gtk_container_set_border_width(GTK_CONTAINER(frame), 4);
           gtk_widget_show(frame);
 
-          vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+          grid2 = gtk_grid_new();
 
-          if (vbox2) {
+          if (grid2) {
             char buf[8];
             GSList *group;
             GtkWidget *button;
-            GtkWidget *hbox;
             GtkWidget *label;
             GtkWidget *entry;
 
-            gtk_container_set_border_width(GTK_CONTAINER(vbox2), 4);
-            gtk_container_add(GTK_CONTAINER(frame), vbox2);
-            gtk_widget_show(vbox2);
+            gtk_container_set_border_width(GTK_CONTAINER(grid2), 4);
+            gtk_container_add(GTK_CONTAINER(frame), grid2);
+            gtk_widget_show(grid2);
 
             /***** size *****/
-            hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-            gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
-            gtk_widget_show(hbox);
-
             size_button = button = gtk_radio_button_new_with_label(NULL, "");
-            gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), button, 0, 0, 1, 1);
             g_signal_connect(button, "toggled", G_CALLBACK(pix_opt_alg_CB),
                              (gpointer)PIX_SIZE);
             gtk_widget_show(button);
 
             label = gtk_label_new("Image Sizes: ");
-            gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), label, 1, 0, 1, 1);
             gtk_widget_show(label);
 
             size_x_entry = entry = gtk_entry_new();
@@ -220,11 +215,11 @@ void optionsCB(gpointer data) {
             gtk_widget_set_size_request(entry, 50, -1);
             g_signal_connect(entry, "focus-out-event",
                              G_CALLBACK(pix_size_x_CB), NULL);
-            gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), entry, 2, 0, 1, 1);
             gtk_widget_show(entry);
 
-            label = gtk_label_new("X");
-            gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+            label = gtk_label_new(" X ");
+            gtk_grid_attach(GTK_GRID(grid2), label, 4, 0, 1, 1);
             gtk_widget_show(label);
 
             size_y_entry = entry = gtk_entry_new();
@@ -232,27 +227,23 @@ void optionsCB(gpointer data) {
             gtk_widget_set_size_request(entry, 50, -1);
             g_signal_connect(entry, "focus-out-event",
                              G_CALLBACK(pix_size_y_CB), NULL);
-            gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), entry, 6, 0, 1, 1);
             gtk_widget_show(entry);
 
             label = gtk_label_new(" Pixels ");
-            gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), label, 8, 0, 1, 1);
             gtk_widget_show(label);
 
             /***** number *****/
-            hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-            gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
-            gtk_widget_show(hbox);
-
             group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
             count_button = button = gtk_radio_button_new_with_label(group, "");
-            gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), button, 0, 1, 1, 1);
             g_signal_connect(button, "toggled", G_CALLBACK(pix_opt_alg_CB),
                              (gpointer)PIX_COUNT);
             gtk_widget_show(button);
 
             label = gtk_label_new("Number of Images: ");
-            gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), label, 1, 1, 1, 1);
             gtk_widget_show(label);
 
             count_x_entry = entry = gtk_entry_new();
@@ -260,11 +251,11 @@ void optionsCB(gpointer data) {
             gtk_widget_set_size_request(entry, 50, -1);
             g_signal_connect(entry, "focus-out-event",
                              G_CALLBACK(pix_count_x_CB), NULL);
-            gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), entry, 2, 1, 1, 1);
             gtk_widget_show(entry);
 
-            label = gtk_label_new("X");
-            gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+            label = gtk_label_new(" X ");
+            gtk_grid_attach(GTK_GRID(grid2), label, 4, 1, 1, 1);
             gtk_widget_show(label);
 
             count_y_entry = entry = gtk_entry_new();
@@ -272,17 +263,17 @@ void optionsCB(gpointer data) {
             gtk_widget_set_size_request(entry, 50, -1);
             g_signal_connect(entry, "focus-out-event",
                              G_CALLBACK(pix_count_y_CB), NULL);
-            gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), entry, 6, 1, 1, 1);
             gtk_widget_show(entry);
+
+            label = gtk_label_new(" Images ");
+            gtk_grid_attach(GTK_GRID(grid2), label, 8, 1, 1, 1);
+            gtk_widget_show(label);
 
             /***** proximity *****/
 
-            hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-            gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
-            gtk_widget_show(hbox);
-
             label = gtk_label_new("Proximity of duplicates: ");
-            gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), label, 1, 2, 1, 1);
             gtk_widget_show(label);
 
             entry = gtk_entry_new();
@@ -292,7 +283,7 @@ void optionsCB(gpointer data) {
                              G_CALLBACK(pix_proximity_CB), NULL);
             snprintf(buf, sizeof(buf), "%u", globals.new_opt.proximity);
             gtk_entry_set_text(GTK_ENTRY(entry), buf);
-            gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
+            gtk_grid_attach(GTK_GRID(grid2), entry, 2, 2, 1, 1);
             gtk_widget_show(entry);
 
             /**************** Dismiss **************************/
@@ -300,11 +291,11 @@ void optionsCB(gpointer data) {
             button = gtk_button_new_with_label("Apply");
             g_signal_connect_swapped(button, "clicked",
                                      G_CALLBACK(gtk_widget_destroy), optWindow);
-            gtk_box_pack_start(GTK_BOX(vbox), button, TRUE, TRUE, 0);
+            gtk_grid_attach(GTK_GRID(grid), button, 0, 1, 1, 1);
             gtk_widget_set_can_default(button, TRUE);
             gtk_widget_show(button);
           } else {
-            fprintf(stderr, "%s: failed to create vbox2\n", __func__);
+            fprintf(stderr, "%s: failed to create grid2\n", __func__);
             return;
           }
         } else {
@@ -312,7 +303,7 @@ void optionsCB(gpointer data) {
           return;
         }
       } else {
-        fprintf(stderr, "%s: failed to create vbox\n", __func__);
+        fprintf(stderr, "%s: failed to create grid\n", __func__);
         return;
       }
     } else {
