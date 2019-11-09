@@ -65,7 +65,6 @@ struct _Globals {
 
   char *out_fname;          /* Output file name */
   GdkPixbuf *out_im;        /* The processed image */
-  GdkPixbuf *out_im_scaled; /* A scaled version of the processed image */
 };
 
 extern struct _Globals globals;

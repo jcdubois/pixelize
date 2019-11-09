@@ -38,19 +38,13 @@ void init_globals() {
   globals.in_im_scaled = NULL;
   globals.out_fname = NULL;
   globals.out_im = NULL;
-  globals.out_im_scaled = NULL;
 
-  globals.cur_opt.pixW = 25;
-  globals.cur_opt.pixH = 25;
+  globals.cur_opt.pixW = 10;
+  globals.cur_opt.pixH = 10;
   globals.cur_opt.nPixW = 30;
   globals.cur_opt.nPixH = 30;
-  globals.cur_opt.proximity = 8;
+  globals.cur_opt.proximity = 3;
   globals.cur_opt.opt_alg = PIX_SIZE;
 
-  globals.new_opt.pixW = 25;
-  globals.new_opt.pixH = 25;
-  globals.new_opt.nPixW = 30;
-  globals.new_opt.nPixH = 30;
-  globals.new_opt.proximity = 8;
-  globals.new_opt.opt_alg = PIX_SIZE;
+  globals.new_opt = globals.cur_opt;
 }
