@@ -36,7 +36,6 @@ void refresh_options_win(struct _ImageOptions *im_opt) {
   char buf[8];
 
   if (optWindow) {
-
     snprintf(buf, sizeof(buf), "%u", im_opt->pixW);
     gtk_entry_set_text(GTK_ENTRY(size_x_entry), buf);
     snprintf(buf, sizeof(buf), "%u", im_opt->pixH);
@@ -45,7 +44,6 @@ void refresh_options_win(struct _ImageOptions *im_opt) {
     gtk_entry_set_text(GTK_ENTRY(count_x_entry), buf);
     snprintf(buf, sizeof(buf), "%u", im_opt->nPixH);
     gtk_entry_set_text(GTK_ENTRY(count_y_entry), buf);
-
     if (globals.new_opt.opt_alg == PIX_SIZE) {
       gtk_editable_set_editable(GTK_EDITABLE(size_x_entry), TRUE);
       gtk_editable_set_editable(GTK_EDITABLE(size_y_entry), TRUE);
@@ -68,25 +66,14 @@ void refresh_options_win(struct _ImageOptions *im_opt) {
   }
 }
 
-void apply_CB(GtkWidget *widget, GtkWidget *dialog) {
-  (void)widget;
-
-  if (0 == calc_dimensions(&(globals.new_opt))) {
-    fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-    return;
-  }
-  refresh_options_win(&(globals.new_opt));
-  gtk_widget_destroy(dialog);
-}
-
-void pix_opt_alg_CB(GtkWidget *widget, gpointer data) {
+static void pix_opt_alg_CB(GtkWidget *widget, gpointer data) {
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
     globals.new_opt.opt_alg = (unsigned long long)data;
   }
   refresh_options_win(&(globals.new_opt));
 }
 
-void pix_size_x_CB(GtkWidget *widget, GtkWidget *entry) {
+static void pix_size_x_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
@@ -99,7 +86,7 @@ void pix_size_x_CB(GtkWidget *widget, GtkWidget *entry) {
   refresh_options_win(&(globals.new_opt));
 }
 
-void pix_size_y_CB(GtkWidget *widget, GtkWidget *entry) {
+static void pix_size_y_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
@@ -121,7 +108,7 @@ static void pix_proximity_CB(GtkWidget *widget, GtkWidget *entry) {
   refresh_options_win(&(globals.new_opt));
 }
 
-void pix_count_x_CB(GtkWidget *widget, GtkWidget *entry) {
+static void pix_count_x_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
@@ -134,7 +121,7 @@ void pix_count_x_CB(GtkWidget *widget, GtkWidget *entry) {
   refresh_options_win(&(globals.new_opt));
 }
 
-void pix_count_y_CB(GtkWidget *widget, GtkWidget *entry) {
+static void pix_count_y_CB(GtkWidget *widget, GtkWidget *entry) {
   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
   (void)widget;
 
