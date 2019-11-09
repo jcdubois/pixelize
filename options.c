@@ -73,65 +73,80 @@ static void pix_opt_alg_CB(GtkWidget *widget, gpointer data) {
   refresh_options_win(&(globals.new_opt));
 }
 
-static void pix_size_x_CB(GtkWidget *widget, GtkWidget *entry) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
-  (void)widget;
+static gboolean pix_size_x_CB(GtkWidget *widget, GdkEvent *event,
+                              gpointer user_data) {
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+  (void)user_data;
+  (void)event;
 
   if (sscanf(txt, "%u", &globals.new_opt.pixW) == 1) {
     if (0 == calc_dimensions(&(globals.new_opt))) {
       fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-      return;
+      return FALSE;
     }
   }
   refresh_options_win(&(globals.new_opt));
+  return FALSE;
 }
 
-static void pix_size_y_CB(GtkWidget *widget, GtkWidget *entry) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
-  (void)widget;
+static gboolean pix_size_y_CB(GtkWidget *widget, GdkEvent *event,
+                              gpointer user_data) {
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+  (void)user_data;
+  (void)event;
 
   if (sscanf(txt, "%u", &globals.new_opt.pixH) == 1) {
     if (0 == calc_dimensions(&(globals.new_opt))) {
       fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-      return;
+      return FALSE;
     }
   }
   refresh_options_win(&(globals.new_opt));
+  return FALSE;
 }
 
-static void pix_proximity_CB(GtkWidget *widget, GtkWidget *entry) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
-  (void)widget;
+static gboolean pix_proximity_CB(GtkWidget *widget, GdkEvent *event,
+                                 gpointer user_data) {
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+  (void)user_data;
+  (void)event;
 
   if (sscanf(txt, "%u", &globals.new_opt.proximity) == 1) {
   }
   refresh_options_win(&(globals.new_opt));
+  return FALSE;
 }
 
-static void pix_count_x_CB(GtkWidget *widget, GtkWidget *entry) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
-  (void)widget;
+static gboolean pix_count_x_CB(GtkWidget *widget, GdkEvent *event,
+                               gpointer user_data) {
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+  (void)user_data;
+  (void)event;
 
   if (sscanf(txt, "%u", &globals.new_opt.nPixW) == 1) {
     if (0 == calc_dimensions(&(globals.new_opt))) {
       fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-      return;
+      return FALSE;
     }
   }
   refresh_options_win(&(globals.new_opt));
+  return FALSE;
 }
 
-static void pix_count_y_CB(GtkWidget *widget, GtkWidget *entry) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
-  (void)widget;
+static gboolean pix_count_y_CB(GtkWidget *widget, GdkEvent *event,
+                               gpointer user_data) {
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+  (void)user_data;
+  (void)event;
 
   if (sscanf(txt, "%u", &globals.new_opt.nPixH) == 1) {
     if (0 == calc_dimensions(&(globals.new_opt))) {
       fprintf(stderr, "error: %s can't compute dimension\n", __func__);
-      return;
+      return FALSE;
     }
   }
   refresh_options_win(&(globals.new_opt));
+  return FALSE;
 }
 
 /* pops up a new window with all the options in it */
@@ -203,8 +218,8 @@ void optionsCB(gpointer data) {
             size_x_entry = entry = gtk_entry_new();
             gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
             gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_size_x_CB),
-                             entry);
+            g_signal_connect(entry, "focus-out-event",
+                             G_CALLBACK(pix_size_x_CB), NULL);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
@@ -215,8 +230,8 @@ void optionsCB(gpointer data) {
             size_y_entry = entry = gtk_entry_new();
             gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
             gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_size_y_CB),
-                             entry);
+            g_signal_connect(entry, "focus-out-event",
+                             G_CALLBACK(pix_size_y_CB), NULL);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
@@ -243,8 +258,8 @@ void optionsCB(gpointer data) {
             count_x_entry = entry = gtk_entry_new();
             gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
             gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_count_x_CB),
-                             entry);
+            g_signal_connect(entry, "focus-out-event",
+                             G_CALLBACK(pix_count_x_CB), NULL);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
@@ -255,8 +270,8 @@ void optionsCB(gpointer data) {
             count_y_entry = entry = gtk_entry_new();
             gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
             gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_count_y_CB),
-                             entry);
+            g_signal_connect(entry, "focus-out-event",
+                             G_CALLBACK(pix_count_y_CB), NULL);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
             gtk_widget_show(entry);
 
@@ -273,8 +288,8 @@ void optionsCB(gpointer data) {
             entry = gtk_entry_new();
             gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
             gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "activate", G_CALLBACK(pix_proximity_CB),
-                             entry);
+            g_signal_connect(entry, "focus-out-event",
+                             G_CALLBACK(pix_proximity_CB), NULL);
             snprintf(buf, sizeof(buf), "%u", globals.new_opt.proximity);
             gtk_entry_set_text(GTK_ENTRY(entry), buf);
             gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
