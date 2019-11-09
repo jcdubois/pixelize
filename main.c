@@ -72,6 +72,9 @@ int main(int argc, char *argv[]) {
     GtkWidget *grid;
 
     gtk_widget_set_name(globals.topwin, "pixelize");
+    gtk_window_set_default_size(GTK_WINDOW(globals.topwin), 300, 300);
+    gtk_window_set_position(GTK_WINDOW(globals.topwin), GTK_WIN_POS_CENTER);
+    gtk_container_set_border_width(GTK_CONTAINER(globals.topwin), 15);
 
     /* handle window manager close */
     g_signal_connect(globals.topwin, "delete_event",

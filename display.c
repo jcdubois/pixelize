@@ -177,7 +177,6 @@ GtkWidget *setup_display(GtkWidget *parent) {
     globals.scroll_area = gtk_scrolled_window_new(NULL, NULL);
 
     if (globals.scroll_area) {
-      gtk_widget_set_size_request(globals.scroll_area, 300, 300);
       gtk_container_set_border_width(GTK_CONTAINER(globals.scroll_area), 0);
       gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(globals.scroll_area),
                                      GTK_POLICY_AUTOMATIC,

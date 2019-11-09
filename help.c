@@ -64,7 +64,7 @@ void about_popup() {
   gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "Pixelize");
   gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "2.0.0");
   gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "(c) Paul Wilkins");
-  gtk_about_dialog_set_comments( GTK_ABOUT_DIALOG(dialog), HELP_TXT);
+  gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), HELP_TXT);
   gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog),
                                "http://lashwhip.com/pixelize.html");
   if (pixbuf) {
