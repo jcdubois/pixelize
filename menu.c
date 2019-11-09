@@ -61,18 +61,11 @@ static void render_callback(GtkMenuItem *menuitem, gpointer user_data) {
   g_thread_new("render", render_compute_thread, NULL);
 }
 
-static void license_callback(GtkMenuItem *menuitem, gpointer user_data) {
+static void about_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
 
-  license_popup();
-}
-
-static void help_callback(GtkMenuItem *menuitem, gpointer user_data) {
-  (void)menuitem;
-  (void)user_data;
-
-  help_popup();
+  about_popup();
 }
 
 /* create the menubar */
@@ -175,21 +168,12 @@ void setup_menu(GtkWidget *parent) {
     bar_item = gtk_menu_new();
 
     if (bar_item) {
-      /* Help */
-      menu_item = gtk_menu_item_new_with_label("Help");
-      if (menu_item) {
-        gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
-        gtk_widget_show(menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(help_callback),
-                         NULL);
-      }
-
       /* License */
-      menu_item = gtk_menu_item_new_with_label("License");
+      menu_item = gtk_menu_item_new_with_label("About");
       if (menu_item) {
         gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
         gtk_widget_show(menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(license_callback),
+        g_signal_connect(menu_item, "activate", G_CALLBACK(about_callback),
                          NULL);
       }
 
