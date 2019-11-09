@@ -1,7 +1,7 @@
 
-Pixelize Version  0.8.0
+# Pixelize Version  1.0.0
 
-By Paul Wilkins
+## By Paul Wilkins
 
 Pixelize is a program that will use many scaled down images to
 try to duplicate, as closely as possible, another image.
@@ -24,15 +24,16 @@ To build Pixelize:
 3) Copy the executables, pixelize and make_db, to it's final installation
    directory, for example /usr/local/bin.
 
-Note that in order to use Pixelize to render an immage, you will have
+Note that in order to use Pixelize to render an image, you will have
 to run make_db to create the database of images that Pixelize requires.
 
 Pixelize can be found at the following locations:
-http://wilkins.ne.mediaone.net/pixelize.html
-ftp://metalab.unc.edu/pub/linux/apps/graphics/misc
 
+http://lashwhip.com/pixelize.html
+
+https://github.com/jcdubois/pixelize
 
 That's it.  Good Luck.
 
 Paul
-pwilkins@wilkins.ne.mediaone.net
+pwilkins@lashwhip.com
