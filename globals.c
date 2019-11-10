@@ -33,7 +33,7 @@ void init_globals() {
   globals.max_order = 0;
   globals.do_highlight = 0;
   globals.show_rendered = TRUE;
-  globals.interactive_mode = TRUE;
+  globals.command_mode = FALSE;
   globals.in_fname = NULL;
   globals.in_im = NULL;
   globals.in_im_scaled = NULL;

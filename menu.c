@@ -60,7 +60,7 @@ gpointer render_compute_thread(gpointer data) {
   }
 
   /* Exit if we are in non interactive mode */
-  if (!globals.interactive_mode) {
+  if (globals.command_mode) {
     gtk_main_quit();
   }
 

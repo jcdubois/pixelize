@@ -46,77 +46,89 @@ static void destroy_callback(GtkWidget *widget, gpointer data) {
 }
 
 int main(int argc, char *argv[]) {
-  // GdkBitmap *icon_bitmap;
-
-  /* initialize gtk */
-  gtk_init(&argc, &argv);
-
-  if (argc > 2) {
-    fprintf(stderr, "Error: too many arguments\n");
-    fprintf(stderr, "Usage: %s [image_file_name]\n", argv[0]);
-    exit(1);
-  }
+  GOptionEntry entries[] = {
+      {"in", 'i', 0, G_OPTION_ARG_STRING, &globals.in_fname, "Input file name",
+       "file_name"},
+      {"out", 'o', 0, G_OPTION_ARG_STRING, &globals.out_fname,
+       "Output file name", "file_name"},
+      {"mode", 'm', 0, G_OPTION_ARG_NONE, &globals.command_mode,
+       "Command line mode", NULL},
+      {NULL},
+  };
 
   init_globals();
 
-  /* if a file name was provided, save it the global struct */
-  if (argc == 2) {
-    globals.in_fname = g_strdup(argv[1]);
-  }
+  /* initialize gtk */
+  if (gtk_init_with_args(&argc, &argv, "toto", entries, NULL, NULL)) {
 
-  /* the main window contains the work area and the menubar */
-  globals.topwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-  if (globals.topwin) {
-    GtkWidget *grid;
-
-    gtk_widget_set_name(globals.topwin, "pixelize");
-    gtk_window_set_default_size(GTK_WINDOW(globals.topwin), 300, 300);
-    gtk_window_set_position(GTK_WINDOW(globals.topwin), GTK_WIN_POS_CENTER);
-    gtk_container_set_border_width(GTK_CONTAINER(globals.topwin), 15);
-
-    /* handle window manager close */
-    g_signal_connect(globals.topwin, "delete_event",
-                     G_CALLBACK(delete_event_callback), NULL);
-    g_signal_connect(globals.topwin, "destroy", G_CALLBACK(destroy_callback),
-                     NULL);
-
-    /*create the grid that everyone goes in */
-    grid = gtk_grid_new();
-
-    if (grid) {
-
-      /* add the grid to the top window */
-      gtk_container_add(GTK_CONTAINER(globals.topwin), grid);
-      gtk_widget_show(grid);
-
-      /* set up the menu bar */
-      setup_menu(grid);
-
-      /* create the varrious subsystems */
-      setup_display(grid);
-
-      setup_status(grid);
-
-    } else {
-      fprintf(stderr, "Error: failed to create the main box\n");
+    if (argc > 2) {
+      fprintf(stderr, "Error: too many arguments\n");
+      fprintf(stderr, "Usage: %s [image_file_name]\n", argv[0]);
       exit(1);
     }
 
-    gtk_widget_show(globals.topwin);
-
-    cursor_normal();
-
-    // gtk_window_maximize(GTK_WINDOW(globals.topwin));
-    if (globals.in_im_scaled) {
-      g_thread_new("render", render_compute_thread, NULL);
+    /* if a file name was provided, save it the global struct */
+    if (argc == 2) {
+      globals.in_fname = g_strdup(argv[1]);
     }
 
-    gtk_main();
-  } else {
-    fprintf(stderr, "Error: failed to create main window\n");
-    exit(1);
-  }
+    /* the main window contains the work area and the menubar */
+    globals.topwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-  return 0;
+    if (globals.topwin) {
+      GtkWidget *grid;
+
+      gtk_widget_set_name(globals.topwin, "pixelize");
+      gtk_window_set_default_size(GTK_WINDOW(globals.topwin), 300, 300);
+      gtk_window_set_position(GTK_WINDOW(globals.topwin), GTK_WIN_POS_CENTER);
+      gtk_container_set_border_width(GTK_CONTAINER(globals.topwin), 15);
+
+      /* handle window manager close */
+      g_signal_connect(globals.topwin, "delete_event",
+                       G_CALLBACK(delete_event_callback), NULL);
+      g_signal_connect(globals.topwin, "destroy", G_CALLBACK(destroy_callback),
+                       NULL);
+
+      /*create the grid that everyone goes in */
+      grid = gtk_grid_new();
+
+      if (grid) {
+
+        /* add the grid to the top window */
+        gtk_container_add(GTK_CONTAINER(globals.topwin), grid);
+        gtk_widget_show(grid);
+
+        /* set up the menu bar */
+        setup_menu(grid);
+
+        /* create the varrious subsystems */
+        setup_display(grid);
+
+        setup_status(grid);
+
+      } else {
+        fprintf(stderr, "Error: failed to create the main box\n");
+        exit(1);
+      }
+
+      gtk_widget_show(globals.topwin);
+
+      cursor_normal();
+
+      // gtk_window_maximize(GTK_WINDOW(globals.topwin));
+      if (globals.in_im_scaled) {
+        g_thread_new("render", render_compute_thread, NULL);
+      }
+
+      gtk_main();
+    } else {
+      fprintf(stderr, "Error: failed to create main window\n");
+      exit(1);
+    }
+
+    return 0;
+  } else {
+    fprintf(stderr, "Error: in parameters\n");
+    return -1;
+  }
 }

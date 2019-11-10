@@ -57,7 +57,7 @@ struct _Globals {
 
   guint do_highlight;
 
-  gboolean interactive_mode;
+  gboolean command_mode;
 
   gboolean show_rendered;
 
