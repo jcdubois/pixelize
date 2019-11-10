@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <gtk/gtk.h>
 
 gboolean open_image(void);
+gboolean save_image(void);
 void file_open_dialog(void);
 void file_save_dialog(void);
 

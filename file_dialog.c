@@ -92,7 +92,7 @@ static char *get_extension(const char *file_name) {
   }
 }
 
-static gboolean save_image(void) {
+gboolean save_image(void) {
   gboolean ret = FALSE;
 
   if (globals.out_fname && strlen(globals.out_fname) &&
@@ -222,6 +222,10 @@ void file_open_dialog(void) {
             g_free(globals.in_fname);
           }
           globals.in_fname = filename;
+          if (globals.out_fname) {
+            g_free(globals.out_fname);
+          }
+          globals.out_fname = filename;
           open_image();
           cursor_normal();
         }

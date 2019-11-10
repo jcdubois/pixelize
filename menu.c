@@ -49,7 +49,20 @@ static void quit_callback(GtkMenuItem *menuitem, gpointer user_data) {
 static gpointer render_compute_thread(gpointer data) {
   (void)data;
 
-  render();
+  if (globals.in_im_scaled) {
+    /* compute the new image */
+    render();
+  }
+
+  /* save it if a file name was provided */
+  if (globals.out_im && globals.out_fname) {
+    save_image();
+  }
+
+  /* Exit if we are in non interactive mode */
+  if (!globals.interactive_mode) {
+    gtk_main_quit();
+  }
 
   return NULL;
 }

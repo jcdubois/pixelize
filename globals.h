@@ -57,6 +57,8 @@ struct _Globals {
 
   guint do_highlight;
 
+  gboolean interactive_mode;
+
   gboolean show_rendered;
 
   char *in_fname;          /* Input file name */
