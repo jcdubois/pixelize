@@ -108,6 +108,9 @@ int main(int argc, char *argv[]) {
     cursor_normal();
 
     // gtk_window_maximize(GTK_WINDOW(globals.topwin));
+    if (globals.in_im_scaled) {
+      g_thread_new("render", render_compute_thread, NULL);
+    }
 
     gtk_main();
   } else {

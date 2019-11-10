@@ -46,7 +46,7 @@ static void quit_callback(GtkMenuItem *menuitem, gpointer user_data) {
   gtk_main_quit();
 }
 
-static gpointer render_compute_thread(gpointer data) {
+gpointer render_compute_thread(gpointer data) {
   (void)data;
 
   if (globals.in_im_scaled) {
