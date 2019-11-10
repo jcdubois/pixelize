@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cursor.h"
 #include "display.h"
 #include "globals.h"
-//#include "icon_bitmap"
 #include "menu.h"
 #include "status.h"
 
@@ -103,19 +102,6 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "Error: failed to create the main box\n");
       exit(1);
     }
-#if 0
-  /* Create pixmap of depth 1 (bitmap) for icon */
-  icon_bitmap = gdk_bitmap_create_from_data(
-      main_w->window, icon_bitmap_bits, icon_bitmap_width, icon_bitmap_height);
-
-  if (icon_bitmap == NULL) {
-    fprintf(stderr, "Error: failed to create icon pixmap\n");
-    exit(1);
-  }
-
-  gdk_window_set_icon(main_w->window, NULL, icon_bitmap, NULL);
-  //gdk_window_set_icon(main_w, NULL, icon_bitmap, NULL);
-#endif
 
     gtk_widget_show(globals.topwin);
 
