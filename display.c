@@ -28,8 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* some callbacks */
 static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
   (void)data;
-  (void)widget;
-  (void)cr;
 
   GdkPixbuf *ptr = NULL;
 
