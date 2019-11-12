@@ -62,14 +62,34 @@ int main(int argc, char *argv[]) {
   if (gtk_init_with_args(&argc, &argv, "toto", entries, NULL, NULL)) {
 
     if (argc > 2) {
-      fprintf(stderr, "Error: too many arguments\n");
-      fprintf(stderr, "Usage: %s [image_file_name]\n", argv[0]);
+      fprintf(stderr, "%s: Error: too many arguments\n", argv[0]);
       exit(1);
     }
 
-    /* if a file name was provided, save it the global struct */
+    /*
+     * if a file name was provided, save it the global struct
+     */
     if (argc == 2) {
-      globals.in_fname = g_strdup(argv[1]);
+      if (globals.in_fname == NULL) {
+        globals.in_fname = g_strdup(argv[1]);
+      } else {
+        fprintf(stderr, "%s: Error: you provided 2 input files\n", argv[0]);
+        exit(1);
+      }
+    }
+
+    /*
+     * check that we got all required argument if non interactive mode was
+     * selected
+     */
+    if (globals.command_mode &&
+        (globals.out_fname == NULL || globals.in_fname == NULL)) {
+      fprintf(stderr, "%s: Error: Invalid arguments\n", argv[0]);
+      fprintf(stderr,
+              "%s: you need to define an input file and and an ouput file in "
+              "non interactive mode\n",
+              argv[0]);
+      exit(1);
     }
 
     /* the main window contains the work area and the menubar */
