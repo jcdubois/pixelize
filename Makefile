@@ -33,10 +33,13 @@ pixelize:	$(PIX_OBJS)
 .c.o:	depend
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-depend:	Makefile
+depend:	Makefile pixelize_model.h
 	$(CC) -MM $(CFLAGS) *.c > depend
 
+pixelize_model.h: pixelize.glade
+	./glade2c -i $< -o $@
+
 clean:
-	rm -f *.o pixelize make_db core depend
+	rm -f *.o pixelize make_db core depend pixelize_model.h
 
 include depend

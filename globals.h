@@ -40,7 +40,7 @@ struct _ImageOptions {
 /* globals we use a lot */
 struct _Globals {
 
-  GtkWidget *topwin;      /* The main window. It encompass everything */
+  GObject *topwin;      /* The main window. It encompass everything */
   GtkWidget *event_box;   /* An event box inside the main window.
                              It contain the scrolled window */
   GtkWidget *scroll_area; /* Drawing area scrollbar inside the event box.

@@ -1,0 +1,63 @@
+#!/usr/bin/python
+
+import xml.dom.minidom
+import sys, getopt
+
+
+class XmlWriter:
+    def __init__(self):
+        self.snippets = []
+
+    def write(self, data):
+        if data.isspace(): return
+        self.snippets.append(data)
+
+    def __str__(self):
+        return ''.join(self.snippets)
+
+
+if __name__ == "__main__":
+    execname = sys.argv[0]
+    inputfile = ''
+    outputfile = ''
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["ifile=", "ofile="])
+    except getopt.GetoptError:
+        print execname + ' -i <inputfile> -o <outputfile>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print execname + ' -i <inputfile> -o <outputfile>'
+            sys.exit()
+        elif opt in ("-i", "--ifile"):
+            inputfile = arg
+        elif opt in ("-o", "--ofile"):
+            outputfile = arg
+
+    if inputfile == '' or outputfile == '':
+        print execname + ' -i <inputfile> -o <outputfile>'
+        sys.exit(2)
+
+    writer = XmlWriter()
+    xml = xml.dom.minidom.parse(inputfile)
+    xml.writexml(writer)
+    strippedXml = ("%s" % (writer)).replace('"', '\\"')
+    strippedXml = ("%s" % (strippedXml)).replace('\n', '\\n')
+
+    byteCount = len(strippedXml)
+    baseOffset = 0
+    stripSize = 64
+
+    output = open(outputfile, 'w')
+    output.write("static const char gladestring [] = \n{\n")
+    while baseOffset < byteCount:
+        skipTrailingQuote = 0
+        if baseOffset + stripSize < byteCount and strippedXml[
+                baseOffset + stripSize] == '"':
+            skipTrailingQuote = 1
+        output.write('  "%s"\n' % (strippedXml[baseOffset:baseOffset +
+                                               stripSize + skipTrailingQuote]))
+        baseOffset += stripSize + skipTrailingQuote
+
+    output.write("};\n")
+    output.close()
