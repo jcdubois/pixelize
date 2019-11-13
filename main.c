@@ -30,22 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "pixelize_model.h"
 #include "status.h"
 
-static gboolean delete_event_callback(GtkWidget *widget, GdkEvent *event,
-                                      gpointer user_data) {
-  (void)widget;
-  (void)event;
-  (void)user_data;
-
-  return FALSE; /* will call our destroy function */
-}
-
-static void destroy_callback(GtkWidget *widget, gpointer data) {
-  (void)widget;
-  (void)data;
-
-  gtk_main_quit();
-}
-
 int main(int argc, char *argv[]) {
   GOptionEntry entries[] = {
       {"in", 'i', 0, G_OPTION_ARG_STRING, &globals.in_fname, "Input file name",
@@ -59,7 +43,7 @@ int main(int argc, char *argv[]) {
 
   init_globals();
 
-  /* initialize gtk */
+  /* initialize gtk with args */
   if (gtk_init_with_args(&argc, &argv, "toto", entries, NULL, NULL)) {
     GtkBuilder *builder;
     GError *error = NULL;
@@ -109,41 +93,27 @@ int main(int argc, char *argv[]) {
           GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
 
       if (globals.topwin) {
+
         /* handle window manager close */
-        g_signal_connect(globals.topwin, "delete_event",
-                         G_CALLBACK(delete_event_callback), NULL);
-        g_signal_connect(globals.topwin, "destroy",
-                         G_CALLBACK(destroy_callback), NULL);
+        g_signal_connect(globals.topwin, "destroy", G_CALLBACK(gtk_main_quit),
+                         NULL);
+
+        /* set up the menu bar */
+        setup_menu(builder);
 
 #if 0
-        /*create the grid that everyone goes in */
-        grid = gtk_grid_new();
+        /* create the varrious subsystems */
+        setup_display(builder);
 
-        if (grid) {
-
-          /* add the grid to the top window */
-          gtk_container_add(GTK_CONTAINER(globals.topwin), grid);
-          gtk_widget_show(grid);
-
-          /* set up the menu bar */
-          setup_menu(grid);
-
-          /* create the varrious subsystems */
-          setup_display(grid);
-
-          setup_status(grid);
-
-        } else {
-          fprintf(stderr, "Error: failed to create the main box\n");
-          exit(1);
-        }
-
+        setup_status(builder);
 #endif
+
         gtk_widget_show(globals.topwin);
 
         cursor_normal();
 
         // gtk_window_maximize(GTK_WINDOW(globals.topwin));
+
         if (globals.in_im_scaled) {
           g_thread_new("render", render_compute_thread, NULL);
         }

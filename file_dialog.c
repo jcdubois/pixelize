@@ -67,7 +67,7 @@ static gboolean check_valid_types(const char *type) {
               return TRUE;
             }
           } else {
-            fprintf(stderr, "%s\n", format_name);
+            g_printerr("%s\n", format_name);
           }
         }
       }
@@ -82,12 +82,12 @@ static char *get_extension(const char *file_name) {
   if (file_name) {
     char *p1 = strrchr(file_name, '.');
     if (p1 == NULL) {
-      fprintf(stderr, "Error: %s: Can not find file extension\n", __func__);
+      g_printerr("Error: %s: Can not find file extension\n", __func__);
       return NULL;
     }
     return p1 + 1;
   } else {
-    fprintf(stderr, "Error: %s: no name provided\n", __func__);
+    g_printerr("Error: %s: no name provided\n", __func__);
     return NULL;
   }
 }
@@ -110,24 +110,23 @@ gboolean save_image(void) {
                                    &gerror, NULL)) {
             ret = TRUE;
           } else {
-            fprintf(stderr, "Error: %s: Can't write %s: %s\n", __func__,
-                    globals.out_fname, gerror->message);
+            g_printerr("Error: %s: Can't write %s: %s\n", __func__,
+                       globals.out_fname, gerror->message);
           }
         } else {
-          fprintf(stderr,
-                  "Error: %s: Can not determine file type from extension\n",
-                  __func__);
-          fprintf(stderr, "Valid extension types are:\n");
+          g_printerr("Error: %s: Can not determine file type from extension\n",
+                     __func__);
+          g_printerr("Valid extension types are:\n");
           check_valid_types(NULL);
         }
       } else {
-        fprintf(stderr, "Error: %s: unknown extension\n", __func__);
+        g_printerr("Error: %s: unknown extension\n", __func__);
       }
     } else {
-      fprintf(stderr, "Error: %s: render an image first.\n", __func__);
+      g_printerr("Error: %s: render an image first.\n", __func__);
     }
   } else {
-    fprintf(stderr, "Error: %s: Invalid file name.\n", __func__);
+    g_printerr("Error: %s: Invalid file name.\n", __func__);
   }
 
   return ret;
@@ -181,95 +180,22 @@ gboolean open_image(void) {
 
             ret = TRUE;
           } else {
-            fprintf(stderr, "Error: %s: Unable to scale image: %s\n", __func__,
-                    globals.in_fname);
+            g_printerr("Error: %s: Unable to scale image: %s\n", __func__,
+                       globals.in_fname);
           }
         } else {
-          fprintf(stderr, "Error: %s: Invalid option value.\n", __func__);
+          g_printerr("Error: %s: Invalid option value.\n", __func__);
         }
       } else {
-        fprintf(stderr, "Error: %s: while adding alpha channel\n", __func__);
+        g_printerr("Error: %s: while adding alpha channel\n", __func__);
       }
     } else {
-      fprintf(stderr, "Error: %s: Can't load image %s: %s\n", __func__,
-              globals.in_fname, gerror->message);
+      g_printerr("Error: %s: Can't load image %s: %s\n", __func__,
+                 globals.in_fname, gerror->message);
     }
   } else {
-    fprintf(stderr, "Error: %s: Invalid file name.\n", __func__);
+    g_printerr("Error: %s: Invalid file name.\n", __func__);
   }
 
   return ret;
-}
-
-void file_open_dialog(void) {
-
-  GtkWidget *dialog = gtk_file_chooser_dialog_new(
-      "Open File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel",
-      GTK_RESPONSE_CANCEL, "Open", GTK_RESPONSE_ACCEPT, NULL);
-
-  if (dialog) {
-    gint res = gtk_dialog_run(GTK_DIALOG(dialog));
-
-    if (res == GTK_RESPONSE_ACCEPT) {
-      GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-
-      if (chooser) {
-        char *filename = gtk_file_chooser_get_filename(chooser);
-
-        if (filename) {
-          cursor_busy();
-          if (globals.in_fname) {
-            g_free(globals.in_fname);
-          }
-          globals.in_fname = filename;
-          if (globals.out_fname) {
-            g_free(globals.out_fname);
-          }
-          globals.out_fname = filename;
-          open_image();
-          cursor_normal();
-        }
-      }
-    }
-
-    gtk_widget_destroy(dialog);
-  }
-}
-
-void file_save_dialog(void) {
-
-  GtkWidget *dialog = gtk_file_chooser_dialog_new(
-      "Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel",
-      GTK_RESPONSE_CANCEL, "Open", GTK_RESPONSE_ACCEPT, NULL);
-
-  if (dialog) {
-    GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-
-    if (chooser) {
-      gint res;
-
-      gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
-
-      gtk_file_chooser_set_current_name(
-          chooser, globals.out_fname ? globals.out_fname : "Untitled document");
-
-      res = gtk_dialog_run(GTK_DIALOG(dialog));
-
-      if (res == GTK_RESPONSE_ACCEPT) {
-        char *filename = gtk_file_chooser_get_filename(chooser);
-
-        if (filename) {
-          cursor_busy();
-          if (globals.out_fname) {
-            g_free(globals.out_fname);
-          }
-          globals.out_fname = filename;
-          save_image();
-          cursor_normal();
-        }
-      }
-    }
-
-    gtk_widget_destroy(dialog);
-  }
 }

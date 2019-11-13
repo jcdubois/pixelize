@@ -20,31 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* setup_menu.c by Paul Wilkins 1/2/2000 */
 
 #include "menu.h"
+#include "cursor.h"
 #include "file_dialog.h"
-#include "help.h"
 #include "options.h"
 #include "render.h"
-
-static void open_callback(GtkMenuItem *menuitem, gpointer user_data) {
-  (void)menuitem;
-  (void)user_data;
-
-  file_open_dialog();
-}
-
-static void save_callback(GtkMenuItem *menuitem, gpointer user_data) {
-  (void)menuitem;
-  (void)user_data;
-
-  file_save_dialog();
-}
-
-static void quit_callback(GtkMenuItem *menuitem, gpointer user_data) {
-  (void)menuitem;
-  (void)user_data;
-
-  gtk_main_quit();
-}
 
 gpointer render_compute_thread(gpointer data) {
   (void)data;
@@ -74,128 +53,193 @@ static void render_callback(GtkMenuItem *menuitem, gpointer user_data) {
   g_thread_new("render", render_compute_thread, NULL);
 }
 
+static void open_callback(GtkMenuItem *menuitem, gpointer user_data) {
+  (void)menuitem;
+
+  GtkWidget *dialog = GTK_WIDGET(user_data);
+
+  if (dialog) {
+    gint res = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    if (res == GTK_RESPONSE_ACCEPT) {
+      GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+
+      if (chooser) {
+        char *filename = gtk_file_chooser_get_filename(chooser);
+
+        if (filename) {
+
+          cursor_busy();
+
+          if (globals.in_fname) {
+            g_free(globals.in_fname);
+          }
+          globals.in_fname = filename;
+
+          if (globals.out_fname) {
+            g_free(globals.out_fname);
+            globals.out_fname = NULL;
+          }
+
+          open_image();
+
+          cursor_normal();
+        }
+      }
+    }
+
+    gtk_widget_hide(dialog);
+  }
+}
+
+static void save_callback(GtkMenuItem *menuitem, gpointer user_data) {
+  (void)menuitem;
+
+  GtkWidget *dialog = GTK_WIDGET(user_data);
+
+  if (dialog) {
+    GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+
+    if (chooser) {
+      gint res;
+
+      gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+
+      gtk_file_chooser_set_current_name(
+          chooser, globals.out_fname ? globals.out_fname : "Untitled document");
+
+      res = gtk_dialog_run(GTK_DIALOG(dialog));
+
+      if (res == GTK_RESPONSE_ACCEPT) {
+        char *filename = gtk_file_chooser_get_filename(chooser);
+
+        if (filename) {
+
+          cursor_busy();
+
+          if (globals.out_fname) {
+            g_free(globals.out_fname);
+          }
+          globals.out_fname = filename;
+
+          save_image();
+
+          cursor_normal();
+        }
+      }
+    }
+
+    gtk_widget_hide(dialog);
+  }
+}
+
 static void about_callback(GtkMenuItem *menuitem, gpointer user_data) {
   (void)menuitem;
   (void)user_data;
 
-  about_popup();
+  GtkWidget *dialog = GTK_WIDGET(user_data);
+
+  if (dialog) {
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_hide(dialog);
+  } else {
+    g_printerr("Error: Can't get about dialog box\n");
+  }
 }
 
 /* create the menubar */
-void setup_menu(GtkWidget *parent) {
+void setup_menu(GtkBuilder *builder) {
 
-  /********************************************************/
-  /* create the menu bar */
+  GtkWidget *menu_item;
 
-  GtkWidget *menu_bar = gtk_menu_bar_new();
+  /* Open */
+  menu_item = GTK_WIDGET(gtk_builder_get_object(builder, "file_menu_open"));
+  if (menu_item) {
+    GtkWidget *dialog =
+        GTK_WIDGET(gtk_builder_get_object(builder, "open_file_dialog"));
 
-  if (menu_bar) {
-    GtkWidget *menu_item;
-    GtkWidget *bar_item;
-
-    gtk_grid_attach(GTK_GRID(parent), menu_bar, 0, 0, 2, 1);
-    gtk_widget_show(menu_bar);
-
-    /********************************************************/
-    /* create the "File" pulldown menu */
-
-    bar_item = gtk_menu_new();
-
-    if (bar_item) {
-      /* Open */
-      menu_item = gtk_menu_item_new_with_label("Open");
-      if (menu_item) {
-        gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
-        gtk_widget_show(menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(open_callback),
-                         NULL);
-      }
-
-      /* Save */
-      menu_item = gtk_menu_item_new_with_label("Save");
-      if (menu_item) {
-        gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
-        gtk_widget_show(menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(save_callback),
-                         NULL);
-      }
-
-      /* separator */
-      menu_item = gtk_menu_item_new();
-      if (menu_item) {
-        gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
-        gtk_widget_show(menu_item);
-      }
-
-      /* Quit */
-      menu_item = gtk_menu_item_new_with_label("Quit");
-      if (menu_item) {
-        gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
-        gtk_widget_show(menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(quit_callback),
-                         NULL);
-      }
-
-      menu_item = gtk_menu_item_new_with_label("File");
-      if (menu_item) {
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), bar_item);
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
-        gtk_widget_show(menu_item);
-      }
+    if (dialog) {
+      g_signal_connect(menu_item, "activate", G_CALLBACK(open_callback),
+                       dialog);
+    } else {
+      g_printerr("Error: Can't locate open file dialog\n");
+      exit(1);
     }
+  } else {
+    g_printerr("Error: Can't locate open file menu item\n");
+    exit(1);
+  }
 
-    /********************************************************/
-    /* create the "Options" pulldown menu */
+  /* Save */
+  menu_item = GTK_WIDGET(gtk_builder_get_object(builder, "file_menu_save"));
+  if (menu_item) {
+    GtkWidget *dialog =
+        GTK_WIDGET(gtk_builder_get_object(builder, "save_file_dialog"));
 
-    bar_item = gtk_menu_new();
-
-    if (bar_item) {
-      /* render */
-      menu_item = gtk_menu_item_new_with_label("Render");
-      if (menu_item) {
-        gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
-        gtk_widget_show(menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(render_callback),
-                         NULL);
-      }
-
-      /* Options */
-      menu_item = gtk_menu_item_new_with_label("Options");
-      if (menu_item) {
-        gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
-        gtk_widget_show(menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(optionsCB), NULL);
-      }
-
-      menu_item = gtk_menu_item_new_with_label("Options");
-      if (menu_item) {
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), bar_item);
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
-        gtk_widget_show(menu_item);
-      }
+    if (dialog) {
+      g_signal_connect(menu_item, "activate", G_CALLBACK(save_callback),
+                       dialog);
+    } else {
+      g_printerr("Error: Can't locate save file dialog\n");
+      exit(1);
     }
+  } else {
+    g_printerr("Error: Can't locate save file menu item\n");
+    exit(1);
+  }
 
-    /********************************************************/
-    /* create the "Help" pulldown menu */
+  /* Quit */
+  menu_item = GTK_WIDGET(gtk_builder_get_object(builder, "file_menu_quit"));
+  if (menu_item) {
+    g_signal_connect(menu_item, "activate", G_CALLBACK(gtk_main_quit), NULL);
+  } else {
+    g_printerr("Error: Can't locate quit menu item\n");
+    exit(1);
+  }
 
-    bar_item = gtk_menu_new();
+  /* Render */
+  menu_item =
+      GTK_WIDGET(gtk_builder_get_object(builder, "options_menu_render"));
+  if (menu_item) {
+    g_signal_connect(menu_item, "activate", G_CALLBACK(render_callback), NULL);
+  } else {
+    g_printerr("Error: Can't locate render menu item\n");
+    exit(1);
+  }
 
-    if (bar_item) {
-      /* License */
-      menu_item = gtk_menu_item_new_with_label("About");
-      if (menu_item) {
-        gtk_menu_shell_append(GTK_MENU_SHELL(bar_item), menu_item);
-        gtk_widget_show(menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(about_callback),
-                         NULL);
-      }
+  /* Configure */
+  menu_item =
+      GTK_WIDGET(gtk_builder_get_object(builder, "options_menu_configure"));
+  if (menu_item) {
+    GtkWidget *dialog =
+        GTK_WIDGET(gtk_builder_get_object(builder, "options_dialog"));
 
-      menu_item = gtk_menu_item_new_with_label("Help");
-      if (menu_item) {
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), bar_item);
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
-        gtk_widget_show(menu_item);
-      }
+    if (dialog) {
+      g_signal_connect(menu_item, "activate", G_CALLBACK(optionsCB), dialog);
+    } else {
+      g_printerr("Error: Can't locate options dialog\n");
+      exit(1);
     }
+  } else {
+    g_printerr("Error: Can't locate render menu item\n");
+    exit(1);
+  }
+
+  /* About */
+  menu_item = GTK_WIDGET(gtk_builder_get_object(builder, "about_menu_item"));
+  if (menu_item) {
+    GtkWidget *dialog =
+        GTK_WIDGET(gtk_builder_get_object(builder, "about_dialog"));
+
+    if (dialog) {
+      g_signal_connect(menu_item, "activate", G_CALLBACK(about_callback),
+                       dialog);
+    } else {
+      g_printerr("Error: Can't locate about dialog\n");
+      exit(1);
+    }
+  } else {
+    g_printerr("Error: Can't locate about menu item\n");
+    exit(1);
   }
 }

@@ -14,7 +14,7 @@ DFLAGS = -L/usr/X11R6/lib `pkg-config --libs gtk+-3.0`
 DFLAGS += -Wall -Wextra
 LIBS = -lm
 
-PIX_OBJS = main.o menu.o help.o options.o \
+PIX_OBJS = main.o menu.o options.o \
            display.o read_db.o globals.o \
            file_dialog.o status.o cursor.o \
            render.o render_image.o stats.o find_match.o \
