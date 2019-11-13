@@ -51,13 +51,11 @@ int main(int argc, char **argv) {
 
   /* Be nice and tell the user if they don't, to provide a file as an arg */
   if (argc <= 1) {
-    fprintf(stderr,
-            "make_db is a program that scanns pictures and creates a file\n");
-    fprintf(stderr,
-            "called pic_db.dat. The file pic_db.dat is used by Pixelize\n");
-    fprintf(stderr, "when \"rendering\" images.\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Usage:\n %s image_files\n", argv[0]);
+    g_printerr("make_db is a program that scans pictures and creates a file\n");
+    g_printerr("called pic_db.dat. The file pic_db.dat is used by Pixelize\n");
+    g_printerr("when \"rendering\" images.\n");
+    g_printerr("\n");
+    g_printerr("Usage:\n %s image_files\n", argv[0]);
     exit(1);
   }
 
@@ -82,7 +80,7 @@ int main(int argc, char **argv) {
 
   if (write_db) {
     if (NULL == (dbfp = fopen("pic_db.dat", "a+"))) {
-      fprintf(stderr, "Error opening pic_db.dat for write\n");
+      g_printerr("Error opening pic_db.dat for write\n");
       exit(1);
     }
 
@@ -91,8 +89,8 @@ int main(int argc, char **argv) {
 
   /* get the cwd.  we may use it later */
   if (NULL == (getcwd(my_cwd, MAX_PATH_LEN))) {
-    fprintf(stderr, "Warning: Can't determine Current working directory.\n");
-    fprintf(stderr, "         This may generate an invalid pic_db.dat file.\n");
+    g_printerr("Warning: Can't determine Current working directory.\n");
+    g_printerr("         This may generate an invalid pic_db.dat file.\n");
     my_cwd[0] = '\0';
   }
 
@@ -105,8 +103,7 @@ int main(int argc, char **argv) {
     pb = gdk_pixbuf_new_from_file(argv[n], &gerror);
 
     if (pb == NULL) {
-      fprintf(stderr, "Error: Can't load image %s: %s\n", argv[n],
-              gerror->message);
+      g_printerr("Error: Can't load image %s: %s\n", argv[n], gerror->message);
       continue;
     }
 

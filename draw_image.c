@@ -31,25 +31,25 @@ static gboolean check_options(struct _ImageOptions *im_opt) {
 
   if (im_opt->opt_alg == PIX_SIZE) {
     if (im_opt->pixW < 1) {
-      fprintf(stderr, "Image size X: invalid number\n");
+      g_printerr("Image size X: invalid number\n");
       ret = FALSE;
     }
     if (im_opt->pixH < 1) {
-      fprintf(stderr, "Image size Y: invalid number\n");
+      g_printerr("Image size Y: invalid number\n");
       ret = FALSE;
     }
   } else {
     if (im_opt->nPixW < 1) {
-      fprintf(stderr, "Image count X: invalid number\n");
+      g_printerr("Image count X: invalid number\n");
       ret = FALSE;
     }
     if (im_opt->nPixH < 1) {
-      fprintf(stderr, "Image count Y: invalid number\n");
+      g_printerr("Image count Y: invalid number\n");
       ret = FALSE;
     }
   }
   if (im_opt->proximity < 1) {
-    fprintf(stderr, "Image proximity: invalid number\n");
+    g_printerr("Image proximity: invalid number\n");
     ret = FALSE;
   }
 
@@ -89,10 +89,10 @@ gboolean calc_dimensions(struct _ImageOptions *im_opt) {
       im_opt->height = im_opt->nPixH * im_opt->pixH;
       ret = TRUE;
     } else {
-      fprintf(stderr, "calc_dimensions: I shouldn't get here.\n");
+      g_printerr("calc_dimensions: I shouldn't get here.\n");
     }
   } else {
-    fprintf(stderr, "error with options\n");
+    g_printerr("error with options\n");
   }
 
   return ret;
@@ -142,22 +142,22 @@ gboolean change_small_image(int xx, int yy) {
 
               ret = TRUE;
             } else {
-              fprintf(stderr, "Error: Unable to add alpha to  %s\n", db->fname);
+              g_printerr("Error: Unable to add alpha to  %s\n", db->fname);
             }
             g_object_unref(scale_im);
           } else {
-            fprintf(stderr, "Error: Unable to scale image %s\n", db->fname);
+            g_printerr("Error: Unable to scale image %s\n", db->fname);
           }
           g_object_unref(im);
         } else {
-          fprintf(stderr, "Error: Can't load image %s: ", db->fname);
+          g_printerr("Error: Can't load image %s: ", db->fname);
           if (gerror) {
-            fprintf(stderr, "%s", gerror->message);
+            g_printerr("%s", gerror->message);
           }
-          fprintf(stderr, "\n");
+          g_printerr("\n");
         }
       } else {
-        fprintf(stderr, "Error: No db for coordinate x(%d) y(%d)\n", xx, yy);
+        g_printerr("Error: No db for coordinate x(%d) y(%d)\n", xx, yy);
       }
     }
   }

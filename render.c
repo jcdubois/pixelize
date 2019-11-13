@@ -141,7 +141,7 @@ static void init_db() {
     /* read in the picture database */
     globals.head = read_database(&(globals.max_order));
     if (globals.head == NULL) {
-      fprintf(stderr, "Error reading database.\n");
+      g_printerr("Error reading database.\n");
       exit(1);
     }
     init = TRUE;
@@ -252,7 +252,7 @@ int render() {
   struct PIC_DB **matches;
 
   if (globals.in_fname == NULL || globals.in_im_scaled == NULL) {
-    fprintf(stderr, "Error: Open an Image first!\n");
+    g_printerr("Error: Open an Image first!\n");
     return 0;
   }
 
@@ -261,7 +261,7 @@ int render() {
 
   /* calculate the new images dimensions */
   if (0 == calc_dimensions(&(globals.new_opt))) {
-    fprintf(stderr, "Invalid option.  Bye.\n");
+    g_printerr("Invalid option.  Bye.\n");
     return 0;
   }
 
@@ -283,7 +283,7 @@ int render() {
              globals.in_im, globals.cur_opt.pixW * globals.cur_opt.nPixW,
              globals.cur_opt.pixH * globals.cur_opt.nPixH,
              GDK_INTERP_BILINEAR)) == NULL) {
-      fprintf(stderr, "Error: Unable to scale image: %s\n", globals.in_fname);
+      g_printerr("Error: Unable to scale image: %s\n", globals.in_fname);
       return 0;
     }
   }
@@ -351,7 +351,7 @@ int render() {
         g_free(match_data);
       } else {
         globals.image[hh][ww].matches = NULL;
-        fprintf(stderr, "Error; no matches for x(%d), y(%d)\n", ww, hh);
+        g_printerr("Error; no matches for x(%d), y(%d)\n", ww, hh);
       }
 
       /* update the progress bar */
@@ -408,14 +408,14 @@ int render() {
     } else {
       globals.image[hh][ww].db = NULL;
       globals.image[hh][ww].match_no = 0;
-      fprintf(stderr, "Error; no matches for x(%d), y(%d)\n", ww, hh);
+      g_printerr("Error; no matches for x(%d), y(%d)\n", ww, hh);
     }
   }
 
   /* render the image */
   out_im = render_image(globals.image, nPixW, nPixH, pixW, pixH);
   if (out_im == NULL) {
-    fprintf(stderr, "Error: Can't render image.\n");
+    g_printerr("Error: Can't render image.\n");
   }
 
   /* display it */

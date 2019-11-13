@@ -73,21 +73,20 @@ static gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data) {
             gtk_widget_set_size_request(widget, width, height);
             g_object_unref(im3);
           } else {
-            fprintf(stderr, "%s: failed to scale the pixbuf\n", __func__);
+            g_printerr("%s: failed to scale the pixbuf\n", __func__);
           }
         } else {
-          fprintf(stderr, "%s: failed to to add alpha\n", __func__);
+          g_printerr("%s: failed to to add alpha\n", __func__);
         }
       } else {
-        fprintf(stderr, "%s: failed to make pixbuf from file\n", __func__);
+        g_printerr("%s: failed to make pixbuf from file\n", __func__);
       }
     } else {
-      fprintf(stderr, "%s: no DB defined for match %u\n", __func__,
-              inf->match_no);
+      g_printerr("%s: no DB defined for match %u\n", __func__, inf->match_no);
     }
   } else {
-    fprintf(stderr, "%s: no image info defined for cell(%u, %u)\n", __func__,
-            info_y, info_x);
+    g_printerr("%s: no image info defined for cell(%u, %u)\n", __func__, info_y,
+               info_x);
   }
 
   cairo_paint(cr);

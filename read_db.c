@@ -115,7 +115,7 @@ struct PIC_DB *read_database(guint *max_order) {
 
             for (i = 0; i < (j + 1) * (j + 1); i++) {
               if (fscanf(dbfp, "%3u %3u %3u\n", &p1[0], &p1[1], &p1[2]) != 3) {
-                fprintf(stderr, "Error: can't read data from pic_db.dat\n");
+                g_printerr("Error: can't read data from pic_db.dat\n");
                 exit(1);
               }
               p1 += 3;
@@ -129,12 +129,12 @@ struct PIC_DB *read_database(guint *max_order) {
         }
       }
     } else {
-      fprintf(stderr, "Error: can't read size from pic_db.dat\n");
+      g_printerr("Error: can't read size from pic_db.dat\n");
     }
 
     fclose(dbfp);
   } else {
-    fprintf(stderr, "Error opening pic_db.dat for read\n");
+    g_printerr("Error opening pic_db.dat for read\n");
   }
 
   return head;

@@ -41,7 +41,7 @@ static void find_next(struct IMAGE_INFO **image, struct PIC_DB *db, guint *col,
     cl = 0;
   }
 
-  fprintf(stderr, "Error: Can't find next match\n");
+  g_printerr("Error: Can't find next match\n");
 
   exit(1);
 }
@@ -121,20 +121,20 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
 
                 g_object_unref(scale_im_alpha);
               } else {
-                fprintf(stderr, "Error: Unable to add alpha to image %s\n",
-                        image[hh][ww].db->fname);
+                g_printerr("Error: Unable to add alpha to image %s\n",
+                           image[hh][ww].db->fname);
               }
 
               g_object_unref(scale_im);
             } else {
-              fprintf(stderr, "Error: Unable to scale image %s\n",
-                      image[hh][ww].db->fname);
+              g_printerr("Error: Unable to scale image %s\n",
+                         image[hh][ww].db->fname);
             }
 
             g_object_unref(im);
           } else {
-            fprintf(stderr, "Error: Unable to open %s: %s\n",
-                    image[hh][ww].db->fname, gerror->message);
+            g_printerr("Error: Unable to open %s: %s\n",
+                       image[hh][ww].db->fname, gerror->message);
           }
 
           /* update the progress bar */
@@ -144,7 +144,7 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
           /* We ask the main thread to update the current picture */
           g_idle_add(update_gui_callback, globals.draw_area);
         } else {
-          fprintf(stderr, "Error: No DB entry for x(%d) y(%d)\n", ww, hh);
+          g_printerr("Error: No DB entry for x(%d) y(%d)\n", ww, hh);
         }
       }
     }

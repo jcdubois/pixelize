@@ -81,7 +81,7 @@ static gboolean pix_size_x_CB(GtkWidget *widget, GdkEvent *event,
 
   if (sscanf(txt, "%u", &globals.new_opt.pixW) == 1) {
     if (0 == calc_dimensions(&(globals.new_opt))) {
-      fprintf(stderr, "error: %s can't compute dimension\n", __func__);
+      g_printerr("error: %s can't compute dimension\n", __func__);
       return FALSE;
     }
   }
@@ -97,7 +97,7 @@ static gboolean pix_size_y_CB(GtkWidget *widget, GdkEvent *event,
 
   if (sscanf(txt, "%u", &globals.new_opt.pixH) == 1) {
     if (0 == calc_dimensions(&(globals.new_opt))) {
-      fprintf(stderr, "error: %s can't compute dimension\n", __func__);
+      g_printerr("error: %s can't compute dimension\n", __func__);
       return FALSE;
     }
   }
@@ -125,7 +125,7 @@ static gboolean pix_count_x_CB(GtkWidget *widget, GdkEvent *event,
 
   if (sscanf(txt, "%u", &globals.new_opt.nPixW) == 1) {
     if (0 == calc_dimensions(&(globals.new_opt))) {
-      fprintf(stderr, "error: %s can't compute dimension\n", __func__);
+      g_printerr("error: %s can't compute dimension\n", __func__);
       return FALSE;
     }
   }
@@ -141,7 +141,7 @@ static gboolean pix_count_y_CB(GtkWidget *widget, GdkEvent *event,
 
   if (sscanf(txt, "%u", &globals.new_opt.nPixH) == 1) {
     if (0 == calc_dimensions(&(globals.new_opt))) {
-      fprintf(stderr, "error: %s can't compute dimension\n", __func__);
+      g_printerr("error: %s can't compute dimension\n", __func__);
       return FALSE;
     }
   }
@@ -295,19 +295,19 @@ void optionsCB(gpointer data) {
             gtk_widget_set_can_default(button, TRUE);
             gtk_widget_show(button);
           } else {
-            fprintf(stderr, "%s: failed to create grid2\n", __func__);
+            g_printerr("%s: failed to create grid2\n", __func__);
             return;
           }
         } else {
-          fprintf(stderr, "%s: failed to create frame\n", __func__);
+          g_printerr("%s: failed to create frame\n", __func__);
           return;
         }
       } else {
-        fprintf(stderr, "%s: failed to create grid\n", __func__);
+        g_printerr("%s: failed to create grid\n", __func__);
         return;
       }
     } else {
-      fprintf(stderr, "%s: failed to create option window\n", __func__);
+      g_printerr("%s: failed to create option window\n", __func__);
       return;
     }
   }
