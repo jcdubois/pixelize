@@ -1,3 +1,6 @@
+# backup files
+*~
+
 # Prerequisites
 *.d
 
@@ -53,6 +56,9 @@ dkms.conf
 
 # Vi temporary files
 *.swp
+
+# Generated header file
+pixelize_model.h
 
 # Generated binaries
 make_db
