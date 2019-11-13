@@ -37,7 +37,7 @@ depend:	Makefile pixelize_model.h
 	$(CC) -MM $(CFLAGS) *.c > depend
 
 pixelize_model.h: pixelize.glade
-	./glade2c -i $< -o $@
+	./tools/glade2c -i $< -o $@
 
 clean:
 	rm -f *.o pixelize make_db core depend pixelize_model.h
