@@ -20,22 +20,25 @@ if __name__ == "__main__":
     execname = sys.argv[0]
     inputfile = ''
     outputfile = ''
+    stringname = 'gladestring'
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["ifile=", "ofile="])
+        opts, args = getopt.getopt(sys.argv[1:], "hi:o:s:", ["ifile=", "ofile=", "stringname="])
     except getopt.GetoptError:
-        print execname + ' -i <inputfile> -o <outputfile>'
+        print execname + ' -i <inputfile> -o <outputfile> [-s <stringname>]'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print execname + ' -i <inputfile> -o <outputfile>'
+            print execname + ' -i <inputfile> -o <outputfile> [-s <stringname>]'
             sys.exit()
         elif opt in ("-i", "--ifile"):
             inputfile = arg
         elif opt in ("-o", "--ofile"):
             outputfile = arg
+        elif opt in ("-s", "--stringname"):
+            stringname = arg
 
     if inputfile == '' or outputfile == '':
-        print execname + ' -i <inputfile> -o <outputfile>'
+        print execname + ' -i <inputfile> -o <outputfile> [-s <stringname>]'
         sys.exit(2)
 
     writer = XmlWriter()
@@ -49,7 +52,7 @@ if __name__ == "__main__":
     stripSize = 64
 
     output = open(outputfile, 'w')
-    output.write("static const char gladestring [] = \n{\n")
+    output.write("static const char " + stringname + " [] = \n{\n")
     while baseOffset < byteCount:
         skipTrailingQuote = 0
         if baseOffset + stripSize < byteCount and strippedXml[
