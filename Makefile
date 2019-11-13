@@ -2,6 +2,7 @@
 
 CC = gcc
 
+CFLAGS += -Iinclude
 CFLAGS += -I/usr/X11R6/include `pkg-config --cflags gtk+-3.0`
 CFLAGS += -g
 CFLAGS += -DGSEAL_ENABLE
@@ -14,15 +15,28 @@ DFLAGS = -L/usr/X11R6/lib `pkg-config --libs gtk+-3.0`
 DFLAGS += -Wall -Wextra
 LIBS = -lm
 
-PIX_OBJS = main.o menu.o options.o \
-           display.o read_db.o globals.o \
-           file_dialog.o status.o cursor.o \
-           render.o render_image.o stats.o find_match.o \
-           info_popup.o highlight.o draw_image.o
+SRC_FILES := $(wildcard src/*.c)
 
-DB_OBJS = make_db.o
+PIX_OBJS += obj/main.o
+PIX_OBJS += obj/menu.o
+PIX_OBJS += obj/options.o
+PIX_OBJS += obj/display.o
+PIX_OBJS += obj/read_db.o
+PIX_OBJS += obj/globals.o
+PIX_OBJS += obj/file_dialog.o
+PIX_OBJS += obj/status.o
+PIX_OBJS += obj/cursor.o
+PIX_OBJS += obj/render.o
+PIX_OBJS += obj/render_image.o
+PIX_OBJS += obj/stats.o
+PIX_OBJS += obj/find_match.o
+PIX_OBJS += obj/info_popup.o
+PIX_OBJS += obj/highlight.o
+PIX_OBJS += obj/draw_image.o
 
-all:	make_db pixelize
+DB_OBJS += obj/make_db.o
+
+all:	obj make_db pixelize
 
 make_db:	$(DB_OBJS)
 	$(CC) -o $@ $(DB_OBJS) $(DFLAGS) $(LIBS)
@@ -30,16 +44,20 @@ make_db:	$(DB_OBJS)
 pixelize:	$(PIX_OBJS)
 	$(CC) -o $@ $(PIX_OBJS) $(DFLAGS) $(LIBS)
 
-.c.o:	depend
+obj/%.o: depend
+obj/%.o: src/%.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-depend:	Makefile pixelize_model.h
-	$(CC) -MM $(CFLAGS) *.c > depend
+obj:
+	mkdir $@
 
-pixelize_model.h: pixelize.glade
+depend:	Makefile include/pixelize_model.h
+	$(CC) -MM $(CFLAGS) $(SRC_FILES)  > depend
+
+include/pixelize_model.h: glade/pixelize.glade
 	./tools/glade2c -i $< -o $@
 
 clean:
-	rm -f *.o pixelize make_db core depend pixelize_model.h
+	rm -rf obj pixelize make_db core depend include/pixelize_model.h
 
 include depend
