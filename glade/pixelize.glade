@@ -4,7 +4,6 @@
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="can_focus">True</property>
-    <property name="type">popup</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">center-always</property>
@@ -65,7 +64,6 @@ Pixelize works best when it can choose images from a very large database of imag
   </object>
   <object class="GtkFileChooserDialog" id="open_file_dialog">
     <property name="can_focus">True</property>
-    <property name="type">popup</property>
     <property name="window_position">center</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
@@ -125,10 +123,13 @@ Pixelize works best when it can choose images from a very large database of imag
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-3">open_file_ok_button</action-widget>
+      <action-widget response="-6">open_file_cancel_button</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkFileChooserDialog" id="save_file_dialog">
     <property name="can_focus">True</property>
-    <property name="type">popup</property>
     <property name="window_position">center</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
@@ -190,6 +191,10 @@ Pixelize works best when it can choose images from a very large database of imag
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-3">save_file_ok_button</action-widget>
+      <action-widget response="-6">save_file_cancel_button</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkApplicationWindow" id="main_window">
     <property name="visible">True</property>
@@ -382,7 +387,6 @@ Pixelize works best when it can choose images from a very large database of imag
   </object>
   <object class="GtkDialog" id="options_dialog">
     <property name="can_focus">True</property>
-    <property name="type">popup</property>
     <property name="window_position">center</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
@@ -619,5 +623,9 @@ Pixelize works best when it can choose images from a very large database of imag
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-3">options_ok_button</action-widget>
+      <action-widget response="-6">options_cancel_button</action-widget>
+    </action-widgets>
   </object>
 </interface>
