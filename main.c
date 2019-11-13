@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "pixelize_model.h"
 #include "status.h"
 
-#if 1
 static gboolean delete_event_callback(GtkWidget *widget, GdkEvent *event,
                                       gpointer user_data) {
   (void)widget;
@@ -46,13 +45,8 @@ static void destroy_callback(GtkWidget *widget, gpointer data) {
 
   gtk_main_quit();
 }
-#endif
 
 int main(int argc, char *argv[]) {
-  GtkBuilder *builder;
-  // GObject *window;
-  // GObject *button;
-  GError *error = NULL;
   GOptionEntry entries[] = {
       {"in", 'i', 0, G_OPTION_ARG_STRING, &globals.in_fname, "Input file name",
        "file_name"},
@@ -67,6 +61,8 @@ int main(int argc, char *argv[]) {
 
   /* initialize gtk */
   if (gtk_init_with_args(&argc, &argv, "toto", entries, NULL, NULL)) {
+    GtkBuilder *builder;
+    GError *error = NULL;
 
     if (argc > 2) {
       g_printerr("%s: Error: too many arguments\n", argv[0]);
@@ -109,24 +105,10 @@ int main(int argc, char *argv[]) {
         exit(1);
       }
 
-      globals.topwin = gtk_builder_get_object(builder, "main_window");
-
-      g_print("OK\n");
-#if 0
-      /* the main window contains the work area and the menubar */
-      globals.topwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-#endif
+      globals.topwin =
+          GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
 
       if (globals.topwin) {
-#if 0
-        GtkWidget *grid;
-
-        gtk_widget_set_name(globals.topwin, "pixelize");
-        gtk_window_set_default_size(GTK_WINDOW(globals.topwin), 300, 300);
-        gtk_window_set_position(GTK_WINDOW(globals.topwin), GTK_WIN_POS_CENTER);
-        gtk_container_set_border_width(GTK_CONTAINER(globals.topwin), 15);
-#endif
-
         /* handle window manager close */
         g_signal_connect(globals.topwin, "delete_event",
                          G_CALLBACK(delete_event_callback), NULL);
@@ -156,6 +138,7 @@ int main(int argc, char *argv[]) {
           exit(1);
         }
 
+#endif
         gtk_widget_show(globals.topwin);
 
         cursor_normal();
@@ -164,18 +147,17 @@ int main(int argc, char *argv[]) {
         if (globals.in_im_scaled) {
           g_thread_new("render", render_compute_thread, NULL);
         }
-#endif
 
         gtk_main();
       } else {
-        fprintf(stderr, "Error: failed to create main window\n");
+        g_printerr("%s: Error: failed to create main window\n", argv[0]);
         exit(1);
       }
 
       return 0;
     }
   } else {
-    fprintf(stderr, "Error: in parameters\n");
-    return -1;
+    g_printerr("%s: Error: in parameters\n", argv[0]);
+    exit(1);
   }
 }
