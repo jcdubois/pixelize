@@ -56,6 +56,7 @@ depend:	Makefile include/pixelize_model.h
 
 include/pixelize_model.h: glade/pixelize.glade
 	./tools/glade2c -i $< -o $@
+	clang-format -i $@
 
 clean:
 	rm -rf obj pixelize make_db core depend include/pixelize_model.h
