@@ -64,6 +64,7 @@ Pixelize works best when it can choose images from a very large database of imag
   </object>
   <object class="GtkFileChooserDialog" id="open_file_dialog">
     <property name="can_focus">True</property>
+    <property name="title" translatable="yes">Open File</property>
     <property name="window_position">center</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
@@ -90,6 +91,7 @@ Pixelize works best when it can choose images from a very large database of imag
                 <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="can_default">True</property>
                 <property name="receives_default">True</property>
               </object>
               <packing>
@@ -130,6 +132,7 @@ Pixelize works best when it can choose images from a very large database of imag
   </object>
   <object class="GtkFileChooserDialog" id="save_file_dialog">
     <property name="can_focus">True</property>
+    <property name="title" translatable="yes">Save File</property>
     <property name="window_position">center</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
@@ -158,6 +161,7 @@ Pixelize works best when it can choose images from a very large database of imag
                 <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="can_default">True</property>
                 <property name="receives_default">True</property>
               </object>
               <packing>
@@ -409,6 +413,7 @@ Pixelize works best when it can choose images from a very large database of imag
                 <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="can_default">True</property>
                 <property name="receives_default">True</property>
               </object>
               <packing>
