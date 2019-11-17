@@ -107,13 +107,6 @@ int main(int argc, char *argv[]) {
         exit(1);
       }
 
-#if 0
-        /* create the varrious subsystems */
-        setup_display(builder);
-
-        setup_status(builder);
-#endif
-
       gtk_widget_show(globals.topwin);
 
       cursor_normal();

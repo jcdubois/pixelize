@@ -166,21 +166,17 @@ gboolean open_image(void) {
       if (globals.in_im) {
 
         if (calc_dimensions(&(globals.new_opt))) {
-          copy_opt_data();
 
           /* scale the image */
           globals.in_im_scaled = gdk_pixbuf_scale_simple(
-              globals.in_im, globals.cur_opt.pixW * globals.cur_opt.nPixW,
-              globals.cur_opt.pixH * globals.cur_opt.nPixH,
+              globals.in_im, globals.new_opt.pixW * globals.new_opt.nPixW,
+              globals.new_opt.pixH * globals.new_opt.nPixH,
               GDK_INTERP_BILINEAR);
 
           if (globals.in_im_scaled) {
 
-            if (globals.draw_area) {
-              gtk_widget_queue_draw(globals.draw_area);
-            }
-
             ret = TRUE;
+
           } else {
             g_printerr("Error: %s: Unable to scale image: %s\n", __func__,
                        globals.in_fname);

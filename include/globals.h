@@ -37,11 +37,10 @@ struct _ImageOptions {
   unsigned long long opt_alg;
 };
 
-/* globals we use a lot */
 struct _Globals {
 
-  GtkWidget *topwin;      /* The main window. It encompass everything */
-  GtkWidget *draw_area;   /* The widget where the picture is drawn */
+  GtkWidget *topwin;    /* The main window. It encompass everything */
+  GtkWidget *draw_area; /* The widget where the picture is drawn */
 
   struct PIC_DB *head;       /* the image database */
   struct IMAGE_INFO **image; /* the constructed image */
