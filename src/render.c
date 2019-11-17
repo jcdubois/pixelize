@@ -271,7 +271,6 @@ int render() {
 
   /* copy the image rendering data from new_opt to cur_opt */
   if (copy_opt_data()) {
-    resize_window();
 
     if (globals.in_im_scaled != NULL) {
       g_object_unref(globals.in_im_scaled);

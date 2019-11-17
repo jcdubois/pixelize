@@ -25,303 +25,223 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <ctype.h>
 
 static GtkWidget *optWindow = NULL;
-static GtkWidget *size_x_entry = NULL;
-static GtkWidget *size_y_entry = NULL;
-static GtkWidget *count_x_entry = NULL;
-static GtkWidget *count_y_entry = NULL;
-static GtkWidget *size_button = NULL;
-static GtkWidget *count_button = NULL;
 
-void refresh_options_win(struct _ImageOptions *im_opt) {
-  char buf[8];
+static GtkWidget *find_child(GtkWidget *parent, const gchar *name) {
+  if (g_ascii_strcasecmp(gtk_widget_get_name((GtkWidget *)parent),
+                         (gchar *)name) == 0) {
+    return parent;
+  }
 
-  if (optWindow) {
-    snprintf(buf, sizeof(buf), "%u", im_opt->pixW);
-    gtk_entry_set_text(GTK_ENTRY(size_x_entry), buf);
-    snprintf(buf, sizeof(buf), "%u", im_opt->pixH);
-    gtk_entry_set_text(GTK_ENTRY(size_y_entry), buf);
-    snprintf(buf, sizeof(buf), "%u", im_opt->nPixW);
-    gtk_entry_set_text(GTK_ENTRY(count_x_entry), buf);
-    snprintf(buf, sizeof(buf), "%u", im_opt->nPixH);
-    gtk_entry_set_text(GTK_ENTRY(count_y_entry), buf);
-    if (globals.new_opt.opt_alg == PIX_SIZE) {
-      gtk_editable_set_editable(GTK_EDITABLE(size_x_entry), TRUE);
-      gtk_editable_set_editable(GTK_EDITABLE(size_y_entry), TRUE);
-      gtk_editable_set_editable(GTK_EDITABLE(count_x_entry), FALSE);
-      gtk_editable_set_editable(GTK_EDITABLE(count_y_entry), FALSE);
-      gtk_widget_set_sensitive(size_x_entry, TRUE);
-      gtk_widget_set_sensitive(size_y_entry, TRUE);
-      gtk_widget_set_sensitive(count_x_entry, FALSE);
-      gtk_widget_set_sensitive(count_y_entry, FALSE);
-    } else {
-      gtk_editable_set_editable(GTK_EDITABLE(size_x_entry), FALSE);
-      gtk_editable_set_editable(GTK_EDITABLE(size_y_entry), FALSE);
-      gtk_editable_set_editable(GTK_EDITABLE(count_x_entry), TRUE);
-      gtk_editable_set_editable(GTK_EDITABLE(count_y_entry), TRUE);
-      gtk_widget_set_sensitive(size_x_entry, FALSE);
-      gtk_widget_set_sensitive(size_y_entry, FALSE);
-      gtk_widget_set_sensitive(count_x_entry, TRUE);
-      gtk_widget_set_sensitive(count_y_entry, TRUE);
+  if (GTK_IS_BIN(parent)) {
+    GtkWidget *child = gtk_bin_get_child(GTK_BIN(parent));
+    return find_child(child, name);
+  }
+
+  if (GTK_IS_CONTAINER(parent)) {
+    GList *children = gtk_container_get_children(GTK_CONTAINER(parent));
+    while (children) {
+      GtkWidget *widget = find_child(children->data, name);
+      if (widget != NULL) {
+        return widget;
+      }
+      children = g_list_next(children);
     }
   }
+
+  return NULL;
 }
 
-static void pix_opt_alg_CB(GtkWidget *widget, gpointer data) {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
-    globals.new_opt.opt_alg = (unsigned long long)data;
-  }
-  refresh_options_win(&(globals.new_opt));
-}
+void refresh_options_win(GtkWidget *dialog) {
 
-static gboolean pix_size_x_CB(GtkWidget *widget, GdkEvent *event,
-                              gpointer user_data) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
-  (void)user_data;
-  (void)event;
+  if (dialog) {
+    char buf[8];
+    GtkWidget *ptr;
 
-  if (sscanf(txt, "%u", &globals.new_opt.pixW) == 1) {
-    if (0 == calc_dimensions(&(globals.new_opt))) {
-      g_printerr("error: %s can't compute dimension\n", __func__);
-      return FALSE;
+    if (optWindow == NULL) {
+      optWindow = dialog;
     }
-  }
-  refresh_options_win(&(globals.new_opt));
-  return FALSE;
-}
 
-static gboolean pix_size_y_CB(GtkWidget *widget, GdkEvent *event,
-                              gpointer user_data) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
-  (void)user_data;
-  (void)event;
-
-  if (sscanf(txt, "%u", &globals.new_opt.pixH) == 1) {
-    if (0 == calc_dimensions(&(globals.new_opt))) {
-      g_printerr("error: %s can't compute dimension\n", __func__);
-      return FALSE;
-    }
-  }
-  refresh_options_win(&(globals.new_opt));
-  return FALSE;
-}
-
-static gboolean pix_proximity_CB(GtkWidget *widget, GdkEvent *event,
-                                 gpointer user_data) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
-  (void)user_data;
-  (void)event;
-
-  if (sscanf(txt, "%u", &globals.new_opt.proximity) == 1) {
-  }
-  refresh_options_win(&(globals.new_opt));
-  return FALSE;
-}
-
-static gboolean pix_count_x_CB(GtkWidget *widget, GdkEvent *event,
-                               gpointer user_data) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
-  (void)user_data;
-  (void)event;
-
-  if (sscanf(txt, "%u", &globals.new_opt.nPixW) == 1) {
-    if (0 == calc_dimensions(&(globals.new_opt))) {
-      g_printerr("error: %s can't compute dimension\n", __func__);
-      return FALSE;
-    }
-  }
-  refresh_options_win(&(globals.new_opt));
-  return FALSE;
-}
-
-static gboolean pix_count_y_CB(GtkWidget *widget, GdkEvent *event,
-                               gpointer user_data) {
-  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
-  (void)user_data;
-  (void)event;
-
-  if (sscanf(txt, "%u", &globals.new_opt.nPixH) == 1) {
-    if (0 == calc_dimensions(&(globals.new_opt))) {
-      g_printerr("error: %s can't compute dimension\n", __func__);
-      return FALSE;
-    }
-  }
-  refresh_options_win(&(globals.new_opt));
-  return FALSE;
-}
-
-/* pops up a new window with all the options in it */
-void optionsCB(gpointer data) {
-  (void)data;
-
-  if (!optWindow) {
-    optWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-    if (optWindow) {
-      GtkWidget *grid;
-
-      gtk_window_set_title(GTK_WINDOW(optWindow), "Options");
-
-      g_signal_connect(optWindow, "destroy", G_CALLBACK(gtk_widget_destroyed),
-                       &optWindow);
-
-      gtk_container_set_border_width(GTK_CONTAINER(optWindow), 4);
-
-      /* all the sections go in the grid */
-      grid = gtk_grid_new();
-
-      if (grid) {
-        GtkWidget *frame;
-
-        gtk_container_add(GTK_CONTAINER(optWindow), grid);
-        gtk_widget_show(grid);
-
-        /***** IMAGES *******************************************************/
-
-        frame = gtk_frame_new("Images");
-
-        if (frame) {
-          GtkWidget *grid2;
-
-          gtk_grid_attach(GTK_GRID(grid), frame, 0, 0, 1, 1);
-          gtk_container_set_border_width(GTK_CONTAINER(frame), 4);
-          gtk_widget_show(frame);
-
-          grid2 = gtk_grid_new();
-
-          if (grid2) {
-            char buf[8];
-            GSList *group;
-            GtkWidget *button;
-            GtkWidget *label;
-            GtkWidget *entry;
-
-            gtk_container_set_border_width(GTK_CONTAINER(grid2), 4);
-            gtk_container_add(GTK_CONTAINER(frame), grid2);
-            gtk_widget_show(grid2);
-
-            /***** size *****/
-            size_button = button = gtk_radio_button_new_with_label(NULL, "");
-            gtk_grid_attach(GTK_GRID(grid2), button, 0, 0, 1, 1);
-            g_signal_connect(button, "toggled", G_CALLBACK(pix_opt_alg_CB),
-                             (gpointer)PIX_SIZE);
-            gtk_widget_show(button);
-
-            label = gtk_label_new("Image Sizes: ");
-            gtk_grid_attach(GTK_GRID(grid2), label, 1, 0, 1, 1);
-            gtk_widget_show(label);
-
-            size_x_entry = entry = gtk_entry_new();
-            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-            gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "focus-out-event",
-                             G_CALLBACK(pix_size_x_CB), NULL);
-            gtk_grid_attach(GTK_GRID(grid2), entry, 2, 0, 1, 1);
-            gtk_widget_show(entry);
-
-            label = gtk_label_new(" X ");
-            gtk_grid_attach(GTK_GRID(grid2), label, 4, 0, 1, 1);
-            gtk_widget_show(label);
-
-            size_y_entry = entry = gtk_entry_new();
-            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-            gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "focus-out-event",
-                             G_CALLBACK(pix_size_y_CB), NULL);
-            gtk_grid_attach(GTK_GRID(grid2), entry, 6, 0, 1, 1);
-            gtk_widget_show(entry);
-
-            label = gtk_label_new(" Pixels ");
-            gtk_grid_attach(GTK_GRID(grid2), label, 8, 0, 1, 1);
-            gtk_widget_show(label);
-
-            /***** number *****/
-            group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
-            count_button = button = gtk_radio_button_new_with_label(group, "");
-            gtk_grid_attach(GTK_GRID(grid2), button, 0, 1, 1, 1);
-            g_signal_connect(button, "toggled", G_CALLBACK(pix_opt_alg_CB),
-                             (gpointer)PIX_COUNT);
-            gtk_widget_show(button);
-
-            label = gtk_label_new("Number of Images: ");
-            gtk_grid_attach(GTK_GRID(grid2), label, 1, 1, 1, 1);
-            gtk_widget_show(label);
-
-            count_x_entry = entry = gtk_entry_new();
-            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-            gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "focus-out-event",
-                             G_CALLBACK(pix_count_x_CB), NULL);
-            gtk_grid_attach(GTK_GRID(grid2), entry, 2, 1, 1, 1);
-            gtk_widget_show(entry);
-
-            label = gtk_label_new(" X ");
-            gtk_grid_attach(GTK_GRID(grid2), label, 4, 1, 1, 1);
-            gtk_widget_show(label);
-
-            count_y_entry = entry = gtk_entry_new();
-            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-            gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "focus-out-event",
-                             G_CALLBACK(pix_count_y_CB), NULL);
-            gtk_grid_attach(GTK_GRID(grid2), entry, 6, 1, 1, 1);
-            gtk_widget_show(entry);
-
-            label = gtk_label_new(" Images ");
-            gtk_grid_attach(GTK_GRID(grid2), label, 8, 1, 1, 1);
-            gtk_widget_show(label);
-
-            /***** proximity *****/
-
-            label = gtk_label_new("Proximity of duplicates: ");
-            gtk_grid_attach(GTK_GRID(grid2), label, 1, 2, 1, 1);
-            gtk_widget_show(label);
-
-            entry = gtk_entry_new();
-            gtk_entry_set_max_length(GTK_ENTRY(entry), 5);
-            gtk_widget_set_size_request(entry, 50, -1);
-            g_signal_connect(entry, "focus-out-event",
-                             G_CALLBACK(pix_proximity_CB), NULL);
-            snprintf(buf, sizeof(buf), "%u", globals.new_opt.proximity);
-            gtk_entry_set_text(GTK_ENTRY(entry), buf);
-            gtk_grid_attach(GTK_GRID(grid2), entry, 2, 2, 1, 1);
-            gtk_widget_show(entry);
-
-            /**************** Dismiss **************************/
-
-            button = gtk_button_new_with_label("Apply");
-            g_signal_connect_swapped(button, "clicked",
-                                     G_CALLBACK(gtk_widget_destroy), optWindow);
-            gtk_grid_attach(GTK_GRID(grid), button, 0, 1, 1, 1);
-            gtk_widget_set_can_default(button, TRUE);
-            gtk_widget_show(button);
-          } else {
-            g_printerr("%s: failed to create grid2\n", __func__);
-            return;
-          }
-        } else {
-          g_printerr("%s: failed to create frame\n", __func__);
-          return;
-        }
+    ptr = find_child(optWindow, "pix_width");
+    if (ptr) {
+      snprintf(buf, sizeof(buf), "%u", globals.new_opt.pixW);
+      gtk_entry_set_text(GTK_ENTRY(ptr), buf);
+      if (globals.new_opt.opt_alg == PIX_SIZE) {
+        gtk_editable_set_editable(GTK_EDITABLE(ptr), TRUE);
+        gtk_widget_set_sensitive(ptr, TRUE);
       } else {
-        g_printerr("%s: failed to create grid\n", __func__);
-        return;
+        gtk_editable_set_editable(GTK_EDITABLE(ptr), FALSE);
+        gtk_widget_set_sensitive(ptr, FALSE);
       }
     } else {
-      g_printerr("%s: failed to create option window\n", __func__);
-      return;
+      g_printerr("Error: Unable to find pix_width entry\n");
     }
+
+    ptr = find_child(optWindow, "pix_heigth");
+    if (ptr) {
+      snprintf(buf, sizeof(buf), "%u", globals.new_opt.pixH);
+      gtk_entry_set_text(GTK_ENTRY(ptr), buf);
+      if (globals.new_opt.opt_alg == PIX_SIZE) {
+        gtk_editable_set_editable(GTK_EDITABLE(ptr), TRUE);
+        gtk_widget_set_sensitive(ptr, TRUE);
+      } else {
+        gtk_editable_set_editable(GTK_EDITABLE(ptr), FALSE);
+        gtk_widget_set_sensitive(ptr, FALSE);
+      }
+    } else {
+      g_printerr("Error: Unable to find pix_heigth entry\n");
+    }
+
+    ptr = find_child(optWindow, "n_pix_width");
+    if (ptr) {
+      snprintf(buf, sizeof(buf), "%u", globals.new_opt.nPixW);
+      gtk_entry_set_text(GTK_ENTRY(ptr), buf);
+      if (globals.new_opt.opt_alg == PIX_SIZE) {
+        gtk_editable_set_editable(GTK_EDITABLE(ptr), FALSE);
+        gtk_widget_set_sensitive(ptr, FALSE);
+      } else {
+        gtk_editable_set_editable(GTK_EDITABLE(ptr), TRUE);
+        gtk_widget_set_sensitive(ptr, TRUE);
+      }
+    } else {
+      g_printerr("Error: Unable to find n_pix_width entry\n");
+    }
+
+    ptr = find_child(optWindow, "n_pix_heigth");
+    if (ptr) {
+      snprintf(buf, sizeof(buf), "%u", globals.new_opt.nPixH);
+      gtk_entry_set_text(GTK_ENTRY(ptr), buf);
+      if (globals.new_opt.opt_alg == PIX_SIZE) {
+        gtk_editable_set_editable(GTK_EDITABLE(ptr), FALSE);
+        gtk_widget_set_sensitive(ptr, FALSE);
+      } else {
+        gtk_editable_set_editable(GTK_EDITABLE(ptr), TRUE);
+        gtk_widget_set_sensitive(ptr, TRUE);
+      }
+    } else {
+      g_printerr("Error: Unable to find n_pix_heigth entry\n");
+    }
+
+    ptr = find_child(optWindow, "proximity");
+    if (ptr) {
+      snprintf(buf, sizeof(buf), "%u", globals.new_opt.proximity);
+      gtk_entry_set_text(GTK_ENTRY(ptr), buf);
+    } else {
+      g_printerr("Error: Unable to find proximity entry\n");
+    }
+  } else {
+    g_printerr("Error: dialog is NULL\n");
   }
+}
 
-  /* set the toggle buttons to the right state */
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(size_button),
-                               globals.new_opt.opt_alg == PIX_SIZE ? TRUE
-                                                                   : FALSE);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(count_button),
-                               globals.new_opt.opt_alg == PIX_COUNT ? TRUE
-                                                                    : FALSE);
+void image_size_button_toggled_cb(GtkToggleButton *button, gpointer user_data) {
+  (void)user_data;
 
-  /* set the test entry boxes to the right state */
-  refresh_options_win(&(globals.new_opt));
+  g_printerr("%s: enter\n", __func__);
 
-  gtk_widget_show(optWindow);
+  if (gtk_toggle_button_get_active(button)) {
+    globals.new_opt.opt_alg = PIX_SIZE;
+  } else {
+    globals.new_opt.opt_alg = PIX_COUNT;
+  }
+  refresh_options_win(optWindow);
+}
+
+gboolean pix_width_focus_out_event_cb(GtkWidget *widget, GdkEvent *event,
+                                      gpointer user_data) {
+  (void)widget;
+  (void)event;
+  (void)user_data;
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+
+  g_printerr("%s: enter\n", __func__);
+
+  if (sscanf(txt, "%u", &globals.new_opt.pixW) == 1) {
+    if (calc_dimensions(&globals.new_opt) == FALSE) {
+      g_printerr("error: %s can't compute dimension\n", __func__);
+      return FALSE;
+    }
+  } else {
+    g_printerr("Error: cant make sense of %s for pix_width\n", txt);
+  }
+  refresh_options_win(optWindow);
+  return FALSE;
+}
+
+gboolean pix_heigth_focus_out_event_cb(GtkWidget *widget, GdkEvent *event,
+                                       gpointer user_data) {
+  (void)widget;
+  (void)event;
+  (void)user_data;
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+
+  g_printerr("%s: enter\n", __func__);
+
+  if (sscanf(txt, "%u", &globals.new_opt.pixH) == 1) {
+    if (calc_dimensions(&globals.new_opt) == FALSE) {
+      g_printerr("error: %s can't compute dimension\n", __func__);
+      return FALSE;
+    }
+  } else {
+    g_printerr("Error: cant make sense of %s for pix_heigth\n", txt);
+  }
+  refresh_options_win(optWindow);
+  return FALSE;
+}
+
+gboolean proximity_focus_out_event_cb(GtkWidget *widget, GdkEvent *event,
+                                      gpointer user_data) {
+  (void)widget;
+  (void)event;
+  (void)user_data;
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+
+  g_printerr("%s: enter\n", __func__);
+
+  if (sscanf(txt, "%u", &globals.new_opt.proximity) != 1) {
+    g_printerr("Error: cant make sense of %s for proximity\n", txt);
+  }
+  refresh_options_win(optWindow);
+  return FALSE;
+}
+
+gboolean n_pix_width_focus_out_event_cb(GtkWidget *widget, GdkEvent *event,
+                                        gpointer user_data) {
+  (void)widget;
+  (void)event;
+  (void)user_data;
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+
+  g_printerr("%s: enter\n", __func__);
+
+  if (sscanf(txt, "%u", &globals.new_opt.nPixW) == 1) {
+    if (calc_dimensions(&globals.new_opt) == FALSE) {
+      g_printerr("error: %s can't compute dimension\n", __func__);
+      return FALSE;
+    }
+  } else {
+    g_printerr("Error: cant make sense of %s for n_pix_width\n", txt);
+  }
+  refresh_options_win(optWindow);
+  return FALSE;
+}
+
+gboolean n_pix_heigth_focus_out_event_cb(GtkWidget *widget, GdkEvent *event,
+                                         gpointer user_data) {
+  (void)widget;
+  (void)event;
+  (void)user_data;
+  const gchar *txt = gtk_entry_get_text(GTK_ENTRY(widget));
+
+  g_printerr("%s: enter\n", __func__);
+
+  if (sscanf(txt, "%u", &globals.new_opt.nPixH) == 1) {
+    if (calc_dimensions(&globals.new_opt) == FALSE) {
+      g_printerr("error: %s can't compute dimension\n", __func__);
+      return FALSE;
+    }
+  } else {
+    g_printerr("Error: cant make sense of %s for n_pix_heigth\n", txt);
+  }
+  refresh_options_win(optWindow);
+  return FALSE;
 }

@@ -210,6 +210,7 @@ Pixelize works best when it can choose images from a very large database of imag
     <property name="default_height">300</property>
     <property name="icon_name">applications-graphics</property>
     <property name="has_resize_grip">True</property>
+    <signal name="destroy" handler="gtk_main_quit" swapped="no"/>
     <child>
       <placeholder/>
     </child>
@@ -241,7 +242,7 @@ Pixelize works best when it can choose images from a very large database of imag
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="file_menu_open_activate_cb" swapped="no"/>
+                        <signal name="activate" handler="file_menu_open_activate_cb" object="open_file_dialog" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -251,7 +252,7 @@ Pixelize works best when it can choose images from a very large database of imag
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="file_menu_save_activate_cb" swapped="no"/>
+                        <signal name="activate" handler="file_menu_save_activate_cb" object="save_file_dialog" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -301,7 +302,7 @@ Pixelize works best when it can choose images from a very large database of imag
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="options_menu_configure_activate_cb" swapped="no"/>
+                        <signal name="activate" handler="options_menu_configure_activate_cb" object="options_dialog" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -326,7 +327,7 @@ Pixelize works best when it can choose images from a very large database of imag
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="about_menu_item_activate_cb" swapped="no"/>
+                        <signal name="activate" handler="about_menu_item_activate_cb" object="about_dialog" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -341,19 +342,34 @@ Pixelize works best when it can choose images from a very large database of imag
           </packing>
         </child>
         <child>
-          <object class="GtkViewport" id="draw_viewport">
+          <object class="GtkScrolledWindow" id="draw_scroll">
+            <property name="name">draw_scroll</property>
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
+            <property name="can_focus">True</property>
+            <property name="window_placement">bottom-left</property>
+            <property name="shadow_type">in</property>
             <child>
-              <object class="GtkDrawingArea" id="draw_area">
+              <object class="GtkViewport" id="draw_viewport">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <signal name="button-press-event" handler="draw_area_button_press_event_cb" swapped="no"/>
-                <signal name="button-release-event" handler="draw_area_button_release_event_cb" swapped="no"/>
-                <signal name="configure-event" handler="draw_area_configure_event_cb" swapped="no"/>
-                <signal name="draw" handler="draw_area_draw_cb" swapped="no"/>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <child>
+                  <object class="GtkDrawingArea" id="draw_area">
+                    <property name="name">draw_area</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="events">GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_LEAVE_NOTIFY_MASK</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <signal name="button-press-event" handler="draw_area_button_press_event_cb" swapped="no"/>
+                    <signal name="configure-event" handler="draw_area_configure_event_cb" swapped="no"/>
+                    <signal name="draw" handler="draw_area_draw_cb" swapped="no"/>
+                    <signal name="key-release-event" handler="draw_area_key_release_event_cb" swapped="no"/>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
@@ -391,12 +407,13 @@ Pixelize works best when it can choose images from a very large database of imag
   </object>
   <object class="GtkDialog" id="options_dialog">
     <property name="can_focus">True</property>
+    <property name="title" translatable="yes">Configure rendering</property>
     <property name="window_position">center</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -459,9 +476,11 @@ Pixelize works best when it can choose images from a very large database of imag
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkEntry" id="pix_heigth">
+                        <property name="name">pix_heigth</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="input_purpose">digits</property>
+                        <signal name="focus-out-event" handler="pix_heigth_focus_out_event_cb" swapped="no"/>
                       </object>
                       <packing>
                         <property name="left_attach">3</property>
@@ -470,9 +489,11 @@ Pixelize works best when it can choose images from a very large database of imag
                     </child>
                     <child>
                       <object class="GtkEntry" id="pix_width">
+                        <property name="name">pix_width</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="input_purpose">digits</property>
+                        <signal name="focus-out-event" handler="pix_width_focus_out_event_cb" swapped="no"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -481,9 +502,11 @@ Pixelize works best when it can choose images from a very large database of imag
                     </child>
                     <child>
                       <object class="GtkEntry" id="n_pix_heigth">
+                        <property name="name">n_pix_heigth</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="input_purpose">digits</property>
+                        <signal name="focus-out-event" handler="n_pix_heigth_focus_out_event_cb" swapped="no"/>
                       </object>
                       <packing>
                         <property name="left_attach">3</property>
@@ -492,9 +515,11 @@ Pixelize works best when it can choose images from a very large database of imag
                     </child>
                     <child>
                       <object class="GtkEntry" id="n_pix_width">
+                        <property name="name">n_pix_width</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="input_purpose">digits</property>
+                        <signal name="focus-out-event" handler="n_pix_width_focus_out_event_cb" swapped="no"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -503,9 +528,11 @@ Pixelize works best when it can choose images from a very large database of imag
                     </child>
                     <child>
                       <object class="GtkEntry" id="proximity">
+                        <property name="name">proximity</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="input_purpose">digits</property>
+                        <signal name="focus-out-event" handler="proximity_focus_out_event_cb" swapped="no"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -575,6 +602,7 @@ Pixelize works best when it can choose images from a very large database of imag
                         <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="image_size_button_toggled_cb" swapped="no"/>
                       </object>
                       <packing>
                         <property name="left_attach">0</property>
@@ -589,6 +617,7 @@ Pixelize works best when it can choose images from a very large database of imag
                         <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
+                        <property name="group">image_size_button</property>
                       </object>
                       <packing>
                         <property name="left_attach">0</property>

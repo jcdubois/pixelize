@@ -23,12 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __OPTIONS_H
 #define __OPTIONS_H
 
-#include "globals.h"
 #include <gtk/gtk.h>
 
-/* pops up a new window with all the options in it */
-void optionsCB(gpointer data);
-
-void refresh_options_win(struct _ImageOptions *im_opt);
+void refresh_options_win(GtkWidget *dialog);
 
 #endif

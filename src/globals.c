@@ -25,8 +25,6 @@ struct _Globals globals;
 
 void init_globals() {
   globals.topwin = NULL;
-  globals.event_box = NULL;
-  globals.scroll_area = NULL;
   globals.draw_area = NULL;
   globals.head = NULL;
   globals.image = NULL;

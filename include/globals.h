@@ -41,11 +41,7 @@ struct _ImageOptions {
 struct _Globals {
 
   GtkWidget *topwin;      /* The main window. It encompass everything */
-  GtkWidget *event_box;   /* An event box inside the main window.
-                             It contain the scrolled window */
-  GtkWidget *scroll_area; /* Drawing area scrollbar inside the event box.
-                             It contains the real drawing area */
-  GtkWidget *draw_area;   /* Drawing area widget */
+  GtkWidget *draw_area;   /* The widget where the picture is drawn */
 
   struct PIC_DB *head;       /* the image database */
   struct IMAGE_INFO **image; /* the constructed image */

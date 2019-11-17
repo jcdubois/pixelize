@@ -89,17 +89,23 @@ int main(int argc, char *argv[]) {
         exit(1);
       }
 
+      gtk_builder_connect_signals(builder, NULL);
+
       globals.topwin =
           GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
 
-      if (globals.topwin) {
+      if (globals.topwin == NULL) {
+        g_printerr("%s: Error: failed to retrieve main window\n", argv[0]);
+        exit(1);
+      }
 
-        /* handle window manager close */
-        g_signal_connect(globals.topwin, "destroy", G_CALLBACK(gtk_main_quit),
-                         NULL);
+      globals.draw_area =
+          GTK_WIDGET(gtk_builder_get_object(builder, "draw_area"));
 
-        /* set up the menu bar */
-        setup_menu(builder);
+      if (globals.draw_area == NULL) {
+        g_printerr("%s: Error: failed to retrieve draw_area \n", argv[0]);
+        exit(1);
+      }
 
 #if 0
         /* create the varrious subsystems */
@@ -108,21 +114,15 @@ int main(int argc, char *argv[]) {
         setup_status(builder);
 #endif
 
-        gtk_widget_show(globals.topwin);
+      gtk_widget_show(globals.topwin);
 
-        cursor_normal();
+      cursor_normal();
 
-        // gtk_window_maximize(GTK_WINDOW(globals.topwin));
+      // gtk_window_maximize(GTK_WINDOW(globals.topwin));
 
-        if (globals.in_im_scaled) {
-          g_thread_new("render", render_compute_thread, NULL);
-        }
+      g_thread_new("render", render_compute_thread, NULL);
 
-        gtk_main();
-      } else {
-        g_printerr("%s: Error: failed to create main window\n", argv[0]);
-        exit(1);
-      }
+      gtk_main();
 
       return 0;
     }

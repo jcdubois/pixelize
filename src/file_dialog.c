@@ -81,13 +81,16 @@ static gboolean check_valid_types(const char *type) {
 static char *get_extension(const char *file_name) {
   if (file_name) {
     char *p1 = strrchr(file_name, '.');
+
     if (p1 == NULL) {
       g_printerr("Error: %s: Can not find file extension\n", __func__);
       return NULL;
     }
+
     return p1 + 1;
   } else {
     g_printerr("Error: %s: no name provided\n", __func__);
+
     return NULL;
   }
 }
@@ -106,8 +109,8 @@ gboolean save_image(void) {
         if (check_valid_types(extension)) {
           GError *gerror = NULL;
 
-          if (1 == gdk_pixbuf_save(globals.out_im, globals.out_fname, extension,
-                                   &gerror, NULL)) {
+          if (gdk_pixbuf_save(globals.out_im, globals.out_fname, extension,
+                              &gerror, NULL)) {
             ret = TRUE;
           } else {
             g_printerr("Error: %s: Can't write %s: %s\n", __func__,
@@ -164,7 +167,6 @@ gboolean open_image(void) {
 
         if (calc_dimensions(&(globals.new_opt))) {
           copy_opt_data();
-          refresh_options_win(&(globals.new_opt));
 
           /* scale the image */
           globals.in_im_scaled = gdk_pixbuf_scale_simple(
