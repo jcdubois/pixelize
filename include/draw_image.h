@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "globals.h"
 #include <gtk/gtk.h>
 
-gboolean copy_opt_data();
 gboolean calc_dimensions(struct _ImageOptions *im_opt);
 void render_image_pixmap(GdkPixbuf *);
 gboolean change_small_image(int xx, int yy);

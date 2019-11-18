@@ -270,21 +270,20 @@ int render() {
   g_idle_add(update_cursor_callback, (gpointer)0);
 
   /* copy the image rendering data from new_opt to cur_opt */
-  if (copy_opt_data()) {
+  globals.cur_opt = globals.new_opt;
 
-    if (globals.in_im_scaled != NULL) {
-      g_object_unref(globals.in_im_scaled);
-      globals.in_im_scaled = NULL;
-    }
+  if (globals.in_im_scaled != NULL) {
+    g_object_unref(globals.in_im_scaled);
+    globals.in_im_scaled = NULL;
+  }
 
-    /* scale the image */
-    if ((globals.in_im_scaled = gdk_pixbuf_scale_simple(
-             globals.in_im, globals.cur_opt.pixW * globals.cur_opt.nPixW,
-             globals.cur_opt.pixH * globals.cur_opt.nPixH,
-             GDK_INTERP_BILINEAR)) == NULL) {
-      g_printerr("Error: Unable to scale image: %s\n", globals.in_fname);
-      return 0;
-    }
+  /* scale the image */
+  if ((globals.in_im_scaled = gdk_pixbuf_scale_simple(
+           globals.in_im, globals.cur_opt.pixW * globals.cur_opt.nPixW,
+           globals.cur_opt.pixH * globals.cur_opt.nPixH,
+           GDK_INTERP_BILINEAR)) == NULL) {
+    g_printerr("Error: Unable to scale image: %s\n", globals.in_fname);
+    return 0;
   }
 
   /* update the mode display info */

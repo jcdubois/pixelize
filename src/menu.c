@@ -95,7 +95,7 @@ void file_menu_open_activate_cb(GtkMenuItem *menuitem, gpointer user_data) {
 
           if (globals.in_im_scaled) {
             globals.show_rendered = FALSE;
-	  }
+          }
 
           if (globals.draw_area) {
             gtk_widget_queue_draw(globals.draw_area);

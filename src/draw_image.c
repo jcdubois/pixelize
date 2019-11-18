@@ -98,19 +98,6 @@ gboolean calc_dimensions(struct _ImageOptions *im_opt) {
   return ret;
 }
 
-gboolean copy_opt_data() {
-  gboolean ret = FALSE;
-
-  if ((globals.cur_opt.height != globals.new_opt.height) ||
-      (globals.cur_opt.width != globals.new_opt.width)) {
-    ret = TRUE;
-  }
-
-  globals.cur_opt = globals.new_opt;
-
-  return ret;
-}
-
 gboolean change_small_image(int xx, int yy) {
   gboolean ret = FALSE;
 
