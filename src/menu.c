@@ -164,11 +164,17 @@ void options_menu_configure_activate_cb(GtkMenuItem *menuitem,
   GtkWidget *dialog = GTK_WIDGET(user_data);
 
   if (dialog) {
+    /* save the previous values */
+    struct _ImageOptions save = globals.new_opt;
+
     refresh_options_win(dialog);
 
     gint res = gtk_dialog_run(GTK_DIALOG(dialog));
 
     if (res == GTK_RESPONSE_ACCEPT) {
+    } else {
+      /* the user selected cancel, so we put back the previous velaues */
+      globals.new_opt = save;
     }
 
     gtk_widget_hide(dialog);
