@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static GtkWidget *optWindow = NULL;
 
-static GtkWidget *find_child(GtkWidget *parent, const gchar *name) {
+GtkWidget *find_child(GtkWidget *parent, const gchar *name) {
   if (g_ascii_strcasecmp(gtk_widget_get_name((GtkWidget *)parent),
                          (gchar *)name) == 0) {
     return parent;

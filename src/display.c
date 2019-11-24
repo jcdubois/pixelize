@@ -43,7 +43,6 @@ gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     gint pix_height = gdk_pixbuf_get_height(ptr);
     gint area_height, area_width;
 
-    // gtk_widget_get_allocation(globals.scroll_area, &alloc);
     gtk_widget_get_allocation(gtk_widget_get_parent(widget), &alloc);
 
     if (pix_height > pix_width) {
@@ -132,27 +131,37 @@ gboolean draw_area_button_press_event_cb(GtkWidget *widget,
                                          GdkEventButton *event,
                                          gpointer user_data) {
   (void)widget;
-  (void)user_data;
+
+  GtkWidget *dialog = GTK_WIDGET(user_data);
 
   g_printerr("%s: Enter\n", __func__);
 
-  if (event->x < 0 || event->x >= globals.cur_opt.width) {
-  } else if (event->y < 0 || event->y >= globals.cur_opt.height) {
-  } else if (globals.image != NULL) {
+  if (dialog && (event->x > 0) && (event->y > 0) &&
+      (event->x < gtk_widget_get_allocated_width(widget)) &&
+      (event->y < gtk_widget_get_allocated_height(widget)) &&
+      (globals.image != NULL)) {
     guint xx, yy;
 
-    xx = event->x / globals.cur_opt.pixW;
-    yy = event->y / globals.cur_opt.pixH;
+    xx = (event->x * globals.cur_opt.width) /
+         (gtk_widget_get_allocated_width(widget) * globals.cur_opt.pixW);
+    yy = (event->y * globals.cur_opt.height) /
+         (gtk_widget_get_allocated_height(widget) * globals.cur_opt.pixH);
 
-    if (event->button == 2) {
-      info_popup(xx, yy);
+    info_popup(dialog, xx, yy);
+
+#if 0
+    switch (event->button) {
+    case (2): /* middle mouse button */
       info_prev();
-    } else if (event->button == 3) {
-      info_popup(xx, yy);
+      break;
+    case (3): /* right mouse button */
       info_next();
-    } else if (event->button == 1) {
-      info_popup(xx, yy);
+      break;
+    case (1): /* left mouse button */
+    default:
+      break;
     }
+#endif
   }
 
   g_printerr("%s: Exit\n", __func__);
