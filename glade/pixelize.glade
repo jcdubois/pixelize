@@ -554,6 +554,7 @@ Pixelize works best when it can choose images from a very large database of imag
         </child>
         <child>
           <object class="GtkProgressBar" id="progress_bar">
+            <property name="name">progress_bar</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="text" translatable="yes">Ready</property>
@@ -566,6 +567,7 @@ Pixelize works best when it can choose images from a very large database of imag
         </child>
         <child>
           <object class="GtkLabel" id="mode_label">
+            <property name="name">mode_label</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label" translatable="yes">Size of Images : 10 x 10</property>

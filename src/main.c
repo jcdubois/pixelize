@@ -107,6 +107,8 @@ int main(int argc, char *argv[]) {
         exit(1);
       }
 
+      setup_status(globals.topwin);
+
       gtk_widget_show(globals.topwin);
 
       cursor_normal();

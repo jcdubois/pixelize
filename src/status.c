@@ -80,31 +80,18 @@ void refresh_mode_display() {
   }
 }
 
-void setup_status(GtkWidget *parent) {
+void setup_status(GtkWidget *dialog) {
 
-  /* first is a progressbar */
-  progress_bar = gtk_progress_bar_new();
+  progress_bar = find_child(dialog, "progress_bar");
 
   if (progress_bar) {
-    /* Set the progress bar format */
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(progress_bar),
-                                   GTK_ORIENTATION_HORIZONTAL);
-    gtk_progress_bar_set_inverted(GTK_PROGRESS_BAR(progress_bar), FALSE);
-    gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(progress_bar), TRUE);
-
-    gtk_grid_attach(GTK_GRID(parent), progress_bar, 0, 2, 1, 1);
-    gtk_widget_show(progress_bar);
-
     set_progress_indicator(0.0);
   }
 
   /* now a label to display stuff */
-  mode_display = gtk_label_new(" ");
+  mode_display = find_child(dialog, "mode_label");
 
   if (mode_display) {
-    gtk_grid_attach(GTK_GRID(parent), mode_display, 1, 2, 1, 1);
-    gtk_widget_show(mode_display);
-
     /* set the string */
     refresh_mode_display();
   }
