@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "file_dialog.h"
 #include "globals.h"
 #include "info_popup.h"
+#include "highlight.h"
 
 gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
   (void)user_data;
@@ -67,13 +68,37 @@ gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     if (ptr2) {
       // define the selected pixbuf as draw_area source
       gdk_cairo_set_source_pixbuf(cr, ptr2, 0, 0);
+
+      cairo_paint(cr);
+
+      if ((globals.show_rendered == TRUE) && (globals.image != NULL) &&
+          (globals.do_highlight & DO_HIGHLIGHT_ON)) {
+        // We need to go through the image array to find where to draw
+        // rectangles.
+        guint y;
+        for (y = 0; y < globals.cur_opt.nPixH; y++) {
+          guint x;
+          for (x = 0; x < globals.cur_opt.nPixW; x++) {
+            if ((globals.image[y][x]).do_highlight) {
+              cairo_set_source_rgb(cr, 1, 1, 1);
+              cairo_rectangle(
+                  cr, x * globals.cur_opt.pixW * area_width / pix_width,
+                  y * globals.cur_opt.pixH * area_height / pix_height,
+                  globals.cur_opt.pixW * area_width / pix_width,
+                  globals.cur_opt.pixH * area_height / pix_height);
+	      cairo_set_line_width(cr, 1);
+              cairo_stroke(cr);
+            }
+          }
+        }
+      }
+
       // adjust the scrollbar as required
       gtk_widget_set_size_request(widget, area_width, area_height);
+      // release the reference on the pixbuf
       g_object_unref(ptr2);
     }
   }
-
-  cairo_paint(cr);
 
   return FALSE;
 }
@@ -84,8 +109,6 @@ gboolean draw_area_configure_event_cb(GtkWidget *widget,
   (void)user_data;
   (void)widget;
   (void)event;
-
-  g_printerr("%s: Enter\n", __func__);
 
   // Limit the minimal window size
   GdkGeometry hints;
@@ -98,8 +121,6 @@ gboolean draw_area_configure_event_cb(GtkWidget *widget,
 
   gtk_widget_queue_draw(GTK_WIDGET(widget));
 
-  g_printerr("%s: Exit\n", __func__);
-
   return TRUE;
 }
 
@@ -107,8 +128,6 @@ gboolean draw_area_key_release_event_cb(GtkWidget *widget, GdkEventKey *event,
                                         gpointer user_data) {
   (void)widget;
   (void)user_data;
-
-  g_printerr("%s: Enter\n", __func__);
 
   switch (event->keyval) {
   case GDK_KEY_space:
@@ -122,8 +141,6 @@ gboolean draw_area_key_release_event_cb(GtkWidget *widget, GdkEventKey *event,
     break;
   }
 
-  g_printerr("%s: Exit\n", __func__);
-
   return TRUE;
 }
 
@@ -134,37 +151,17 @@ gboolean draw_area_button_press_event_cb(GtkWidget *widget,
 
   GtkWidget *dialog = GTK_WIDGET(user_data);
 
-  g_printerr("%s: Enter\n", __func__);
-
   if (dialog && (event->x > 0) && (event->y > 0) &&
       (event->x < gtk_widget_get_allocated_width(widget)) &&
       (event->y < gtk_widget_get_allocated_height(widget)) &&
       (globals.image != NULL)) {
-    guint xx, yy;
-
-    xx = (event->x * globals.cur_opt.width) /
-         (gtk_widget_get_allocated_width(widget) * globals.cur_opt.pixW);
-    yy = (event->y * globals.cur_opt.height) /
-         (gtk_widget_get_allocated_height(widget) * globals.cur_opt.pixH);
+    guint xx = (event->x * globals.cur_opt.width) /
+               (gtk_widget_get_allocated_width(widget) * globals.cur_opt.pixW);
+    guint yy = (event->y * globals.cur_opt.height) /
+               (gtk_widget_get_allocated_height(widget) * globals.cur_opt.pixH);
 
     info_popup(dialog, xx, yy);
-
-#if 0
-    switch (event->button) {
-    case (2): /* middle mouse button */
-      info_prev();
-      break;
-    case (3): /* right mouse button */
-      info_next();
-      break;
-    case (1): /* left mouse button */
-    default:
-      break;
-    }
-#endif
   }
-
-  g_printerr("%s: Exit\n", __func__);
 
   return TRUE;
 }

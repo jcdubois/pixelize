@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define DO_HIGHLIGHT 0x1
 #define DO_HIGHLIGHT_DUPS 0x2
+#define DO_HIGHLIGHT_ON 0x4
 
 void start_highlight_timer();
 void stop_highlight_timer();

@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
-#include "render.h"
+#include "render_image.h"
 #include <gtk/gtk.h>
 
 #define PIX_SIZE 0x1

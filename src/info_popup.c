@@ -111,21 +111,23 @@ static void set_highlight_dups() {
   struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
 
   if (inf) {
-    guint x, y;
     struct PIC_DB *db = inf->matches[inf->match_no];
+    guint x, y;
 
     for (y = 0; y < globals.cur_opt.nPixH; y++) {
       for (x = 0; x < globals.cur_opt.nPixW; x++) {
         struct IMAGE_INFO *inf2;
 
-        if (x == info_x && y == info_y)
+        if (x == info_x && y == info_y) {
           continue;
+        }
 
         inf2 = &(globals.image[y][x]);
         if (inf2) {
           struct PIC_DB *db2 = inf2->matches[inf2->match_no];
-          if (db == db2)
+          if (db == db2) {
             inf2->do_highlight = TRUE;
+          }
         }
       }
     }
@@ -143,8 +145,9 @@ static void clear_all_highlights(gboolean clear_current) {
     for (x = 0; x < globals.cur_opt.nPixW; x++) {
       struct IMAGE_INFO *inf;
 
-      if (x == info_x && y == info_y && clear_current == FALSE)
+      if (x == info_x && y == info_y && clear_current == FALSE) {
         continue;
+      }
 
       inf = &(globals.image[y][x]);
 
@@ -260,7 +263,9 @@ void info_prev_button_clicked_cb(GtkWidget *widget, gpointer data) {
     if (globals.do_highlight & DO_HIGHLIGHT_DUPS) {
       set_highlight_dups();
     }
+
     highlight_changed();
+
   } else {
     g_printerr("%s: no image info defined for cell(%u, %u)\n", __func__, info_y,
                info_x);
@@ -315,7 +320,9 @@ void info_next_button_clicked_cb(GtkWidget *widget, gpointer data) {
     if (globals.do_highlight & DO_HIGHLIGHT_DUPS) {
       set_highlight_dups();
     }
+
     highlight_changed();
+
   } else {
     g_printerr("%s: no image info defined for cell(%u, %u)\n", __func__, info_y,
                info_x);
@@ -402,6 +409,7 @@ void info_highlight_toggled_cb(GtkWidget *widget, gpointer data) {
   }
 
   highlight_changed();
+
   if (globals.do_highlight) {
     start_highlight_timer();
   } else {
@@ -425,6 +433,7 @@ void info_highlight_dup_toggled_cb(GtkWidget *widget, gpointer data) {
   }
 
   highlight_changed();
+
   if (globals.do_highlight) {
     start_highlight_timer();
   } else {
