@@ -120,6 +120,9 @@ int main(int argc, char *argv[]) {
       gtk_main();
 
       return 0;
+    } else {
+      g_printerr("%s: Error: Can't create builder\n", argv[0]);
+      exit(1);
     }
   } else {
     g_printerr("%s: Error: in parameters\n", argv[0]);

@@ -44,7 +44,6 @@ void highlight_changed() {
   if (globals.draw_area) {
     gtk_widget_queue_draw(globals.draw_area);
   }
-
 }
 
 static int local_timer;

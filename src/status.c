@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "display.h"
 #include "globals.h"
 
-static GtkWidget *mode_display;
 static GtkWidget *progress_bar;
 
 void set_progress_indicator(double val) {
@@ -62,21 +61,21 @@ void set_progress_indicator(double val) {
 }
 
 void refresh_mode_display() {
-  if (mode_display) {
+  if (globals.topwin) {
     char buf[256];
 
     if (globals.cur_opt.opt_alg == PIX_SIZE) {
-      snprintf(buf, sizeof(buf), " Size of images: %ux%u", globals.cur_opt.pixW,
-               globals.cur_opt.pixH);
+      snprintf(buf, sizeof(buf), "Pixelize - Size of images: %ux%u",
+               globals.cur_opt.pixW, globals.cur_opt.pixH);
     } else {
-      snprintf(buf, sizeof(buf), " Number of Images: %ux%u",
+      snprintf(buf, sizeof(buf), "Pixelize - Number of Images: %ux%u",
                globals.cur_opt.nPixW, globals.cur_opt.nPixH);
     }
 
-    gtk_label_set_text(GTK_LABEL(mode_display), buf);
+    gtk_window_set_title(GTK_WINDOW(globals.topwin), buf);
 
     /* We ask the main thread to update the mode information */
-    g_idle_add(update_gui_callback, mode_display);
+    g_idle_add(update_gui_callback, globals.topwin);
   }
 }
 
@@ -86,13 +85,5 @@ void setup_status(GtkWidget *dialog) {
 
   if (progress_bar) {
     set_progress_indicator(0.0);
-  }
-
-  /* now a label to display stuff */
-  mode_display = find_child(dialog, "mode_label");
-
-  if (mode_display) {
-    /* set the string */
-    refresh_mode_display();
   }
 }

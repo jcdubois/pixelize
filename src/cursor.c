@@ -29,7 +29,10 @@ void cursor_busy() {
     cur = gdk_cursor_new_for_display(gdk_display_get_default(), GDK_WATCH);
   }
 
-  gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)), cur);
+  if (cur) {
+    gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)),
+                          cur);
+  }
 }
 
 void cursor_normal() {
@@ -40,5 +43,8 @@ void cursor_normal() {
                                      GDK_TOP_LEFT_ARROW);
   }
 
-  gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)), cur);
+  if (cur) {
+    gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)),
+                          cur);
+  }
 }

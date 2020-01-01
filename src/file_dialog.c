@@ -141,7 +141,7 @@ gboolean open_image(void) {
   if (globals.in_fname && strlen(globals.in_fname) != 0 &&
       file_type(globals.in_fname) == 1) {
     GdkPixbuf *im;
-    GError *gerror;
+    GError *gerror = NULL;
 
     /* free old data */
     if (globals.in_im != NULL) {
@@ -155,7 +155,6 @@ gboolean open_image(void) {
     globals.in_im_scaled = NULL;
 
     /* Load the image specified as the first argument */
-    gerror = NULL;
     im = gdk_pixbuf_new_from_file(globals.in_fname, &gerror);
     if (im) {
 
