@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "display.h"
 #include "globals.h"
 
-static GtkWidget *progress_bar;
+static GtkWidget *progress_bar = NULL;
 
 void set_progress_indicator(double val) {
   static int last_percent = -1;

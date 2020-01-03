@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "globals.h"
 
-struct _Globals globals;
+struct _Globals globals = {0};
 
 void init_globals() {
   globals.topwin = NULL;

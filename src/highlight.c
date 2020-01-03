@@ -46,7 +46,7 @@ void highlight_changed() {
   }
 }
 
-static int local_timer;
+static guint local_timer = 0;
 
 void start_highlight_timer() {
 
@@ -66,7 +66,9 @@ void start_highlight_timer() {
 void stop_highlight_timer() {
 
   if (timeout_exists) {
-    g_source_remove(local_timer);
+    if (local_timer) {
+      g_source_remove(local_timer);
+    }
     timeout_exists = FALSE;
     globals.do_highlight &= ~DO_HIGHLIGHT_ON;
   }
