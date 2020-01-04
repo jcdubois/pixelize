@@ -1,0 +1,43 @@
+.TH PIXELIZE 1 "December 20, 2007"
+.SH NAME
+pixelize \- Create an image consisting of many small images
+.SH SYNOPSIS
+.B pixelize
+.SH DESCRIPTION
+This manual page was written for the Debian distribution
+because the original program does not have a manual page.
+.PP
+.B pixelize
+is a program that will use many scaled down images to try to duplicate,
+as closely as possible, another image.
+.PP
+.B pixelize
+works by splitting up the image you want rendered (or duplicated) into a
+grid of small rectangular areas. Each area is analyzed, and replaced with
+an image chosen from a large database of images.
+.B pixelize
+tries to pick images that best matches each area.
+.PP
+.B Note:
+Before running
+.B pixelize
+you have to create an image database (a file called
+.BR pic_db.dat )
+using the
+.BR make_db (1)
+utility.
+.SH OPTIONS
+None.
+.SH BUGS
+Please report any bugs you find to Paul Wilkins <pwilkins@lashwhip.com>.
+.SH LICENCE
+.B pixelize
+is covered by the GNU General Public License (GPL), version 2 or later.
+.SH SEE ALSO
+.BR make_db (1).
+.SH AUTHOR
+Paul Wilkins <pwilkins@lashwhip.com>
+.PP
+This manual page was written by Uwe Hermann <uwe@debian.org>,
+for the Debian GNU/Linux system. It is licensed under the terms of the
+GNU GPL, version 2 or later.
