@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "display.h"
 #include "globals.h"
 #include "menu.h"
+#include "pixelize.xpm"
 #include "pixelize_model.h"
 #include "status.h"
 
@@ -83,6 +84,10 @@ int main(int argc, char *argv[]) {
 
     if (builder) {
 
+      GdkPixbuf *logo =
+          gdk_pixbuf_new_from_xpm_data((const char **)pixelize_xpm);
+      GtkAboutDialog *about_dialog = NULL;
+
       if (gtk_builder_add_from_string(builder, gladestring, -1, &error) == 0) {
         g_printerr("%s: Error loading file: %s\n", argv[0], error->message);
         g_clear_error(&error);
@@ -97,6 +102,16 @@ int main(int argc, char *argv[]) {
       if (globals.topwin == NULL) {
         g_printerr("%s: Error: failed to retrieve main window\n", argv[0]);
         exit(1);
+      }
+
+      gtk_window_set_icon(GTK_WINDOW(globals.topwin), logo);
+      gtk_window_set_default_icon(logo);
+
+      about_dialog =
+          GTK_ABOUT_DIALOG(gtk_builder_get_object(builder, "about_dialog"));
+
+      if (about_dialog) {
+        gtk_about_dialog_set_logo(about_dialog, logo);
       }
 
       globals.draw_area =
