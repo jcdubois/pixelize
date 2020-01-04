@@ -135,6 +135,7 @@ struct PIC_DB *read_database(guint *max_order) {
     fclose(dbfp);
   } else {
     g_printerr("Error opening pic_db.dat for read\n");
+    g_printerr("Use the make_db(1) tool before running pixelize!\n");
   }
 
   return head;
