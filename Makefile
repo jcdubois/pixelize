@@ -5,7 +5,8 @@ GLADE2C = ./tools/glade2c
 
 CFLAGS += -Iinclude
 CFLAGS += -I/usr/X11R6/include `pkg-config --cflags gtk+-3.0`
-CFLAGS += -g
+CFLAGS += -O3
+CFLAGS += -fPIE
 CFLAGS += -Wl,--export-dynamic
 CFLAGS += -DGSEAL_ENABLE
 CLFLAS += -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
@@ -17,6 +18,7 @@ DFLAGS = -L/usr/X11R6/lib
 DFLAGS += `pkg-config --libs gtk+-3.0`
 DFLAGS += `pkg-config --libs gmodule-2.0`
 DFLAGS += -Wall -Wextra
+DFLAGS += -fPIE
 LIBS = -lm
 
 SRC_FILES := $(wildcard src/*.c)
