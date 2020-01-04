@@ -158,7 +158,7 @@ static void clear_all_highlights(gboolean clear_current) {
   }
 }
 
-static void info_fill_list(GtkWidget *info_list) {
+static void info_fill_list(void) {
   if (info_list) {
     struct IMAGE_INFO *inf = &(globals.image[info_y][info_x]);
 
@@ -304,7 +304,9 @@ void info_next_button_clicked_cb(GtkWidget *widget, gpointer data) {
 
       ignore_selection = FALSE;
 
-      gtk_widget_queue_draw(draw_area);
+      if (draw_area) {
+        gtk_widget_queue_draw(draw_area);
+      }
     } else {
       g_printerr("%s: failed to retreive a selection\n", __func__);
     }
@@ -482,9 +484,7 @@ void info_popup(GtkWidget *dialog, guint x, guint y) {
       }
     }
 
-    if (info_list) {
-      info_fill_list(info_list);
-    }
+    info_fill_list();
 
     if (draw_area == NULL) {
       draw_area = find_child(dialog, "info_draw_area");
