@@ -23,8 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "globals.h"
 #include "render_image.h"
 
-static gboolean timeout_exists = FALSE;
-
 static gboolean highlight_timeout(gpointer data) {
   (void)data;
 
@@ -46,6 +44,7 @@ void highlight_changed() {
   }
 }
 
+static gboolean timeout_exists = FALSE;
 static guint local_timer = 0;
 
 void start_highlight_timer() {
@@ -55,6 +54,12 @@ void start_highlight_timer() {
     timeout_exists = TRUE;
     globals.do_highlight |= DO_HIGHLIGHT_ON;
     local_timer = g_timeout_add(200, highlight_timeout, NULL);
+
+    if (local_timer == 0) {
+      timeout_exists = FALSE;
+      globals.do_highlight &= ~DO_HIGHLIGHT_ON;
+      g_printerr("%s: failed to create timer\n", __func__);
+    }
   }
 
   /* redraw the screen */
@@ -68,6 +73,7 @@ void stop_highlight_timer() {
   if (timeout_exists) {
     if (local_timer) {
       g_source_remove(local_timer);
+      local_timer = 0;
     }
     timeout_exists = FALSE;
     globals.do_highlight &= ~DO_HIGHLIGHT_ON;
