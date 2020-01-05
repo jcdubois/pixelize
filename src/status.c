@@ -44,7 +44,7 @@ void set_progress_indicator(double val) {
       if (val == 1) {
         /* update the text */
         gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), "Ready");
-	/* Reset the bar to 0 */
+        /* Reset the bar to 0 */
         gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), 0);
       } else if (val < 1 && val >= 0) {
         char text[4];
@@ -57,7 +57,7 @@ void set_progress_indicator(double val) {
 
       /* force an update NOW */
       /* We ask the main thread to update the progress bar */
-      g_idle_add(update_gui_callback, progress_bar);
+      gdk_threads_add_idle(update_gui_callback, progress_bar);
     }
   }
 }
@@ -77,7 +77,7 @@ void refresh_mode_display() {
     gtk_window_set_title(GTK_WINDOW(globals.topwin), buf);
 
     /* We ask the main thread to update the mode information */
-    g_idle_add(update_gui_callback, globals.topwin);
+    gdk_threads_add_idle(update_gui_callback, globals.topwin);
   }
 }
 

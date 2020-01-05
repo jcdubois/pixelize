@@ -134,7 +134,7 @@ static double calc_stddev(GdkPixbuf *im, guint x, guint y, guint nPixW,
   return (stdR + stdG + stdB) / 3.0;
 }
 
-static void init_db() {
+static void init_db(void) {
   static gboolean init = FALSE;
 
   if (init == FALSE) {
@@ -193,7 +193,7 @@ static guint *gen_master_data(GdkPixbuf *im, guint x, guint y, guint nPixW,
   return data;
 }
 
-static void free_image_data() {
+static void free_image_data(void) {
   if (globals.image) {
     guint hh;
     /* free old image data */
@@ -241,7 +241,7 @@ static guint guess_order(double val, guint pixW, guint pixH, guint max_order) {
   return order;
 }
 
-int render() {
+int render(void) {
   guint i, j;
   guint pixW, pixH;
   guint nPixW, nPixH;
@@ -267,7 +267,7 @@ int render() {
 
   /* set the cursor */
   /* We ask the main thread to change the cursor */
-  g_idle_add(update_cursor_callback, (gpointer)0);
+  gdk_threads_add_idle(update_cursor_callback, (gpointer)0);
 
   /* copy the image rendering data from new_opt to cur_opt */
   globals.cur_opt = globals.new_opt;
@@ -418,11 +418,11 @@ int render() {
 
   /* display it */
   /* We ask the main thread to update the final picture */
-  g_idle_add(update_gui_callback, globals.draw_area);
+  gdk_threads_add_idle(update_gui_callback, globals.draw_area);
 
   /* set the cursor */
   /* We ask the main thread to change the cursor */
-  g_idle_add(update_cursor_callback, (gpointer)1);
+  gdk_threads_add_idle(update_cursor_callback, (gpointer)1);
 
   return 1;
 }

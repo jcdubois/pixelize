@@ -142,7 +142,7 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
           set_progress_indicator((double)(count) / (double)(nPixH * nPixW));
 
           /* We ask the main thread to update the current picture */
-          g_idle_add(update_gui_callback, globals.draw_area);
+          gdk_threads_add_idle(update_gui_callback, globals.draw_area);
         } else {
           g_printerr("Error: No DB entry for x(%d) y(%d)\n", ww, hh);
         }
