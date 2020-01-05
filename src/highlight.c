@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "globals.h"
 #include "render_image.h"
 
+static gboolean timeout_exists = FALSE;
+
 static gboolean highlight_timeout(gpointer data) {
   (void)data;
 
@@ -33,7 +35,7 @@ static gboolean highlight_timeout(gpointer data) {
     gtk_widget_queue_draw(globals.draw_area);
   }
 
-  return TRUE;
+  return timeout_exists;
 }
 
 void highlight_changed() {
@@ -44,16 +46,14 @@ void highlight_changed() {
   }
 }
 
-static gboolean timeout_exists = FALSE;
-static guint local_timer = 0;
-
 void start_highlight_timer() {
 
   /* start a timer if one does not already exist */
   if (!timeout_exists) {
+    guint local_timer;
     timeout_exists = TRUE;
     globals.do_highlight |= DO_HIGHLIGHT_ON;
-    local_timer = g_timeout_add(200, highlight_timeout, NULL);
+    local_timer = gdk_threads_add_timeout(200, highlight_timeout, NULL);
 
     if (local_timer == 0) {
       timeout_exists = FALSE;
@@ -71,10 +71,6 @@ void start_highlight_timer() {
 void stop_highlight_timer() {
 
   if (timeout_exists) {
-    if (local_timer) {
-      g_source_remove(local_timer);
-      local_timer = 0;
-    }
     timeout_exists = FALSE;
     globals.do_highlight &= ~DO_HIGHLIGHT_ON;
   }
