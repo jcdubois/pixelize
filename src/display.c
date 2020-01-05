@@ -75,8 +75,10 @@ gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
           (globals.do_highlight & DO_HIGHLIGHT_ON)) {
         // We need to go through the image array to find where to draw
         // rectangles.
+        static int color = 0;
         guint y;
-        cairo_set_source_rgb(cr, 1, 1, 1);
+        color = color ? 0 : 1;
+        cairo_set_source_rgb(cr, color, color, color);
         cairo_set_line_width(cr, 1);
         for (y = 0; y < globals.cur_opt.nPixH; y++) {
           guint x;
