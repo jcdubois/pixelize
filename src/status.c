@@ -41,16 +41,18 @@ void set_progress_indicator(double val) {
 
     /* we can update the progress bar if its is created */
     if (progress_bar) {
-      /* update the graph */
-      gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), val);
-
-      /* update the text */
       if (val == 1) {
+        /* update the text */
         gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), "Ready");
+	/* Reset the bar to 0 */
+        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), 0);
       } else if (val < 1 && val >= 0) {
         char text[4];
+        /* update the text */
         snprintf(text, sizeof(text), "%d%%", (int)(100.0 * val));
         gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), text);
+        /* update the graph */
+        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), val);
       }
 
       /* force an update NOW */
