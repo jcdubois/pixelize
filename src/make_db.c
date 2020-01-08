@@ -33,16 +33,22 @@ struct PIX {
 
 int main(int argc, char **argv) {
   gboolean write_db = TRUE;
-  guint i, j, n;
+  guint i;
+  guint j;
+  guint n;
   guint size;
   GError *gerror;
   GdkPixbuf *pb;
-  guint qh, qw;
-  guint width, height;
-  guint ww, hh;
+  guint qh;
+  guint qw;
+  guint width;
+  guint height;
+  guint ww;
+  guint hh;
   guchar *p;
   guchar *pixels;
-  guint rowstride, n_channels;
+  guint rowstride;
+  guint n_channels;
   struct PIX ***quad;
   char my_cwd[MAX_PATH_LEN + 1];
   FILE *dbfp;
@@ -144,14 +150,16 @@ int main(int argc, char **argv) {
       for (hh = 0; hh < height; hh++) {
 
         qh = (guint)((double)hh / (double)height * (double)size);
-        if (qh >= size)
+        if (qh >= size) {
           qh = size - 1;
+        }
 
         for (ww = 0; ww < width; ww++) {
 
           qw = (int)((double)ww / (double)width * (double)size);
-          if (qw >= size)
+          if (qw >= size) {
             qw = size - 1;
+          }
 
           p = pixels + hh * rowstride + ww * n_channels;
 

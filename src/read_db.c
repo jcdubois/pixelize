@@ -107,7 +107,8 @@ struct PIC_DB *read_database(guint *max_order) {
         struct PIC_DB *db = malloc_db(len, *max_order);
 
         if (db) {
-          guint i, j;
+          guint i;
+          guint j;
           strcpy(db->fname, line);
 
           for (j = 0; j < *max_order; j++) {

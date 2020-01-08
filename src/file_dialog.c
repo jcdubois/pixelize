@@ -44,13 +44,13 @@ static int file_type(const char *file_name) {
     }
 
     return 0;
-  } else {
-    return -1;
   }
+  return -1;
 }
 
 static gboolean check_valid_types(const char *type) {
-  GSList *format_list, *iterator;
+  GSList *format_list;
+  GSList *iterator;
 
   format_list = gdk_pixbuf_get_formats();
 
@@ -88,11 +88,10 @@ static char *get_extension(const char *file_name) {
     }
 
     return p1 + 1;
-  } else {
-    g_printerr("Error: %s: no name provided\n", __func__);
-
-    return NULL;
   }
+  g_printerr("Error: %s: no name provided\n", __func__);
+
+  return NULL;
 }
 
 gboolean save_image(void) {

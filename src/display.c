@@ -42,7 +42,8 @@ gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     GtkAllocation alloc;
     gint pix_width = gdk_pixbuf_get_width(ptr);
     gint pix_height = gdk_pixbuf_get_height(ptr);
-    gint area_height, area_width;
+    gint area_height;
+    gint area_width;
 
     gtk_widget_get_allocation(gtk_widget_get_parent(widget), &alloc);
 

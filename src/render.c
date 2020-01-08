@@ -51,11 +51,17 @@ static gboolean update_cursor_callback(gpointer data) {
 
 void average_image_area(struct PIX *avg, GdkPixbuf *im, guint x, guint y,
                         guint w, guint h) {
-  guint i, j;
-  guint r, g, b;
-  guint xx, yy;
-  guchar *pixels, *p;
-  guint rowstride, n_channels;
+  guint i;
+  guint j;
+  guint r;
+  guint g;
+  guint b;
+  guint xx;
+  guint yy;
+  guchar *pixels;
+  guchar *p;
+  guint rowstride;
+  guint n_channels;
 
   n_channels = gdk_pixbuf_get_n_channels(im);
   rowstride = gdk_pixbuf_get_rowstride(im);
@@ -88,13 +94,15 @@ void average_image_area(struct PIX *avg, GdkPixbuf *im, guint x, guint y,
 
 static double calc_stddev(GdkPixbuf *im, guint x, guint y, guint nPixW,
                           guint nPixH) {
-  double meanR, stdR;
-  double meanG, stdG;
-  double meanB, stdB;
+  double meanR;
+  double stdR;
+  double meanG;
+  double stdG;
+  double meanB;
+  double stdB;
   double dataR[STATS_SIZE * STATS_SIZE];
   double dataG[STATS_SIZE * STATS_SIZE];
   double dataB[STATS_SIZE * STATS_SIZE];
-
   double xoff = (double)x / (double)nPixW * (double)gdk_pixbuf_get_width(im);
   double yoff = (double)y / (double)nPixH * (double)gdk_pixbuf_get_height(im);
   guint n = 0;
@@ -217,17 +225,23 @@ static void free_image_data(void) {
 static gboolean image_borders_n(struct IMAGE_INFO **image, struct PIC_DB *match,
                                 guint n, guint cx, guint cy, guint maxx,
                                 guint maxy) {
-  int x, y;
+  int x;
+  int y;
+
   for (y = cy - n; y <= (int)(cy + n); y++) {
-    if (y < 0 || y >= (int)maxy)
+    if (y < 0 || y >= (int)maxy) {
       continue;
+    }
     for (x = (int)cx - n; x <= (int)(cx + n); x++) {
-      if (x < 0 || x >= (int)maxx)
+      if (x < 0 || x >= (int)maxx) {
         continue;
-      if (x == (int)cx && y == (int)cy)
+      }
+      if (x == (int)cx && y == (int)cy) {
         continue;
-      if (image[y][x].db == match)
+      }
+      if (image[y][x].db == match) {
         return TRUE;
+      }
     }
   }
   return FALSE;
@@ -242,13 +256,17 @@ static guint guess_order(double val, guint pixW, guint pixH, guint max_order) {
 }
 
 int render(void) {
-  guint i, j;
-  guint pixW, pixH;
-  guint nPixW, nPixH;
+  guint i;
+  guint j;
+  guint pixW;
+  guint pixH;
+  guint nPixW;
+  guint nPixH;
   guint proximity;
   GdkPixbuf *im;
   GdkPixbuf *out_im;
-  guint ww, hh;
+  guint ww;
+  guint hh;
   struct PIC_DB **matches;
 
   if (globals.in_fname == NULL || globals.in_im_scaled == NULL) {

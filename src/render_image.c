@@ -26,7 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void find_next(struct IMAGE_INFO **image, struct PIC_DB *db, guint *col,
                       guint *row, guint nPixW, guint nPixH) {
-  guint r, c, cl;
+  guint r;
+  guint c;
+  guint cl;
 
   cl = (*col) + 1;
 
@@ -63,7 +65,8 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
   GdkPixbuf *dest = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, width, height);
 
   if (dest) {
-    guint ww, hh;
+    guint ww;
+    guint hh;
     guint count = 0;
 
     if (globals.out_im) {
@@ -104,7 +107,8 @@ GdkPixbuf *render_image(struct IMAGE_INFO **image, guint nPixW, guint nPixH,
                   gdk_pixbuf_add_alpha(scale_im, 0, 0, 0, 0);
               if (scale_im_alpha) {
                 guint i;
-                guint row, col;
+                guint row;
+                guint col;
 
                 /* copy the image data into the output data */
                 for (i = 0; i < image[hh][ww].db->refcnt; i++) {

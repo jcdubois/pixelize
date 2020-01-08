@@ -112,7 +112,8 @@ static void set_highlight_dups() {
 
   if (inf) {
     struct PIC_DB *db = inf->matches[inf->match_no];
-    guint x, y;
+    guint x;
+    guint y;
 
     for (y = 0; y < globals.cur_opt.nPixH; y++) {
       for (x = 0; x < globals.cur_opt.nPixW; x++) {
@@ -138,7 +139,8 @@ static void set_highlight_dups() {
 }
 
 static void clear_all_highlights(gboolean clear_current) {
-  guint x, y;
+  guint x;
+  guint y;
 
   /* clear everyone */
   for (y = 0; y < globals.cur_opt.nPixH; y++) {

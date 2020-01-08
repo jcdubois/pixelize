@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stats.h"
 #include <math.h>
 
-gboolean calc_mead_std(double *data, int n, double *mean, double *std) {
+gboolean calc_mead_std(const double *data, int n, double *mean, double *std) {
   if (data && mean && std) {
     if (n == 0) {
       *std = 0.0;
@@ -49,7 +49,6 @@ gboolean calc_mead_std(double *data, int n, double *mean, double *std) {
     }
 
     return TRUE;
-  } else {
-    return FALSE;
   }
+  return FALSE;
 }
