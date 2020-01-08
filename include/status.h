@@ -32,6 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void set_progress_indicator(double val);
 void refresh_mode_display();
 
-void setup_status(GtkWidget *parent);
+void setup_status(GtkWidget *dialog);
 
 #endif
