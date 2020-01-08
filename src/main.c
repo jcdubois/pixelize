@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   init_globals();
 
   /* initialize gtk with args */
-  if (gtk_init_with_args(&argc, &argv, "toto", entries, NULL, NULL)) {
+  if (gtk_init_with_args(&argc, &argv, "[image_file]", entries, NULL, NULL)) {
     GtkBuilder *builder;
     GError *error = NULL;
 
