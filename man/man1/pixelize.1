@@ -1,0 +1,45 @@
+.TH "PIXELIZE" "1" "January 2020" "pixelize 2.0.0" "User Commands"
+.SH "NAME"
+pixelize - Create an image consisting of many small images
+.br
+.SH "SYNOPSIS"
+\fBpixelize \fR[OPTIONS] [image_file]
+.br
+.SH "DESCRIPTION"
+\fBpixelize\fR is a program that will use many scaled down images to try to duplicate, as closely as possible, another image.
+.br
+
+\fBpixelize\fR  works by splitting up the image you want rendered (or duplicated) into a grid of small rectangular areas. Each area is  analyzed, and  replaced  with  an  image chosen from a large database of images. \fBpixelize\fR tries to pick images that best matches each area.
+.br
+
+Note: Before running \fBpixelize\fR you have to create an image database  (a file called \fBpic_db.dat\fR) using the \fBmake_db\fR(1) utility.
+.br
+.SH "OPTIONS"
+Mandatory arguments to long options are mandatory for short options too.
+.br
+
+Application options :
+.br
+  -i, --in=file_name          Input file name
+.br
+  -o, --out=file_name         Output file name
+.br
+  -m, --mode                  Command line mode
+.br
+.SH "FILES"
+\fBpic_db.dat\fR
+.br
+			File containing a database of all pictures \fBpixelise\fR is going to use to match and replace against areas of the processed image.
+.br
+.SH "BUGS"
+Please report any bugs you find to Paul Wilkins <pwilkins@lashwhip.com>.
+.br
+.SH "LICENCE"
+\fBpixelize\fR is covered by the GNU General Public License (GPL), version 2 or later.
+.br
+.SH "SEE ALSO"
+\fBmake_db\fR(1).
+.br
+.SH "AUTHOR"
+Paul Wilkins <pwilkins@lashwhip.com>
+.br
