@@ -21,29 +21,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "globals.h"
 
-struct _Globals globals = {0};
-
-void init_globals() {
-  globals.topwin = NULL;
-  globals.draw_area = NULL;
-  globals.head = NULL;
-  globals.image = NULL;
-  globals.max_order = 0;
-  globals.do_highlight = 0;
-  globals.show_rendered = TRUE;
-  globals.command_mode = FALSE;
-  globals.in_fname = NULL;
-  globals.in_im = NULL;
-  globals.in_im_scaled = NULL;
-  globals.out_fname = NULL;
-  globals.out_im = NULL;
-
-  globals.cur_opt.pixW = 10;
-  globals.cur_opt.pixH = 10;
-  globals.cur_opt.nPixW = 30;
-  globals.cur_opt.nPixH = 30;
-  globals.cur_opt.proximity = 3;
-  globals.cur_opt.opt_alg = PIX_SIZE;
-
-  globals.new_opt = globals.cur_opt;
-}
+struct _Globals globals = {.topwin = NULL,
+                           .draw_area = NULL,
+                           .head = NULL,
+                           .image = NULL,
+                           .max_order = 0,
+                           .do_highlight = 0,
+                           .show_rendered = TRUE,
+                           .command_mode = FALSE,
+                           .in_fname = NULL,
+                           .in_im = NULL,
+                           .in_im_scaled = NULL,
+                           .out_fname = NULL,
+                           .out_im = NULL,
+                           .cur_opt.pixW = 10,
+                           .cur_opt.pixH = 10,
+                           .cur_opt.nPixW = 30,
+                           .cur_opt.nPixH = 30,
+                           .cur_opt.proximity = 3,
+                           .cur_opt.opt_alg = PIX_SIZE,
+                           .new_opt.pixW = 10,
+                           .new_opt.pixH = 10,
+                           .new_opt.nPixW = 30,
+                           .new_opt.nPixH = 30,
+                           .new_opt.proximity = 3,
+                           .new_opt.opt_alg = PIX_SIZE};

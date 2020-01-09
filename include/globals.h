@@ -68,8 +68,6 @@ struct _Globals {
 
 extern struct _Globals globals;
 
-void init_globals();
-
 GtkWidget *find_child(GtkWidget *parent, const gchar *name);
 
 #endif //__GLOBALS_H

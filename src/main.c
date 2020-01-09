@@ -42,8 +42,6 @@ int main(int argc, char *argv[]) {
       {NULL},
   };
 
-  init_globals();
-
   /* initialize gtk with args */
   if (gtk_init_with_args(&argc, &argv, "[image_file]", entries, NULL, NULL)) {
     GtkBuilder *builder;
