@@ -23,12 +23,12 @@ LIBS = -lm
 
 SRC_FILES := $(wildcard src/*.c)
 HDR_FILES := $(wildcard include/*.h)
-OBJ_FILES := $(subst .c,.o,$(subst src/,,$(SRC_FILES)))
+OBJ_FILES := $(subst .c,.o,$(subst src/,obj/,$(SRC_FILES)))
 
-DB_OBJS  = make_db.o
+DB_OBJS  = obj/make_db.o
 PIX_OBJS = $(filter-out $(DB_OBJS),$(OBJ_FILES))
 
-all:	make_db pixelize
+all:	obj make_db pixelize
 
 make_db:	$(DB_OBJS)
 	$(CC) -o $@ $(DB_OBJS) $(DFLAGS) $(LIBS)
@@ -36,8 +36,8 @@ make_db:	$(DB_OBJS)
 pixelize:	$(PIX_OBJS)
 	$(CC) -o $@ $(PIX_OBJS) $(DFLAGS) $(LIBS)
 
-%.o:	depend
-%.o:	src/%.c
+obj/%.o:	depend
+obj/%.o:	src/%.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 depend:	Makefile $(HDR_FILES) $(SRC_FILES) include/pixelize_model.h
@@ -49,5 +49,8 @@ include/pixelize_model.h: glade/pixelize.glade
 
 clean:
 	rm -rf $(OBJ_FILES) pixelize make_db core depend include/pixelize_model.h
+
+obj:
+	mkdir $@
 
 include depend
