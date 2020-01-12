@@ -31,6 +31,7 @@ gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
 
   GdkPixbuf *ptr = NULL;
 
+  /* compute the image to display (original or computed) */
   if (globals.show_rendered && globals.image) {
     ptr = globals.out_im;
   } else {
@@ -45,8 +46,10 @@ gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     gint area_height;
     gint area_width;
 
+    /* get the draw area size */
     gtk_widget_get_allocation(gtk_widget_get_parent(widget), &alloc);
 
+    /* compute the size of the image on display depending on its ration */
     if (pix_height > pix_width) {
       area_height = (pix_height > alloc.height) ? alloc.height : pix_height;
       area_width = area_height * pix_width / pix_height;
@@ -63,15 +66,17 @@ gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
       }
     }
 
+    /* scale the image to display to fit in the draw area */
     ptr2 = gdk_pixbuf_scale_simple(ptr, area_width, area_height,
                                    GDK_INTERP_BILINEAR);
 
     if (ptr2) {
-      // define the selected pixbuf as draw_area source
+      // define the computed pixbuf as draw_area source
       gdk_cairo_set_source_pixbuf(cr, ptr2, 0, 0);
 
       cairo_paint(cr);
 
+      /* do we need to draw rectangles on the image ? */
       if ((globals.show_rendered == TRUE) && (globals.image != NULL) &&
           (globals.do_highlight & DO_HIGHLIGHT_ON)) {
         // We need to go through the image array to find where to draw
@@ -98,6 +103,7 @@ gboolean draw_area_draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
 
       // adjust the scrollbar as required
       gtk_widget_set_size_request(widget, area_width, area_height);
+
       // release the reference on the pixbuf
       g_object_unref(ptr2);
     }
@@ -122,6 +128,7 @@ gboolean draw_area_configure_event_cb(GtkWidget *widget,
       gtk_widget_get_window(GTK_WIDGET(globals.topwin)), &hints,
       GDK_HINT_MIN_SIZE);
 
+  // draw the configuration window
   gtk_widget_queue_draw(GTK_WIDGET(widget));
 
   return TRUE;
@@ -154,15 +161,18 @@ gboolean draw_area_button_press_event_cb(GtkWidget *widget,
 
   GtkWidget *dialog = GTK_WIDGET(user_data);
 
+  /* check that the mouse click event is within the bound of the widget */
   if (dialog && (event->x > 0) && (event->y > 0) &&
       (event->x < gtk_widget_get_allocated_width(widget)) &&
       (event->y < gtk_widget_get_allocated_height(widget)) &&
       (globals.image != NULL)) {
+    /* compute the sub image that was clicked */
     guint xx = (event->x * globals.cur_opt.width) /
                (gtk_widget_get_allocated_width(widget) * globals.cur_opt.pixW);
     guint yy = (event->y * globals.cur_opt.height) /
                (gtk_widget_get_allocated_height(widget) * globals.cur_opt.pixH);
 
+    /* open the info popup window for the selected sub image */
     info_popup(dialog, xx, yy);
   }
 
@@ -171,6 +181,7 @@ gboolean draw_area_button_press_event_cb(GtkWidget *widget,
 
 gboolean update_gui_callback(gpointer data) {
 
+  /* Redraw the widget the other thread asked for */
   gtk_widget_queue_draw(GTK_WIDGET(data));
 
   return FALSE;

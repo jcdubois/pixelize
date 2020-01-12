@@ -26,10 +26,12 @@ void cursor_busy() {
   static GdkCursor *cur = NULL;
 
   if (cur == NULL) {
+    /* create busy cursor if not created yet */
     cur = gdk_cursor_new_for_display(gdk_display_get_default(), GDK_WATCH);
   }
 
   if (cur) {
+    /* change cursor to busy cursor */
     gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)),
                           cur);
   }
@@ -39,11 +41,13 @@ void cursor_normal() {
   static GdkCursor *cur = NULL;
 
   if (cur == NULL) {
+    /* create normal cursor if not created yet */
     cur = gdk_cursor_new_for_display(gdk_display_get_default(),
                                      GDK_TOP_LEFT_ARROW);
   }
 
   if (cur) {
+    /* change cursor to normal cursor */
     gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(globals.topwin)),
                           cur);
   }

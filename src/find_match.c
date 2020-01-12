@@ -45,10 +45,10 @@ struct PIC_DB **find_match(guint order, guint *match_data,
 
       for (i = 0; i < order * order; i++) {
         guint r1 = *p1++;
-        guint r2 = *p2++;
         guint g1 = *p1++;
-        guint g2 = *p2++;
         guint b1 = *p1++;
+        guint r2 = *p2++;
+        guint g2 = *p2++;
         guint b2 = *p2++;
         guint r = r1 - r2;
         guint g = g1 - g2;
