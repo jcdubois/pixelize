@@ -35,6 +35,10 @@ struct PIC_DB {
 
 struct PIC_DB *read_database(guint *max_order);
 
+struct PIC_DB *malloc_db(int strlen, int max_order);
+
+void free_db(struct PIC_DB *db, int max_order);
+
 void reset_db_data(struct PIC_DB *head);
 
 #endif
