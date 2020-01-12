@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* make_db.c by Paul Wilkins 1/2/2000 */
 
 #include <gtk/gtk.h>
+#include <read_db.h>
 
 struct PIX {
   int cnt;
@@ -31,12 +32,25 @@ struct PIX {
 #define MAX_SIZE 5
 #define MAX_PATH_LEN 512
 
+static struct PIC_DB *find_db(struct PIC_DB *head, char *file_name) {
+  while (head) {
+    if (strncmp(head->fname, file_name, strlen(head->fname)) == 0) {
+      return head;
+    }
+    head = head->next;
+  }
+  return NULL;
+}
+
 int main(int argc, char **argv) {
+  gboolean reinitialize = FALSE;
   GOptionEntry entries[] = {
+      {"reset", 'r', 0, G_OPTION_ARG_NONE, &reinitialize,
+       "Reinitialize database", NULL},
       {NULL},
   };
 
-  if (gtk_init_with_args(&argc, &argv, "[FILE…]", entries, NULL, NULL)) {
+  if (gtk_init_with_args(&argc, &argv, "[FILE...]", entries, NULL, NULL)) {
     guint i;
     guint j;
     guint n;
@@ -56,6 +70,8 @@ int main(int argc, char **argv) {
     struct PIX ***quad;
     char *real_path_name;
     FILE *dbfp;
+    struct PIC_DB *head = NULL;
+    guint max_order = MAX_SIZE;
 
     /* Be nice and tell the user if they don't, to provide a file as an arg */
     if (argc <= 1) {
@@ -69,41 +85,62 @@ int main(int argc, char **argv) {
       exit(1);
     }
 
-    if (NULL == (dbfp = fopen("pic_db.dat", "w+"))) {
-      g_printerr("Error opening pic_db.dat for write\n");
+    if (access("pic_db.dat", F_OK) == -1) {
+      /* DB file does not exist yet */
+      reinitialize = TRUE;
+    } else if (access("pic_db.dat", W_OK | R_OK) == -1) {
+      /* DB file cannot be read/written */
+      g_printerr("%s: Can't read/write pic_db.dat file\n", argv[0]);
       exit(1);
+    } else if (!reinitialize) {
+      /* we read the existing DB */
+      head = read_database(&max_order);
+
+      if (head == NULL) {
+        g_printerr("%s: failed to read/process existing pic_db.dat file\n",
+                   argv[0]);
+        exit(1);
+      }
     }
 
-    if (NULL == (quad = g_malloc0((MAX_SIZE + 1) * sizeof(struct PIX **)))) {
+    quad = g_malloc0((max_order + 1) * sizeof(struct PIX **));
+    if (quad == NULL) {
       perror("malloc");
       exit(1);
     }
 
-    for (i = 1; i <= MAX_SIZE; i++) {
-      if (NULL ==
-          (quad[i] = g_malloc0((MAX_SIZE + 1) * sizeof(struct PIX *)))) {
+    for (i = 1; i <= max_order; i++) {
+      quad[i] = g_malloc0((max_order + 1) * sizeof(struct PIX *));
+      if (quad[i] == NULL) {
         perror("malloc");
         exit(1);
       }
-      for (j = 0; j <= MAX_SIZE; j++) {
-        if (NULL ==
-            (quad[i][j] = g_malloc0((MAX_SIZE + 1) * sizeof(struct PIX)))) {
+      for (j = 0; j <= max_order; j++) {
+        quad[i][j] = g_malloc0((max_order + 1) * sizeof(struct PIX));
+        if (quad[i][j] == NULL) {
           perror("malloc");
           exit(1);
         }
       }
     }
 
-    fprintf(dbfp, "%u\n", MAX_SIZE);
-
     /* for each file on the command line */
     for (n = 1; n < (guint)argc; n++) {
+      struct PIC_DB *db = NULL;
 
       /* get the absolute path name for the file */
       real_path_name = realpath(argv[n], NULL);
 
       if (real_path_name == NULL) {
         g_printerr("Error: can't get absolute file name for %s\n", argv[n]);
+        continue;
+      }
+
+      /* look in the database if this file is already used */
+      if (find_db(head, real_path_name)) {
+        g_printerr("%s: file %s is alreadty in the DB\n", argv[0], argv[n]);
+        g_free(real_path_name);
+        real_path_name = NULL;
         continue;
       }
 
@@ -134,14 +171,22 @@ int main(int argc, char **argv) {
       g_print("file %u: %s width: %u height: %u\n", n, real_path_name, width,
               height);
 
-      /* write the file path name to the file */
-      fprintf(dbfp, "%s\n", real_path_name);
+      db = malloc_db(strlen(real_path_name), max_order);
+
+      if (db == NULL) {
+        g_printerr("Error: Can't alloc db for %s\n", real_path_name);
+        g_free(real_path_name);
+        real_path_name = NULL;
+        exit(1);
+      }
+
+      strcpy(db->fname, real_path_name);
 
       /* we can free up the file name now (allocated in realpath()) */
       g_free(real_path_name);
       real_path_name = NULL;
 
-      for (size = 1; size <= MAX_SIZE; size++) {
+      for (size = 1; size <= max_order; size++) {
         for (hh = 0; hh < size; hh++) {
           for (ww = 0; ww < size; ww++) {
             quad[size][ww][hh].cnt = 0;
@@ -153,7 +198,7 @@ int main(int argc, char **argv) {
       }
 
       /* generate the data for each size */
-      for (size = 3; size <= MAX_SIZE; size++) {
+      for (size = 3; size <= max_order; size++) {
 
         for (hh = 0; hh < height; hh++) {
 
@@ -203,20 +248,63 @@ int main(int argc, char **argv) {
         }
       }
 
-      for (size = 1; size <= MAX_SIZE; size++) {
+      for (size = 1; size <= max_order; size++) {
+        guint *p1 = db->data[size - 1];
         for (hh = 0; hh < size; hh++) {
           for (ww = 0; ww < size; ww++) {
-            fprintf(dbfp, "%03u %03u %03u\n",
-                    (guint)(quad[size][ww][hh].r / quad[size][ww][hh].cnt),
-                    (guint)(quad[size][ww][hh].g / quad[size][ww][hh].cnt),
-                    (guint)(quad[size][ww][hh].b / quad[size][ww][hh].cnt));
+            p1[0] = (guint)(quad[size][ww][hh].r / quad[size][ww][hh].cnt);
+            p1[1] = (guint)(quad[size][ww][hh].g / quad[size][ww][hh].cnt);
+            p1[2] = (guint)(quad[size][ww][hh].b / quad[size][ww][hh].cnt);
+            p1 += 3;
           }
         }
       }
 
       g_object_unref(pb);
+
+      db->next = head;
+
+      head = db;
     }
 
+    /* free up the quad array */
+    for (i = 1; i <= max_order; i++) {
+      for (j = 0; j <= max_order; j++) {
+        g_free(quad[i][j]);
+      }
+      g_free(quad[i]);
+    }
+    g_free(quad);
+
+    /* open the DB file */
+    if (NULL == (dbfp = fopen("pic_db.dat", "w+"))) {
+      g_printerr("Error opening pic_db.dat for write\n");
+      exit(1);
+    }
+
+    /* write the max order */
+    fprintf(dbfp, "%u\n", max_order);
+
+    /* write all files and related data */
+    while (head) {
+      struct PIC_DB *db = head;
+      fprintf(dbfp, "%s\n", head->fname);
+
+      for (size = 1; size <= max_order; size++) {
+        guint *p1 = db->data[size - 1];
+        for (hh = 0; hh < size; hh++) {
+          for (ww = 0; ww < size; ww++) {
+            fprintf(dbfp, "%03u %03u %03u\n", p1[0], p1[1], p1[2]);
+            p1 += 3;
+          }
+        }
+      }
+      head = head->next;
+
+      free_db(db, max_order);
+    }
+
+    /* close file */
     fclose(dbfp);
 
     return 0;

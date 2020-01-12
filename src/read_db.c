@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "read_db.h"
 
-static void free_db(struct PIC_DB *db, int n) {
+void free_db(struct PIC_DB *db, int n) {
   if (db) {
     if (db->fname) {
       g_free(db->fname);
@@ -39,7 +39,7 @@ static void free_db(struct PIC_DB *db, int n) {
   }
 }
 
-static struct PIC_DB *malloc_db(int strlen, int n) {
+struct PIC_DB *malloc_db(int strlen, int n) {
 
   struct PIC_DB *db = g_malloc0(sizeof(struct PIC_DB));
 
