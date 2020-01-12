@@ -25,8 +25,8 @@ SRC_FILES := $(wildcard src/*.c)
 HDR_FILES := $(wildcard include/*.h)
 OBJ_FILES := $(subst .c,.o,$(subst src/,obj/,$(SRC_FILES)))
 
-DB_OBJS  = obj/make_db.o
-PIX_OBJS = $(filter-out $(DB_OBJS),$(OBJ_FILES))
+DB_OBJS  = obj/make_db.o obj/read_db.o
+PIX_OBJS = $(filter-out obj/make_db.o,$(OBJ_FILES))
 
 all:	obj make_db pixelize
 
