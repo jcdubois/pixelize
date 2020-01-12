@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
     guint rowstride;
     guint n_channels;
     struct PIX ***quad;
-    char my_cwd[MAX_PATH_LEN + 1];
+    char *real_path_name;
     FILE *dbfp;
 
     /* Be nice and tell the user if they don't, to provide a file as an arg */
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
       exit(1);
     }
 
-    if (NULL == (dbfp = fopen("pic_db.dat", "a+"))) {
+    if (NULL == (dbfp = fopen("pic_db.dat", "w+"))) {
       g_printerr("Error opening pic_db.dat for write\n");
       exit(1);
     }
@@ -96,24 +96,27 @@ int main(int argc, char **argv) {
 
     fprintf(dbfp, "%u\n", MAX_SIZE);
 
-    /* get the cwd.  we may use it later */
-    if (NULL == (getcwd(my_cwd, MAX_PATH_LEN))) {
-      g_printerr("Warning: Can't determine Current working directory.\n");
-      g_printerr("         This may generate an invalid pic_db.dat file.\n");
-      my_cwd[0] = '\0';
-    }
-
-    /* for each file */
+    /* for each file on the command line */
     for (n = 1; n < (guint)argc; n++) {
 
-      /* Load the image specified as the first argument */
+      /* get the absolute path name for the file */
+      real_path_name = realpath(argv[n], NULL);
+
+      if (real_path_name == NULL) {
+        g_printerr("Error: can't get absolute file name for %s\n", argv[n]);
+        continue;
+      }
+
+      /* Load the image */
       gerror = NULL;
 
-      pb = gdk_pixbuf_new_from_file(argv[n], &gerror);
+      pb = gdk_pixbuf_new_from_file(real_path_name, &gerror);
 
       if (pb == NULL) {
-        g_printerr("Error: Can't load image %s: %s\n", argv[n],
+        g_printerr("Error: Can't load image %s: %s\n", real_path_name,
                    gerror->message);
+        g_free(real_path_name);
+        real_path_name = NULL;
         continue;
       }
 
@@ -128,13 +131,15 @@ int main(int argc, char **argv) {
       g_assert(gdk_pixbuf_get_colorspace(pb) == GDK_COLORSPACE_RGB);
       g_assert(gdk_pixbuf_get_bits_per_sample(pb) == 8);
 
-      printf("file %u: %s width: %u height: %u\n", n, argv[n], width, height);
+      g_print("file %u: %s width: %u height: %u\n", n, real_path_name, width,
+              height);
 
-      if (argv[n][0] != '/') {
-        fprintf(dbfp, "%s/%s\n", my_cwd, argv[n]);
-      } else {
-        fprintf(dbfp, "%s\n", argv[n]);
-      }
+      /* write the file path name to the file */
+      fprintf(dbfp, "%s\n", real_path_name);
+
+      /* we can free up the file name now (allocated in realpath()) */
+      g_free(real_path_name);
+      real_path_name = NULL;
 
       for (size = 1; size <= MAX_SIZE; size++) {
         for (hh = 0; hh < size; hh++) {
