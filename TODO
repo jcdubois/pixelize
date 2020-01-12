@@ -2,10 +2,6 @@ TODO list from Pixelize 2.0.0
 
 - Option to tag good images and scroll between them
 
-- Add an option to make_db to update the pic_db.dat file by
-  somehow checking if files have been added, removed
-  or changed, and then changing pic_db.dat as required.
-
 - Make all of the error and warning messages that Pixelize
   currently prints to the console, come up in a popup
   window.
@@ -32,3 +28,7 @@ TODO list from Pixelize 2.0.0
 - Write man pages.
    - Done v2.0.0
 
+- Add an option to make_db to update the pic_db.dat file by
+  somehow checking if files have been added, removed
+  or changed, and then changing pic_db.dat as required.
+    -Done v2.0.0
