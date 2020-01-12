@@ -116,17 +116,30 @@ struct PIC_DB *read_database(guint *max_order) {
 
             for (i = 0; i < (j + 1) * (j + 1); i++) {
               if (fscanf(dbfp, "%3u %3u %3u\n", &p1[0], &p1[1], &p1[2]) != 3) {
-                g_printerr("Error: can't read data from pic_db.dat\n");
+                g_printerr(
+                    "Error: can't read data from pic_db.dat for file %s\n",
+                    line);
+                g_printerr("Error: is data base file corrupted ?\n");
                 exit(1);
               }
               p1 += 3;
             }
           }
 
-          /* add db to the list */
-          db->next = head;
-          /* new db head */
-          head = db;
+          /* check the referenced file is present */
+          if (access(line, R_OK) != 0) {
+            g_printerr("Error: file %s does not exist\n", line);
+            g_printerr("Error: ignoring file %s\n", line);
+
+            /* we free the db and we continue to the nexte file */
+            free_db(db, *max_order);
+          } else {
+            /* add db to the list */
+            db->next = head;
+
+            /* new db head */
+            head = db;
+          }
         }
       }
     } else {
