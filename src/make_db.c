@@ -101,6 +101,12 @@ int main(int argc, char **argv) {
                    argv[0]);
         exit(1);
       }
+
+      if (max_order < 3) {
+        g_printerr("%s: maw_oder(%u) < 3 in  existing pic_db.dat file\n",
+                   argv[0], max_order);
+        exit(1);
+      }
     }
 
     quad = g_malloc0((max_order + 1) * sizeof(struct PIX **));
