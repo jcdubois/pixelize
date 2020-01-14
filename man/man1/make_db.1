@@ -1,31 +1,42 @@
-.TH MAKE_DB 1 "March 30, 2002"
-.SH NAME
-make_db \- Create the image database needed by pixelize
-.SH SYNOPSIS
-.B make_db
-image_files
-.SH DESCRIPTION
-This manual page was written for the Debian distribution
-because the original program does not have a manual page.
-.PP
-.B make_db
-is a program that scans pictures and creates a file called
-.B pic_db.dat
-in the current directory. This file is used by
-.B pixelize
-when "rendering" images.
-.SH OPTIONS
-None.
-.SH BUGS
+.TH "MAKE_DB" "1" "March 30, 2002" "make_db 2.0.0" "User Commands"
+.SH "NAME"
+make_db - Create the image database needed by pixelize
+.br
+.SH "SYNOPSIS"
+\fBmake_db\fR [OPTIONS] [image_files]
+.br
+.SH "DESCRIPTION"
+\fBmake_db\fR is a program that scans pictures and creates a file called
+\fBpic_db.dat\fR in the current directory. This file is used by
+\fBpixelize\fR when "rendering" images.
+.br
+
+Unless the "reset" command line option is given, \fBmake_db\fR will add
+provided files to the existing \fBpic_db.dat\fR file if they are not already
+referenced in this file.
+.br
+.SH "OPTIONS"
+Mandatory arguments to long options are mandatory for short options too.
+.br
+
+Application options :
+.br
+  -r, --reset                 Reinitialize database
+.br
+.SH "FILES"
+\fBpic_db.dat\fR
+.br
+                        File containing a database of all pictures \fBpixelise\fR is going to use to match and replace against areas of the processed image.
+.br
+.SH "BUGS"
 Please report any bugs you find to Paul Wilkins <pwilkins@lashwhip.com>.
+.br
 .SH LICENCE
-.B make_db
-is covered by the GNU General Public License (GPL), version 2 or later.
+\fBmake_db\fR is covered by the GNU General Public License (GPL), version 2 or later.
+.br
 .SH SEE ALSO
-.BR pixelize (1).
+\fBpixelize\fR (1).
+.br
 .SH AUTHOR
 Paul Wilkins <pwilkins@lashwhip.com>
-.PP
-This manual page was written by Uwe Hermann <uwe@debian.org>,
-for the Debian GNU/Linux system. It is licensed under the terms of the
-GNU GPL, version 2 or later.
+.br
